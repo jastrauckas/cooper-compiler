@@ -74,12 +74,49 @@
 %token <sym> ERRS
 %token <sym> NEWLINE
 
+%left '+' '-'
+%left '*' '/'
+
 %%
 /* Grammar rules go here */
-expr: statement
-statement: INT list	';'		{printf("statement\n");}
-list: IDENT					{printf("list\n");}
-| list ',' IDENT            {printf("list\n");}
+/* for now, really just declarations and expressions */
+
+
+run: 
+	expression run 
+|	expression    				/* forces bison to process many stmts */
+
+expression:
+	declaration 
+|	statement
+|	function /* does this really belong here? */
+
+statement: 
+	IDENT '=' math ';'			{printf("statement\n");}
+
+declaration: 
+	INT list	';'				{printf("declaration\n");}
+
+list: 
+	IDENT						{printf("list\n");}
+| 	list ',' IDENT            	{printf("list\n");}
+
+
+math:							 
+	NUMBER                      
+| 	math '+' math         	
+| 	math '-' math         	
+| 	math '*' math         	
+| 	math '/' math         	
+
+function:
+	IDENT '(' ')' '{' body '}'	{printf("function\n");}
+
+body: 
+	statement
+|	declaration
+|	statement body
+|	declaration body
 
 %%
 /* Function definitions go here */
