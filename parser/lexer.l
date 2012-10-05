@@ -9,7 +9,6 @@
 	#include "lexer.h"
 	#include "hw2.tab.h"
 	extern YYSTYPE yylval;
-	extern MTYPE mval;
 	int buf[2048]; 
 	char minibuf[128];
 	char *end; 
@@ -185,135 +184,135 @@ fallback	.
 <CHL>\n			{BEGIN(INITIAL); return ERRC;}
 
 {decint}	{
-				mval.tokname = "NUMBER";
-				mval.num_class = INT_CLASS; 
+				yylval.metadata.tokname = "NUMBER";
+				yylval.metadata.num_class = INT_CLASS; 
 				ll = strtoll(yytext, &end, 10);
 				yylval.int_val = ll;
-				set_int_type(end, &mval);
+				set_int_type(end, &yylval.metadata);
 				return(NUMBER);
 			}
 {octint}	{
-				mval.tokname="NUMBER"; 
-				mval.num_class = INT_CLASS; 
+				yylval.metadata.tokname="NUMBER"; 
+				yylval.metadata.num_class = INT_CLASS; 
 				ll = strtoll(yytext, &end, 8);
 				yylval.int_val = ll;
-				set_int_type(end, &mval);
+				set_int_type(end, &yylval.metadata);
 				return(NUMBER);
 			}
 {hexint}    {
-				mval.tokname="NUMBER"; 
-				mval.num_class = INT_CLASS; 
+				yylval.metadata.tokname="NUMBER"; 
+				yylval.metadata.num_class = INT_CLASS; 
 				ll = strtoll(yytext+2, &end, 16);
 				yylval.int_val = ll;
-				set_int_type(end, &mval);
+				set_int_type(end, &yylval.metadata);
 				return(NUMBER);
 			}
 {decfloat}	{
-				mval.tokname="NUMBER";
-				mval.num_class = REAL_CLASS;
+				yylval.metadata.tokname="NUMBER";
+				yylval.metadata.num_class = REAL_CLASS;
 				ld = strtold(yytext, &end);
 				yylval.double_val = ld;
-				set_double_type(end, &mval);
+				set_double_type(end, &yylval.metadata);
 				return(NUMBER);
 			}
 
 {hexfloat}	{
-				mval.tokname="NUMBER";
-				mval.num_class = REAL_CLASS;
+				yylval.metadata.tokname="NUMBER";
+				yylval.metadata.num_class = REAL_CLASS;
 				ld = strtold(yytext, &end);
 				yylval.double_val = ld;
-				set_double_type(end, &mval);
+				set_double_type(end, &yylval.metadata);
 				return(NUMBER);
 			}
 
 \n			{line++;}
-auto		{mval.tokname="AUTO"; return(AUTO);}
-break		{mval.tokname="BREAK"; return(BREAK);}
-case 		{mval.tokname="CASE"; return(CASE);}
-char 		{mval.tokname="CHAR"; return(CHAR);}
-const 		{mval.tokname="CONST"; return(CONST);}
-continue 	{mval.tokname="CONTINUE"; return(CONTINUE);}
-default 	{mval.tokname="DEFAULT"; return(DEFAULT);}
-do 			{mval.tokname="DO"; return(DO);}
-double 		{mval.tokname="DOUBLE"; return(DOUBLE);}
-else 		{mval.tokname="ELSE"; return(ELSE);}
-enum 		{mval.tokname="ENUM"; return(ENUM);}
-extern 		{mval.tokname="EXTERN"; return(EXTERN);}
-float 		{mval.tokname="FLOAT"; return(FLOAT);}
-for 		{mval.tokname="FOR"; return(FOR);}
-goto 		{mval.tokname="GOTO"; return(GOTO);}
-if 			{mval.tokname="IF"; return(IF);}
-inline 		{mval.tokname="INLINE"; return(INLINE);}
-int 		{mval.tokname="INT"; return(INT);}
-long 		{mval.tokname="LONG"; return(LONG);}
-register 	{mval.tokname="REGISTER"; return(REGISTER);}
-restrict 	{mval.tokname="RESTRICT"; return(RESTRICT);}
-return 		{mval.tokname="RETURN"; return(RETURN);}
-short 		{mval.tokname="SHORT"; return(SHORT);}
-signed 		{mval.tokname="SIGNED"; return(SIGNED);}
-sizeof 		{mval.tokname="SIZEOF"; return(SIZEOF);}
-static 		{mval.tokname="STATIC"; return(STATIC);}
-struct 		{mval.tokname="STRUCT"; return(STRUCT);}
-switch 		{mval.tokname="SWITCH"; return(SWITCH);}
-typedef 	{mval.tokname="TYPEDEF"; return(TYPEDEF);}
-union 		{mval.tokname="UNION"; return(UNION);}
-unsigned 	{mval.tokname="UNSIGNED"; return(UNSIGNED);}
-void 		{mval.tokname="VOID"; return(VOID);}
-volatile 	{mval.tokname="VOLATILE"; return(VOLATILE);}
-while 		{mval.tokname="WHILE"; return(WHILE);}
-_Bool 		{mval.tokname="_BOOL"; return(_BOOL);}
-_Complex 	{mval.tokname="_COMPLEX"; return(_COMPLEX);}
-_Imaginary 	{mval.tokname="_IMAGINARY"; return(_IMAGINARY);}
-"["			{mval.tokname="["; return('[');}
-"]"			{mval.tokname="]"; return(']');}
-"("			{mval.tokname="("; return('(');}
-")"			{mval.tokname=")"; return(')');}
-"{" 		{mval.tokname="{"; return('{');}
-"}"			{mval.tokname="}"; return('}');}
-"."			{mval.tokname="."; return('.');}
-"&"			{mval.tokname="&"; return('&');}
-"*"			{mval.tokname="*"; return('*');}
-"+"			{mval.tokname="+"; return('+');}
-"-"			{mval.tokname="-"; return('-');}
-"~"			{mval.tokname="~"; return('~');}
-"!"			{mval.tokname="!"; return('!');}
-"/"			{mval.tokname="/"; return('/');}
-"%"			{mval.tokname="%"; return('%');}
-"<"			{mval.tokname="<"; return('<');}
-">"			{mval.tokname=">"; return('>');}
-"^"			{mval.tokname="^"; return('^');}
-"|"			{mval.tokname="|"; return('|');}
-"?"			{mval.tokname="?"; return('?');}
-":"			{mval.tokname=":"; return(':');}
-";"			{mval.tokname=";"; return(';');}
-"="			{mval.tokname="="; return('=');}
-","			{mval.tokname=","; return(',');}
-"#"			{mval.tokname="#"; return('#');}
-"->"		{mval.tokname="INDSEL"; return(INDSEL);}
-"++"		{mval.tokname="PLUSPLUS"; return(PLUSPLUS);}
-"--"		{mval.tokname="MINUSMINUS"; return(MINUSMINUS);}
-"<<"		{mval.tokname="SHL"; return(SHL);}
-">>"		{mval.tokname="SHR"; return(SHR);}
-"<="		{mval.tokname="LTEQ"; return(LTEQ);}
-">="		{mval.tokname="GTEQ"; return(GTEQ);}
-"=="		{mval.tokname="EQEQ"; return(EQEQ);}
-"!="		{mval.tokname="NOTEQ"; return(NOTEQ);}
-"&&"		{mval.tokname="LOGAND"; return(LOGAND);}
-"||"		{mval.tokname="LOGOR"; return(LOGOR);}
-"..."		{mval.tokname="ELLIPSES"; return(ELLIPSES);}
-"*="    	{mval.tokname="TIMESEQ"; return(TIMESEQ);}
-"/="		{mval.tokname="DIVEQ"; return(DIVEQ);}
-"%="		{mval.tokname="MODEQ"; return(MODEQ);}
-"+="		{mval.tokname="PLUSEQ"; return(PLUSEQ);}
-"-="		{mval.tokname="MINUSEQ"; return(MINUSEQ);}
-"<<="		{mval.tokname="SHLEQ"; return(SHLEQ);}
-">>="		{mval.tokname="SHREQ"; return(SHREQ);}
-"&="		{mval.tokname="ANDEQ"; return(ANDEQ);}
-"|="		{mval.tokname="OREQ"; return(OREQ);}
-"^="		{mval.tokname="XOREQ"; return(XOREQ);}
+auto		{yylval.metadata.tokname="AUTO"; return(AUTO);}
+break		{yylval.metadata.tokname="BREAK"; return(BREAK);}
+case 		{yylval.metadata.tokname="CASE"; return(CASE);}
+char 		{yylval.metadata.tokname="CHAR"; return(CHAR);}
+const 		{yylval.metadata.tokname="CONST"; return(CONST);}
+continue 	{yylval.metadata.tokname="CONTINUE"; return(CONTINUE);}
+default 	{yylval.metadata.tokname="DEFAULT"; return(DEFAULT);}
+do 			{yylval.metadata.tokname="DO"; return(DO);}
+double 		{yylval.metadata.tokname="DOUBLE"; return(DOUBLE);}
+else 		{yylval.metadata.tokname="ELSE"; return(ELSE);}
+enum 		{yylval.metadata.tokname="ENUM"; return(ENUM);}
+extern 		{yylval.metadata.tokname="EXTERN"; return(EXTERN);}
+float 		{yylval.metadata.tokname="FLOAT"; return(FLOAT);}
+for 		{yylval.metadata.tokname="FOR"; return(FOR);}
+goto 		{yylval.metadata.tokname="GOTO"; return(GOTO);}
+if 			{yylval.metadata.tokname="IF"; return(IF);}
+inline 		{yylval.metadata.tokname="INLINE"; return(INLINE);}
+int 		{yylval.metadata.tokname="INT"; return(INT);}
+long 		{yylval.metadata.tokname="LONG"; return(LONG);}
+register 	{yylval.metadata.tokname="REGISTER"; return(REGISTER);}
+restrict 	{yylval.metadata.tokname="RESTRICT"; return(RESTRICT);}
+return 		{yylval.metadata.tokname="RETURN"; return(RETURN);}
+short 		{yylval.metadata.tokname="SHORT"; return(SHORT);}
+signed 		{yylval.metadata.tokname="SIGNED"; return(SIGNED);}
+sizeof 		{yylval.metadata.tokname="SIZEOF"; return(SIZEOF);}
+static 		{yylval.metadata.tokname="STATIC"; return(STATIC);}
+struct 		{yylval.metadata.tokname="STRUCT"; return(STRUCT);}
+switch 		{yylval.metadata.tokname="SWITCH"; return(SWITCH);}
+typedef 	{yylval.metadata.tokname="TYPEDEF"; return(TYPEDEF);}
+union 		{yylval.metadata.tokname="UNION"; return(UNION);}
+unsigned 	{yylval.metadata.tokname="UNSIGNED"; return(UNSIGNED);}
+void 		{yylval.metadata.tokname="VOID"; return(VOID);}
+volatile 	{yylval.metadata.tokname="VOLATILE"; return(VOLATILE);}
+while 		{yylval.metadata.tokname="WHILE"; return(WHILE);}
+_Bool 		{yylval.metadata.tokname="_BOOL"; return(_BOOL);}
+_Complex 	{yylval.metadata.tokname="_COMPLEX"; return(_COMPLEX);}
+_Imaginary 	{yylval.metadata.tokname="_IMAGINARY"; return(_IMAGINARY);}
+"["			{yylval.metadata.tokname="["; return('[');}
+"]"			{yylval.metadata.tokname="]"; return(']');}
+"("			{yylval.metadata.tokname="("; return('(');}
+")"			{yylval.metadata.tokname=")"; return(')');}
+"{" 		{yylval.metadata.tokname="{"; return('{');}
+"}"			{yylval.metadata.tokname="}"; return('}');}
+"."			{yylval.metadata.tokname="."; return('.');}
+"&"			{yylval.metadata.tokname="&"; return('&');}
+"*"			{yylval.metadata.tokname="*"; return('*');}
+"+"			{yylval.metadata.tokname="+"; return('+');}
+"-"			{yylval.metadata.tokname="-"; return('-');}
+"~"			{yylval.metadata.tokname="~"; return('~');}
+"!"			{yylval.metadata.tokname="!"; return('!');}
+"/"			{yylval.metadata.tokname="/"; return('/');}
+"%"			{yylval.metadata.tokname="%"; return('%');}
+"<"			{yylval.metadata.tokname="<"; return('<');}
+">"			{yylval.metadata.tokname=">"; return('>');}
+"^"			{yylval.metadata.tokname="^"; return('^');}
+"|"			{yylval.metadata.tokname="|"; return('|');}
+"?"			{yylval.metadata.tokname="?"; return('?');}
+":"			{yylval.metadata.tokname=":"; return(':');}
+";"			{yylval.metadata.tokname=";"; return(';');}
+"="			{yylval.metadata.tokname="="; return('=');}
+","			{yylval.metadata.tokname=","; return(',');}
+"#"			{yylval.metadata.tokname="#"; return('#');}
+"->"		{yylval.metadata.tokname="INDSEL"; return(INDSEL);}
+"++"		{yylval.metadata.tokname="PLUSPLUS"; return(PLUSPLUS);}
+"--"		{yylval.metadata.tokname="MINUSMINUS"; return(MINUSMINUS);}
+"<<"		{yylval.metadata.tokname="SHL"; return(SHL);}
+">>"		{yylval.metadata.tokname="SHR"; return(SHR);}
+"<="		{yylval.metadata.tokname="LTEQ"; return(LTEQ);}
+">="		{yylval.metadata.tokname="GTEQ"; return(GTEQ);}
+"=="		{yylval.metadata.tokname="EQEQ"; return(EQEQ);}
+"!="		{yylval.metadata.tokname="NOTEQ"; return(NOTEQ);}
+"&&"		{yylval.metadata.tokname="LOGAND"; return(LOGAND);}
+"||"		{yylval.metadata.tokname="LOGOR"; return(LOGOR);}
+"..."		{yylval.metadata.tokname="ELLIPSES"; return(ELLIPSES);}
+"*="    	{yylval.metadata.tokname="TIMESEQ"; return(TIMESEQ);}
+"/="		{yylval.metadata.tokname="DIVEQ"; return(DIVEQ);}
+"%="		{yylval.metadata.tokname="MODEQ"; return(MODEQ);}
+"+="		{yylval.metadata.tokname="PLUSEQ"; return(PLUSEQ);}
+"-="		{yylval.metadata.tokname="MINUSEQ"; return(MINUSEQ);}
+"<<="		{yylval.metadata.tokname="SHLEQ"; return(SHLEQ);}
+">>="		{yylval.metadata.tokname="SHREQ"; return(SHREQ);}
+"&="		{yylval.metadata.tokname="ANDEQ"; return(ANDEQ);}
+"|="		{yylval.metadata.tokname="OREQ"; return(OREQ);}
+"^="		{yylval.metadata.tokname="XOREQ"; return(XOREQ);}
 
 {ident}		{
-				mval.tokname = "IDENT"; 
+				yylval.metadata.tokname = "IDENT"; 
 				yylval.ident_val = yytext;
 				return(IDENT);
 			}
@@ -335,7 +334,7 @@ int main(int argc, char *argv)
             // case of keyword or puctuator 
             if (tok < 500)
             {
-                printf("%s\n", mval.tokname);
+                printf("%s\n", yylval.metadata.tokname);
                 continue;
             }
             // case of a token that has an associated value
@@ -356,16 +355,16 @@ int main(int argc, char *argv)
                     printf("\n");
                     break;
                 case NUMBER:
-                    if (mval.num_class == INT_CLASS)
+                    if (yylval.metadata.num_class == INT_CLASS)
                     {
                         printf("NUMBER\tINTEGER\t%lld\t", yylval.int_val);
-                        if (!mval.is_signed)
+                        if (!yylval.metadata.is_signed)
                             printf("UNSIGNED,");
-                        printf("%s\n", mval.num_type);
+                        printf("%s\n", yylval.metadata.num_type);
                     }
                     else
                     {
-                        printf("NUMBER\tREAL\t%Lg\t%s\n", yylval.double_val, mval.num_type);
+                        printf("NUMBER\tREAL\t%Lg\t%s\n", yylval.double_val, yylval.metadata.num_type);
                     }
                     break;
                 case ERRC: fprintf(stderr, "%s:%d: error: newline encountered in character literal\n", minibuf, line); break;

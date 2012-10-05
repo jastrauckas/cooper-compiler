@@ -12,7 +12,15 @@ char *float_type = "FLOAT";
 char *double_type = "DOUBLE";
 char *longdouble_type = "LONGDOUBLE";
 */
-typedef union 
+typedef struct Metatype
+{
+	char *tokname;
+	int num_class;
+	char *num_type;
+	int is_signed;
+} MTYPE;
+
+typedef struct 
 {
 	char *ident_val;
 	// do these need to be ints to accomodate codes for wide characters?
@@ -21,15 +29,8 @@ typedef union
 	float float_val;
 	long double double_val;
 	long long int int_val;
+	MTYPE metadata; 
 } YYSTYPE;
-
-typedef struct Metatype
-{
-	char *tokname;
-	int num_class;
-	char *num_type;
-	int is_signed;
-} MTYPE;
 
 MTYPE mval;
 YYSTYPE yylval;
