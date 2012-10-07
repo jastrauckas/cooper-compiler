@@ -16,7 +16,10 @@
 	/* functions that will be defined */
 	void INSTALL(SYMTABLE *t, YYSTYPE val);
 	void UPDATE(SYMTABLE *t, char *key, YYSTYPE val);
-
+	YYSTYPE ADD(YYSTYPE v1, YYSTYPE v2);
+	YYSTYPE MULTIPLY(YYSTYPE v1, YYSTYPE v2);
+	YYSTYPE SUBTRACT(YYSTYPE v1, YYSTYPE v2);
+	YYSTYPE DIVIDE(YYSTYPE v1, YYSTYPE v2);
 %}
 
 
@@ -132,11 +135,11 @@ list:
 
 
 math:
-	NUMBER                      
-| 	math '+' math         	
-| 	math '-' math         	
-| 	math '*' math         	
-| 	math '/' math         	
+	NUMBER                 	{$$ = $1;} 
+| 	math '+' math         	{$$ = ADD($1, $3);}
+| 	math '-' math          	{$$ = SUBTRACT($1, $3);}        	
+| 	math '*' math          	{$$ = MULTIPLY($1, $3);}        	
+| 	math '/' math          	{$$ = DIVIDE($1, $3);}        	
 
 function:
 	IDENT '(' ')' '{' body '}'	{printf("function\n");}
@@ -176,7 +179,7 @@ void INSTALL(SYMTABLE *t, YYSTYPE val)
 
 void UPDATE(SYMTABLE *t, char *key, YYSTYPE val)
 {
-    if (!in_table(t, val.ident_val))
+    if (!in_table(t, key))
     {
         fprintf(stderr, "Error: identifier %s undeclared\n", val.ident_val);
         return;
@@ -185,6 +188,36 @@ void UPDATE(SYMTABLE *t, char *key, YYSTYPE val)
 }
 
 
+/* ARITHMETIC */
+// for now it is only defined for integers
+YYSTYPE ADD(YYSTYPE v1, YYSTYPE v2)
+{
+	YYSTYPE *res = malloc(sizeof(YYSTYPE));
+	res->int_val = v1.int_val + v2.int_val;
+	res->metadata.tokname = "NUMBER";
+	return *res;
+}
+YYSTYPE MULTIPLY(YYSTYPE v1, YYSTYPE v2)
+{
+    YYSTYPE res;
+    res.int_val = v1.int_val * v2.int_val;
+	res.metadata.tokname = "NUMBER";
+	return res;
+}
+YYSTYPE SUBTRACT(YYSTYPE v1, YYSTYPE v2)
+{
+    YYSTYPE res;
+    res.int_val = v1.int_val - v2.int_val;
+	res.metadata.tokname = "NUMBER";
+	return res;
+}
+YYSTYPE DIVIDE(YYSTYPE v1, YYSTYPE v2)
+{
+    YYSTYPE res;
+    res.int_val = v1.int_val / v2.int_val;
+	res.metadata.tokname = "NUMBER";
+	return res;
+}
 
 /* SYMBOL TABLE */
 // I'll put the symtable functions in here for now...
@@ -347,9 +380,11 @@ void write_table(SYMTABLE *t)
     for (i=0; i<t->capacity; i++)
     {
         tc = t->cells[i];
-        if (!tc)
+        /*
+		if (!tc)
             printf("\tnothing in slot %d!\n", i);
-        while (tc)
+        */
+		while (tc)
         {
             printf("\tslot %d: id %s, type %s\n", i, tc->name, tc->value.metadata.tokname);
             tc = tc->nextCell;

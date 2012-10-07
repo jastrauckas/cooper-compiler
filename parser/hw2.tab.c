@@ -82,11 +82,14 @@
 	/* functions that will be defined */
 	void INSTALL(SYMTABLE *t, YYSTYPE val);
 	void UPDATE(SYMTABLE *t, char *key, YYSTYPE val);
-
+	YYSTYPE ADD(YYSTYPE v1, YYSTYPE v2);
+	YYSTYPE MULTIPLY(YYSTYPE v1, YYSTYPE v2);
+	YYSTYPE SUBTRACT(YYSTYPE v1, YYSTYPE v2);
+	YYSTYPE DIVIDE(YYSTYPE v1, YYSTYPE v2);
 
 
 /* Line 268 of yacc.c  */
-#line 90 "hw2.tab.c"
+#line 93 "hw2.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -197,7 +200,7 @@ typedef int YYSTYPE;
 
 
 /* Line 343 of yacc.c  */
-#line 201 "hw2.tab.c"
+#line 204 "hw2.tab.c"
 
 #ifdef short
 # undef short
@@ -497,9 +500,9 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   101,   101,   102,   105,   106,   107,   110,   116,   119,
-     124,   128,   135,   136,   137,   138,   139,   142,   145,   146,
-     147,   148
+       0,   104,   104,   105,   108,   109,   110,   113,   119,   122,
+     127,   131,   138,   139,   140,   141,   142,   145,   148,   149,
+     150,   151
 };
 #endif
 
@@ -1462,7 +1465,7 @@ yyreduce:
         case 7:
 
 /* Line 1806 of yacc.c  */
-#line 110 "hw2.y"
+#line 113 "hw2.y"
     {
 								printf("assignment\n");
 								(yyval) = (yyvsp[(3) - (4)]);
@@ -1474,7 +1477,7 @@ yyreduce:
   case 9:
 
 /* Line 1806 of yacc.c  */
-#line 119 "hw2.y"
+#line 122 "hw2.y"
     {
 								printf("declaration\n");
 							}
@@ -1483,7 +1486,7 @@ yyreduce:
   case 10:
 
 /* Line 1806 of yacc.c  */
-#line 124 "hw2.y"
+#line 127 "hw2.y"
     {
 								printf("list\n");
 								INSTALL(curr_table, (yyvsp[(1) - (1)]));
@@ -1493,24 +1496,59 @@ yyreduce:
   case 11:
 
 /* Line 1806 of yacc.c  */
-#line 128 "hw2.y"
+#line 131 "hw2.y"
     {
 								printf("list\n");
 								INSTALL(curr_table, (yyvsp[(3) - (3)]));
 							}
     break;
 
-  case 17:
+  case 12:
+
+/* Line 1806 of yacc.c  */
+#line 138 "hw2.y"
+    {(yyval) = (yyvsp[(1) - (1)]);}
+    break;
+
+  case 13:
+
+/* Line 1806 of yacc.c  */
+#line 139 "hw2.y"
+    {(yyval) = ADD((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));}
+    break;
+
+  case 14:
+
+/* Line 1806 of yacc.c  */
+#line 140 "hw2.y"
+    {(yyval) = SUBTRACT((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));}
+    break;
+
+  case 15:
+
+/* Line 1806 of yacc.c  */
+#line 141 "hw2.y"
+    {(yyval) = MULTIPLY((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));}
+    break;
+
+  case 16:
 
 /* Line 1806 of yacc.c  */
 #line 142 "hw2.y"
+    {(yyval) = DIVIDE((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));}
+    break;
+
+  case 17:
+
+/* Line 1806 of yacc.c  */
+#line 145 "hw2.y"
     {printf("function\n");}
     break;
 
 
 
 /* Line 1806 of yacc.c  */
-#line 1514 "hw2.tab.c"
+#line 1552 "hw2.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1741,7 +1779,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 150 "hw2.y"
+#line 153 "hw2.y"
 
 /* Function definitions go here */
 int main()
@@ -1771,7 +1809,7 @@ void INSTALL(SYMTABLE *t, YYSTYPE val)
 
 void UPDATE(SYMTABLE *t, char *key, YYSTYPE val)
 {
-    if (!in_table(t, val.ident_val))
+    if (!in_table(t, key))
     {
         fprintf(stderr, "Error: identifier %s undeclared\n", val.ident_val);
         return;
@@ -1780,6 +1818,36 @@ void UPDATE(SYMTABLE *t, char *key, YYSTYPE val)
 }
 
 
+/* ARITHMETIC */
+// for now it is only defined for integers
+YYSTYPE ADD(YYSTYPE v1, YYSTYPE v2)
+{
+	YYSTYPE *res = malloc(sizeof(YYSTYPE));
+	res->int_val = v1.int_val + v2.int_val;
+	res->metadata.tokname = "NUMBER";
+	return *res;
+}
+YYSTYPE MULTIPLY(YYSTYPE v1, YYSTYPE v2)
+{
+    YYSTYPE res;
+    res.int_val = v1.int_val * v2.int_val;
+	res.metadata.tokname = "NUMBER";
+	return res;
+}
+YYSTYPE SUBTRACT(YYSTYPE v1, YYSTYPE v2)
+{
+    YYSTYPE res;
+    res.int_val = v1.int_val - v2.int_val;
+	res.metadata.tokname = "NUMBER";
+	return res;
+}
+YYSTYPE DIVIDE(YYSTYPE v1, YYSTYPE v2)
+{
+    YYSTYPE res;
+    res.int_val = v1.int_val / v2.int_val;
+	res.metadata.tokname = "NUMBER";
+	return res;
+}
 
 /* SYMBOL TABLE */
 // I'll put the symtable functions in here for now...
@@ -1942,9 +2010,11 @@ void write_table(SYMTABLE *t)
     for (i=0; i<t->capacity; i++)
     {
         tc = t->cells[i];
-        if (!tc)
+        /*
+		if (!tc)
             printf("\tnothing in slot %d!\n", i);
-        while (tc)
+        */
+		while (tc)
         {
             printf("\tslot %d: id %s, type %s\n", i, tc->name, tc->value.metadata.tokname);
             tc = tc->nextCell;
