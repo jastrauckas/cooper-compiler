@@ -16,6 +16,7 @@
 	/* functions that will be defined */
 	void INSTALL(SYMTABLE *t, YYSTYPE val);
 	void UPDATE(SYMTABLE *t, char *key, YYSTYPE val);
+	YYSTYPE RETRIEVE(SYMTABLE *t, char *key);
 	YYSTYPE ADD(YYSTYPE v1, YYSTYPE v2);
 	YYSTYPE MULTIPLY(YYSTYPE v1, YYSTYPE v2);
 	YYSTYPE SUBTRACT(YYSTYPE v1, YYSTYPE v2);
@@ -114,9 +115,8 @@ assignment:
 								printf("assignment\n");
 								$$ = $3;
 								UPDATE(curr_table, $1.ident_val, $3);
-								write_table(curr_table); 
+								printf("expression value: %d\n", (int) $3.int_val);
 							}
-| 	IDENT '=' IDENT ';'			
 
 declaration: 
 	INT list	';'			{
@@ -135,7 +135,8 @@ list:
 
 
 math:
-	NUMBER                 	{$$ = $1;} 
+	IDENT					{$$ = RETRIEVE(curr_table, $1.ident_val);}
+|	NUMBER                 	{$$ = $1;} 
 | 	math '+' math         	{$$ = ADD($1, $3);}
 | 	math '-' math          	{$$ = SUBTRACT($1, $3);}        	
 | 	math '*' math          	{$$ = MULTIPLY($1, $3);}        	
@@ -187,6 +188,17 @@ void UPDATE(SYMTABLE *t, char *key, YYSTYPE val)
 	update_table(t, key, val);
 }
 
+YYSTYPE RETRIEVE(SYMTABLE *t, char *key)
+{
+	YYSTYPE res;
+	TABLECELL *tc;
+	if (!(tc = in_table(t, key)))
+	{
+		fprintf(stderr, "Error: identifier %s undefined\n", key);	
+	}
+	res = tc->value;
+	return res;
+}
 
 /* ARITHMETIC */
 // for now it is only defined for integers
