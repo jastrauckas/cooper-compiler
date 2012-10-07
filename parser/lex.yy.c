@@ -2101,14 +2101,16 @@ case 109:
 YY_RULE_SETUP
 #line 314 "lexer.l"
 {
-				yylval.metadata.tokname = "IDENT"; 
-				yylval.ident_val = yytext;
+				yylval.metadata.tokname = "IDENT";
+				yylval.ident_val = malloc(sizeof(char) * (strlen(yytext)+1)); 
+				strcpy(yylval.ident_val, yytext);
+				//yylval.ident_val = yytext;
 				return(IDENT);
 			}
 	YY_BREAK
 case 110:
 YY_RULE_SETUP
-#line 319 "lexer.l"
+#line 321 "lexer.l"
 {
 				sscanf(yytext, "# %d \"%[^\"]", &line, minibuf);
 				line = 0; // reset following directive
@@ -2116,10 +2118,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 111:
 YY_RULE_SETUP
-#line 324 "lexer.l"
+#line 326 "lexer.l"
 ECHO;
 	YY_BREAK
-#line 2123 "lex.yy.c"
+#line 2125 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(STR):
 case YY_STATE_EOF(ESC):
@@ -3120,7 +3122,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 324 "lexer.l"
+#line 326 "lexer.l"
 
 
 /*

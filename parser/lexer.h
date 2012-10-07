@@ -1,3 +1,5 @@
+# define YYSTYPE_IS_DECLARED 1
+
 #ifndef LEXER
 #define LEXER
 // classes

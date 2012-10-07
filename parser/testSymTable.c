@@ -31,4 +31,10 @@ main()
 
     printf("writing new table...\n");
 	write_table(&t);
+
+	printf("changing thing1's type...\n");
+	varname = "thing1";
+	yylval.metadata.tokname = "PLUSPLUS";
+	update_table(&t, varname, yylval);
+	write_table(&t);
 }

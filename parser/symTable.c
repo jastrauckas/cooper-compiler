@@ -100,6 +100,17 @@ void ins_table(SYMTABLE *t, char *key, YYSTYPE val)
 	return;
 }
 
+void update_table(SYMTABLE *t, char *key, YYSTYPE val)
+{
+	TABLECELL *tc = in_table(t, key);
+	if (!tc)
+	{
+		fprintf(stderr, "Key %s does not exist!\n", key);
+		return;
+	}
+	memcpy(&(tc->value), &val, sizeof(YYSTYPE));
+}
+
 void del_table(SYMTABLE *t, char *key)
 {
 	TABLECELL *tc = in_table(t, key);
@@ -161,3 +172,4 @@ void write_table(SYMTABLE *t)
         }
     }
 }
+

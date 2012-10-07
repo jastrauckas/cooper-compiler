@@ -46,6 +46,7 @@ void resize_table(SYMTABLE *t);
 
 // insert into and delete from existing table
 void ins_table(SYMTABLE *t, char *key, YYSTYPE val);
+void update_table(SYMTABLE *t, char *key, YYSTYPE val);
 void del_table(SYMTABLE *t, char *key);
 
 // check membership

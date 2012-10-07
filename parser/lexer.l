@@ -312,8 +312,10 @@ _Imaginary 	{yylval.metadata.tokname="_IMAGINARY"; return(_IMAGINARY);}
 "^="		{yylval.metadata.tokname="XOREQ"; return(XOREQ);}
 
 {ident}		{
-				yylval.metadata.tokname = "IDENT"; 
-				yylval.ident_val = yytext;
+				yylval.metadata.tokname = "IDENT";
+				yylval.ident_val = malloc(sizeof(char) * (strlen(yytext)+1)); 
+				strcpy(yylval.ident_val, yytext);
+				//yylval.ident_val = yytext;
 				return(IDENT);
 			}
 {filedir} 	{
