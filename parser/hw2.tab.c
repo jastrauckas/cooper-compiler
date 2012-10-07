@@ -76,10 +76,17 @@
 	#include "symTable.h"
 
 	SYMTABLE t;
+	TABLECELL *tc; // store stuff here
+	SYMTABLE *curr_table; // points to the current scope's symbol table
+
+	/* functions that will be defined */
+	void INSTALL(SYMTABLE *t, YYSTYPE val);
+	void UPDATE(SYMTABLE *t, char *key, YYSTYPE val);
+
 
 
 /* Line 268 of yacc.c  */
-#line 83 "hw2.tab.c"
+#line 90 "hw2.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -190,7 +197,7 @@ typedef int YYSTYPE;
 
 
 /* Line 343 of yacc.c  */
-#line 194 "hw2.tab.c"
+#line 201 "hw2.tab.c"
 
 #ifdef short
 # undef short
@@ -490,9 +497,9 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    94,    94,    95,    98,    99,   100,   103,   109,   112,
-     115,   116,   120,   121,   122,   123,   124,   127,   130,   131,
-     132,   133
+       0,   101,   101,   102,   105,   106,   107,   110,   116,   119,
+     124,   128,   135,   136,   137,   138,   139,   142,   145,   146,
+     147,   148
 };
 #endif
 
@@ -1455,47 +1462,55 @@ yyreduce:
         case 7:
 
 /* Line 1806 of yacc.c  */
-#line 103 "hw2.y"
+#line 110 "hw2.y"
     {
 								printf("assignment\n");
-								(yyval) = (yyvsp[(1) - (4)]);
-								ins_table(&t, yylval.ident_val, (yyval));
-								write_table(&t);	
+								(yyval) = (yyvsp[(3) - (4)]);
+								UPDATE(curr_table, (yyvsp[(1) - (4)]).ident_val, (yyvsp[(3) - (4)]));
+								write_table(curr_table); 
 							}
     break;
 
   case 9:
 
 /* Line 1806 of yacc.c  */
-#line 112 "hw2.y"
-    {printf("declaration\n");}
+#line 119 "hw2.y"
+    {
+								printf("declaration\n");
+							}
     break;
 
   case 10:
 
 /* Line 1806 of yacc.c  */
-#line 115 "hw2.y"
-    {printf("list\n");}
+#line 124 "hw2.y"
+    {
+								printf("list\n");
+								INSTALL(curr_table, (yyvsp[(1) - (1)]));
+							}
     break;
 
   case 11:
 
 /* Line 1806 of yacc.c  */
-#line 116 "hw2.y"
-    {printf("list\n");}
+#line 128 "hw2.y"
+    {
+								printf("list\n");
+								INSTALL(curr_table, (yyvsp[(3) - (3)]));
+							}
     break;
 
   case 17:
 
 /* Line 1806 of yacc.c  */
-#line 127 "hw2.y"
+#line 142 "hw2.y"
     {printf("function\n");}
     break;
 
 
 
 /* Line 1806 of yacc.c  */
-#line 1499 "hw2.tab.c"
+#line 1514 "hw2.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1726,12 +1741,13 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 135 "hw2.y"
+#line 150 "hw2.y"
 
 /* Function definitions go here */
 int main()
 {
 	init_table(&t, 512);
+	curr_table = &t; // initialize scope to global scope
 	yyparse();
 	return 0;
 }
@@ -1742,8 +1758,31 @@ void yyerror (char const *s)
 }
 
 
-// I'll put the symtable functions in here for now...
+// add a new identifier to the current symbol table
+void INSTALL(SYMTABLE *t, YYSTYPE val)
+{
+	if (in_table(t, val.ident_val))
+	{
+    	fprintf(stderr, "Error: redeclaration of %s\n", val.ident_val);
+		return;
+    }
+   	ins_table(t, val.ident_val, val); // junk value 
+}
 
+void UPDATE(SYMTABLE *t, char *key, YYSTYPE val)
+{
+    if (!in_table(t, val.ident_val))
+    {
+        fprintf(stderr, "Error: identifier %s undeclared\n", val.ident_val);
+        return;
+    }
+	update_table(t, key, val);
+}
+
+
+
+/* SYMBOL TABLE */
+// I'll put the symtable functions in here for now...
 // silly hash function that just adds char values
 long h(char *key, long max)
 {

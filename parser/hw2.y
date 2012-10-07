@@ -10,6 +10,13 @@
 	#include "symTable.h"
 
 	SYMTABLE t;
+	TABLECELL *tc; // store stuff here
+	SYMTABLE *curr_table; // points to the current scope's symbol table
+
+	/* functions that will be defined */
+	void INSTALL(SYMTABLE *t, YYSTYPE val);
+	void UPDATE(SYMTABLE *t, char *key, YYSTYPE val);
+
 %}
 
 
@@ -102,21 +109,29 @@ expression:
 assignment: 
 	IDENT '=' math ';'		{
 								printf("assignment\n");
-								$$ = $1;
-								ins_table(&t, yylval.ident_val, $$);
-								write_table(&t);	
+								$$ = $3;
+								UPDATE(curr_table, $1.ident_val, $3);
+								write_table(curr_table); 
 							}
 | 	IDENT '=' IDENT ';'			
 
 declaration: 
-	INT list	';'				{printf("declaration\n");}
+	INT list	';'			{
+								printf("declaration\n");
+							}
 
 list: 
-	IDENT						{printf("list\n");}
-| 	list ',' IDENT            	{printf("list\n");}
+	IDENT					{
+								printf("list\n");
+								INSTALL(curr_table, $1);
+							}
+| 	list ',' IDENT          {
+								printf("list\n");
+								INSTALL(curr_table, $3);
+							}
 
 
-math:							 
+math:
 	NUMBER                      
 | 	math '+' math         	
 | 	math '-' math         	
@@ -137,6 +152,7 @@ body:
 int main()
 {
 	init_table(&t, 512);
+	curr_table = &t; // initialize scope to global scope
 	yyparse();
 	return 0;
 }
@@ -147,8 +163,31 @@ void yyerror (char const *s)
 }
 
 
-// I'll put the symtable functions in here for now...
+// add a new identifier to the current symbol table
+void INSTALL(SYMTABLE *t, YYSTYPE val)
+{
+	if (in_table(t, val.ident_val))
+	{
+    	fprintf(stderr, "Error: redeclaration of %s\n", val.ident_val);
+		return;
+    }
+   	ins_table(t, val.ident_val, val); // junk value 
+}
 
+void UPDATE(SYMTABLE *t, char *key, YYSTYPE val)
+{
+    if (!in_table(t, val.ident_val))
+    {
+        fprintf(stderr, "Error: identifier %s undeclared\n", val.ident_val);
+        return;
+    }
+	update_table(t, key, val);
+}
+
+
+
+/* SYMBOL TABLE */
+// I'll put the symtable functions in here for now...
 // silly hash function that just adds char values
 long h(char *key, long max)
 {
