@@ -1680,7 +1680,7 @@ case 24:
 /* rule 24 can match eol */
 YY_RULE_SETUP
 #line 233 "lexer.l"
-{line++;}
+{line++; return '\n';}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
@@ -2119,14 +2119,17 @@ YY_RULE_SETUP
 {
 				sscanf(yytext, "# %d \"%[^\"]", &line, minibuf);
 				line = 0; // reset following directive
+				yylval.ident_val = malloc(sizeof(char)*(strlen(yytext)+1));
+				strcpy(yylval.ident_val, yytext);
+				return FILEDIR;
 			}
 	YY_BREAK
 case 111:
 YY_RULE_SETUP
-#line 331 "lexer.l"
+#line 334 "lexer.l"
 ECHO;
 	YY_BREAK
-#line 2130 "lex.yy.c"
+#line 2133 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(STR):
 case YY_STATE_EOF(ESC):
@@ -3127,7 +3130,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 331 "lexer.l"
+#line 334 "lexer.l"
 
 
 /*

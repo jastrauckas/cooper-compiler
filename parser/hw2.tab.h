@@ -104,8 +104,9 @@
      ERRC = 322,
      ERRS = 323,
      NEWLINE = 324,
-     RSH = 325,
-     LSH = 326
+     FILEDIR = 325,
+     RSH = 326,
+     LSH = 327
    };
 #endif
 

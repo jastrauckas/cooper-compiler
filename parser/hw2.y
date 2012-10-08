@@ -9,9 +9,13 @@
 	#include "lexer.h"
 	#include "symTable.h"
 
+	#define MAXLEN 512
+
 	SYMTABLE t;
 	TABLECELL *tc; // store stuff here
 	SYMTABLE *curr_table; // points to the current scope's symbol table
+	char curr_file[MAXLEN+1];
+	int curr_line;
 
 	/* functions that will be defined */
 	void INSTALL(SYMTABLE *t, YYSTYPE val);
@@ -95,6 +99,7 @@
 %token ERRC
 %token ERRS
 %token NEWLINE
+%token FILEDIR
 
 %left ','
 %left '=' PLUSEQ MINUSEQ TIMESEQ DIVEQ MODEQ SHLEQ SHREQ ANDEQ OREQ XOREQ
@@ -124,6 +129,8 @@ expression:
 	declaration 
 |	value ';'				{PRINTEXP($1);}
 |	function /* does this belong here? */
+| 	FILEDIR					{strncpy(curr_file, $1.ident_val, MAXLEN); curr_line=0;}
+| 	'\n'					{curr_line++;}
 
 value: 
 	IDENT '=' math			{
@@ -146,7 +153,8 @@ value:
 | 	value '?' value ':' value	{$$ = TERNARY($1, $2, $3);}
 |	IDENT '[' value ']'		{
 								$$ = $3;
-								$$.has_val = 0; 
+								$$.has_val = 0;
+								printf("%s:%d: ", curr_file, curr_line); 
 								printf("Error: arrays not recognized\n");
 							}
 
@@ -211,6 +219,8 @@ int main()
 {
 	init_table(&t, 512, NULL);
 	curr_table = &t; // initialize scope to global scope
+	strcpy(curr_file, "stdin");
+	curr_line = 1;
 	yyparse();
 	return 0;
 }
@@ -223,7 +233,10 @@ void yyerror (char const *s)
 void PRINTEXP(YYSTYPE v)
 {
 	if (v.has_val)
-		printf("exprval=%d\n", (int) v.int_val);
+	{
+		printf("%s:%d: ", curr_file, curr_line); 
+		printf("exprval=%lld\n", v.int_val);
+	}
 }
 
 
@@ -232,6 +245,7 @@ void INSTALL(SYMTABLE *t, YYSTYPE val)
 {
 	if (in_table(t, val.ident_val))
 	{
+		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
     	fprintf(stderr, "Error: redeclaration of %s\n", val.ident_val);
 		return;
     }
@@ -244,6 +258,7 @@ YYSTYPE FIXNUM(YYSTYPE v)
 {
 	if (v.metadata.num_class == REAL_CLASS)
 	{
+		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
 		fprintf(stderr, "Warning: rounding real number to integer\n");
 		if (!strcmp(v.metadata.num_type, "DOUBLE"))
 		{
@@ -267,11 +282,13 @@ void UPDATE(SYMTABLE *t, char *key, YYSTYPE val)
 	TABLECELL *tc;
     if (!in_table(t, key))
     {
+		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
         fprintf(stderr, "Error: identifier %s undeclared\n", val.ident_val);
         return;
     }
 	if (!val.has_val)
 	{
+		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
 		fprintf(stderr, "Error: identifier %s undefined\n", key);
 		return;	
 	}
@@ -285,6 +302,7 @@ YYSTYPE RETRIEVE(SYMTABLE *t, char *key)
 	TABLECELL *tc;
 	if (!(tc = in_table(t, key)))
 	{
+		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
 		fprintf(stderr, "Error: identifier %s undeclared\n", key);
 		return *res;	
 	}
@@ -318,6 +336,7 @@ YYSTYPE UNARY(char *key, int op)
 	TABLECELL *tc = in_table(curr_table, key);
 	if (!tc)
 	{
+		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
 		fprintf(stderr, "Error: identifier %s undeclared\n", key);
 		tc = calloc(sizeof(TABLECELL),1);
 		return tc->value;
@@ -325,6 +344,7 @@ YYSTYPE UNARY(char *key, int op)
 	YYSTYPE v = tc->value;
 	if (!v.has_val)
 	{	
+		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
 		fprintf(stderr, "Error: identifier %s undefined\n", v.ident_val);
 		return v;
 	}
@@ -378,6 +398,7 @@ YYSTYPE OPASSIGN(YYSTYPE v1, YYSTYPE v2, int op)
     }
     if (!(tc = in_table(curr_table, v1.ident_val)))
     {
+		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
         fprintf(stderr, "Error: identifier %s undeclared\n", v1.ident_val);
         return *res;
     }
@@ -430,6 +451,7 @@ int CHECK(YYSTYPE v)
 {
     if (!v.has_val)
     {
+		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
         fprintf(stderr, "Error: identifier %s undefined\n", v.ident_val);
         return 0;
     }

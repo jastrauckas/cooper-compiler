@@ -230,7 +230,7 @@ fallback	.
 				return(NUMBER);
 			}
 
-\n			{line++;}
+\n			{line++; return '\n';}
 auto		{yylval.metadata.tokname="AUTO"; return(AUTO);}
 break		{yylval.metadata.tokname="BREAK"; return(BREAK);}
 case 		{yylval.metadata.tokname="CASE"; return(CASE);}
@@ -326,6 +326,9 @@ _Imaginary 	{yylval.metadata.tokname="_IMAGINARY"; return(_IMAGINARY);}
 {filedir} 	{
 				sscanf(yytext, "# %d \"%[^\"]", &line, minibuf);
 				line = 0; // reset following directive
+				yylval.ident_val = malloc(sizeof(char)*(strlen(yytext)+1));
+				strcpy(yylval.ident_val, yytext);
+				return FILEDIR;
 			}
 
 %%
