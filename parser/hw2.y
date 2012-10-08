@@ -96,6 +96,7 @@
 %token ERRS
 %token NEWLINE
 
+%left ','
 %left '+' '-'
 %left '*' '/'
 %left PLUSPLUS MINUSMINUS
@@ -113,6 +114,7 @@ expression:
 	declaration 
 |	assignment
 |	function /* does this really belong here? */
+
 
 assignment: 
 	IDENT '=' math ';'		{
@@ -143,7 +145,8 @@ list:
 
 math:
 	IDENT					{$$ = RETRIEVE(curr_table, $1.ident_val);}
-|	NUMBER                 	{$$ = $1;} 
+|	NUMBER                 	{$$ = $1;}
+| 	'(' math ')'			{$$ = $2;} 
 | 	math '+' math         	{$$ = ADD($1, $3);}
 | 	math '-' math          	{$$ = SUBTRACT($1, $3);}        	
 | 	math '*' math          	{$$ = MULTIPLY($1, $3);}        	
