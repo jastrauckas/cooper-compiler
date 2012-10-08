@@ -124,6 +124,11 @@ value:
 |	math					{$$ = $1;}
 | 	value ',' value			{$$ = $3;}
 | 	value '?' value ':' value	{$$ = TERNARY($1, $2, $3);}
+|	IDENT '[' value ']'		{
+								$$ = $3;
+								$$.has_val = 0; 
+								printf("Error: arrays not recognized\n");
+							}
 
 declaration: 
 	INT list	';'			{
@@ -234,15 +239,17 @@ void UPDATE(SYMTABLE *t, char *key, YYSTYPE val)
 
 YYSTYPE RETRIEVE(SYMTABLE *t, char *key)
 {
-	YYSTYPE res;
+	YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
 	TABLECELL *tc;
 	if (!(tc = in_table(t, key)))
 	{
-		fprintf(stderr, "Error: identifier %s undefined\n", key);
-		return res;	
+		fprintf(stderr, "Error: identifier %s undeclared\n", key);
+		return *res;	
 	}
-	res = tc->value;
-	return res;
+	
+	*res = tc->value;
+	CHECK(*res);
+	return *res;
 }
 
 /* SCOPE */
