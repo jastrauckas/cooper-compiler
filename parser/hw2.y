@@ -113,17 +113,17 @@ run:
 
 expression:
 	declaration 
-|	assignment
-|	function /* does this really belong here? */
+|	value ';'				{PRINTEXP($1);}
+|	function /* does this belong here? */
 
-assignment: 
-	IDENT '=' math ';'		{
+value: 
+	IDENT '=' math			{
 								printf("assignment\n");
 								$$ = $3;
 								UPDATE(curr_table, $1.ident_val, $3);
-								PRINTEXP($3);
 							}
-|	math ';'				{PRINTEXP($1);}
+|	math					{$$ = $1;}
+| 	value ',' value			{$$ = $3;}
 
 declaration: 
 	INT list	';'			{
@@ -175,9 +175,9 @@ scopepop:
                                 printf("leaving function scope\n");
 							}
 body: 
-	assignment
+	value ';'
 |	declaration
-|	assignment body
+|	value ';' body
 |	declaration body
 
 %%
