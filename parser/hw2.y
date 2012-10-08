@@ -19,6 +19,7 @@
 	YYSTYPE RETRIEVE(SYMTABLE *t, char *key);
 	YYSTYPE UNARY(char *key, int op);
 	YYSTYPE BINARY(YYSTYPE v1, YYSTYPE v2, int op);
+	YYSTYPE OPASSIGN(YYSTYPE v1, YYSTYPE v2, int op);
 	YYSTYPE TERNARY(YYSTYPE v1, YYSTYPE v2, YYSTYPE v3);
 	void SPOP();
 	void SPUSH();
@@ -95,11 +96,19 @@
 %token NEWLINE
 
 %left ','
-%left '='
+%left '=' PLUSEQ MINUSEQ TIMESEQ DIVEQ MODEQ SHLEQ SHREQ ANDEQ OREQ XOREQ
 %left '?' ':'
+%left LOGOR
+%left LOGAND
+%left '|'
+%left '&'
+%left EQEQ NOTEQ
+%left '>' '<' LTEQ GTEQ
+%left LSH RSH
 %left '+' '-'
-%left '*' '/'
+%left '*' '/' 
 %left PLUSPLUS MINUSMINUS
+%left '!' '~'
 
 %%
 /* Grammar rules go here */
@@ -121,6 +130,16 @@ value:
 								$$ = $3;
 								UPDATE(curr_table, $1.ident_val, $3);
 							}
+|	IDENT TIMESEQ math		{$$ = OPASSIGN($1, $3, TIMESEQ);}
+|	IDENT DIVEQ math		{$$ = OPASSIGN($1, $3, DIVEQ);}
+|	IDENT MODEQ math		{$$ = OPASSIGN($1, $3, MODEQ);}
+|	IDENT PLUSEQ math		{$$ = OPASSIGN($1, $3, PLUSEQ);}
+|	IDENT MINUSEQ math		{$$ = OPASSIGN($1, $3, MINUSEQ);}
+|	IDENT SHLEQ math		{$$ = OPASSIGN($1, $3, SHLEQ);}
+|	IDENT SHREQ math		{$$ = OPASSIGN($1, $3, SHREQ);}
+|	IDENT ANDEQ math		{$$ = OPASSIGN($1, $3, ANDEQ);}
+|	IDENT OREQ math			{$$ = OPASSIGN($1, $3, OREQ);}
+|	IDENT XOREQ math		{$$ = OPASSIGN($1, $3, XOREQ);}
 |	math					{$$ = $1;}
 | 	value ',' value			{$$ = $3;}
 | 	value '?' value ':' value	{$$ = TERNARY($1, $2, $3);}
@@ -203,7 +222,7 @@ void yyerror (char const *s)
 void PRINTEXP(YYSTYPE v)
 {
 	if (v.has_val)
-		printf("expression value: %d\n", (int) v.int_val);
+		printf("exprval=%d\n", (int) v.int_val);
 }
 
 
@@ -323,8 +342,49 @@ YYSTYPE BINARY(YYSTYPE v1, YYSTYPE v2, int op)
 			res->int_val = v1.int_val >> v2.int_val; break;
 	}
 	return *res;
+}
 
 
+YYSTYPE OPASSIGN(YYSTYPE v1, YYSTYPE v2, int op)
+{
+	TABLECELL *tc;
+    YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
+    if (!CHECK(v1) || !CHECK(v2))
+    {
+        return *res;
+    }
+    if (!(tc = in_table(curr_table, v1.ident_val)))
+    {
+        fprintf(stderr, "Error: identifier %s undeclared\n", v1.ident_val);
+        return *res;
+    }
+	res->metadata.tokname = "NUMBER";
+	res->has_val = 1;
+	switch (op)
+	{
+		case PLUSEQ:
+			v1.int_val = v1.int_val + v2.int_val; break; 
+		case MINUSEQ:
+			v1.int_val = v1.int_val - v2.int_val; break; 
+		case TIMESEQ:
+			v1.int_val = v1.int_val * v2.int_val; break; 
+		case DIVEQ:
+			v1.int_val = v1.int_val / v2.int_val; break; 
+		case MODEQ:
+			v1.int_val = v1.int_val % v2.int_val; break; 
+		case SHLEQ:
+			v1.int_val = v1.int_val << v2.int_val; break; 
+		case SHREQ:
+			v1.int_val = v1.int_val << v2.int_val; break; 
+		case ANDEQ:
+			v1.int_val = v1.int_val & v2.int_val; break; 
+		case OREQ:
+			v1.int_val = v1.int_val | v2.int_val; break; 
+		case XOREQ:
+			v1.int_val = v1.int_val ^ v2.int_val; break; 
+	}
+	UPDATE(curr_table, v1.ident_val, v1);
+	return v1;
 }
 
 YYSTYPE TERNARY(YYSTYPE v1, YYSTYPE v2, YYSTYPE v3)

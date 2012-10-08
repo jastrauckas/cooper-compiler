@@ -103,7 +103,9 @@
      NUMBER = 321,
      ERRC = 322,
      ERRS = 323,
-     NEWLINE = 324
+     NEWLINE = 324,
+     RSH = 325,
+     LSH = 326
    };
 #endif
 
