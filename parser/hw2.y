@@ -21,6 +21,8 @@
 	YYSTYPE MULTIPLY(YYSTYPE v1, YYSTYPE v2);
 	YYSTYPE SUBTRACT(YYSTYPE v1, YYSTYPE v2);
 	YYSTYPE DIVIDE(YYSTYPE v1, YYSTYPE v2);
+	void SPOP();
+	void SPUSH();
 %}
 
 
@@ -143,8 +145,22 @@ math:
 | 	math '/' math          	{$$ = DIVIDE($1, $3);}        	
 
 function:
-	IDENT '(' ')' '{' body '}'	{printf("function\n");}
+	IDENT '(' ')' block 	{printf("function\n");}
 
+block:
+	scopepush body scopepop	{}
+
+scopepush:
+	'{'						{
+								SPUSH(); 
+								printf("entering function scope\n");
+							}
+
+scopepop:
+	'}'						{
+								SPOP(); 
+                                printf("leaving function scope\n");
+							}
 body: 
 	assignment
 |	declaration
@@ -198,6 +214,22 @@ YYSTYPE RETRIEVE(SYMTABLE *t, char *key)
 	}
 	res = tc->value;
 	return res;
+}
+
+/* SCOPE */
+void SPOP()
+{
+	SYMTABLE *temp = curr_table;
+	curr_table = curr_table->parent;
+	free(temp->cells);
+	free(temp);
+}
+
+void SPUSH()
+{
+	SYMTABLE *temp = malloc(sizeof(SYMTABLE));
+	init_table(temp, 256, curr_table);
+	curr_table = temp;
 }
 
 /* ARITHMETIC */
@@ -376,8 +408,8 @@ TABLECELL *in_table(SYMTABLE *t, char *key)
     TABLECELL *currcell;
 	while (ct)
 	{
-    	int index = h(key, t->capacity);
-    	currcell = t->cells[index];
+    	int index = h(key, ct->capacity);
+    	currcell = ct->cells[index];
     	while (currcell != NULL)
     	{
         	if (!strcmp(key, currcell->name))
@@ -386,6 +418,7 @@ TABLECELL *in_table(SYMTABLE *t, char *key)
         	}
     	}
 		// keep moving up in the stack
+		//printf("checking parent...\n");
 		ct = ct->parent;
 	}
     return NULL;

@@ -87,10 +87,12 @@
 	YYSTYPE MULTIPLY(YYSTYPE v1, YYSTYPE v2);
 	YYSTYPE SUBTRACT(YYSTYPE v1, YYSTYPE v2);
 	YYSTYPE DIVIDE(YYSTYPE v1, YYSTYPE v2);
+	void SPOP();
+	void SPUSH();
 
 
 /* Line 268 of yacc.c  */
-#line 94 "hw2.tab.c"
+#line 96 "hw2.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -201,7 +203,7 @@ typedef int YYSTYPE;
 
 
 /* Line 343 of yacc.c  */
-#line 205 "hw2.tab.c"
+#line 207 "hw2.tab.c"
 
 #ifdef short
 # undef short
@@ -425,11 +427,11 @@ union yyalloc
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  81
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  9
+#define YYNNTS  12
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  21
+#define YYNRULES  24
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  38
+#define YYNSTATES  41
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -482,8 +484,8 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyprhs[] =
 {
        0,     0,     3,     6,     8,    10,    12,    14,    19,    23,
-      25,    29,    31,    33,    37,    41,    45,    49,    56,    58,
-      60,    63
+      25,    29,    31,    33,    37,    41,    45,    49,    54,    58,
+      60,    62,    64,    66,    69
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
@@ -494,16 +496,17 @@ static const yytype_int8 yyrhs[] =
       86,    75,    -1,    63,    -1,    86,    76,    63,    -1,    63,
       -1,    66,    -1,    87,    70,    87,    -1,    87,    71,    87,
       -1,    87,    72,    87,    -1,    87,    73,    87,    -1,    63,
-      77,    78,    79,    89,    80,    -1,    84,    -1,    85,    -1,
-      84,    89,    -1,    85,    89,    -1
+      77,    78,    89,    -1,    90,    92,    91,    -1,    79,    -1,
+      80,    -1,    84,    -1,    85,    -1,    84,    92,    -1,    85,
+      92,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   105,   105,   106,   109,   110,   111,   114,   122,   127,
-     131,   138,   139,   140,   141,   142,   143,   146,   149,   150,
-     151,   152
+       0,   107,   107,   108,   111,   112,   113,   116,   124,   129,
+     133,   140,   141,   142,   143,   144,   145,   148,   151,   154,
+     160,   165,   166,   167,   168
 };
 #endif
 
@@ -523,7 +526,8 @@ static const char *const yytname[] =
   "SHLEQ", "SHREQ", "ANDEQ", "OREQ", "XOREQ", "IDENT", "CHARLIT", "STRING",
   "NUMBER", "ERRC", "ERRS", "NEWLINE", "'+'", "'-'", "'*'", "'/'", "'='",
   "';'", "','", "'('", "')'", "'{'", "'}'", "$accept", "run", "expression",
-  "assignment", "declaration", "list", "math", "function", "body", 0
+  "assignment", "declaration", "list", "math", "function", "block",
+  "scopepush", "scopepop", "body", 0
 };
 #endif
 
@@ -548,16 +552,16 @@ static const yytype_uint16 yytoknum[] =
 static const yytype_uint8 yyr1[] =
 {
        0,    81,    82,    82,    83,    83,    83,    84,    85,    86,
-      86,    87,    87,    87,    87,    87,    87,    88,    89,    89,
-      89,    89
+      86,    87,    87,    87,    87,    87,    87,    88,    89,    90,
+      91,    92,    92,    92,    92
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     2,     1,     1,     1,     1,     4,     3,     1,
-       3,     1,     1,     3,     3,     3,     3,     6,     1,     1,
-       2,     2
+       3,     1,     1,     3,     3,     3,     3,     4,     3,     1,
+       1,     1,     1,     2,     2
 };
 
 /* YYDEFACT[STATE-NAME] -- Default reduction number in state STATE-NUM.
@@ -567,14 +571,16 @@ static const yytype_uint8 yydefact[] =
 {
        0,     0,     0,     0,     3,     5,     4,     6,     9,     0,
        0,     0,     1,     2,     8,     0,    11,    12,     0,     0,
-      10,     0,     0,     0,     0,     7,     0,    13,    14,    15,
-      16,     0,    18,    19,     0,    20,    21,    17
+      10,     0,     0,     0,     0,     7,    19,    17,     0,    13,
+      14,    15,    16,     0,    21,    22,     0,    23,    24,    20,
+      18
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     3,     4,    32,    33,     9,    18,     7,    34
+      -1,     3,     4,    34,    35,     9,    18,     7,    27,    28,
+      40,    36
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
@@ -583,15 +589,17 @@ static const yytype_int8 yydefgoto[] =
 static const yytype_int8 yypact[] =
 {
      -21,   -54,   -57,    11,   -21,   -69,   -69,   -69,   -69,   -53,
-     -45,   -59,   -69,   -69,   -69,   -35,   -69,   -69,   -68,   -50,
-     -69,   -45,   -45,   -45,   -45,   -69,   -20,   -48,   -48,   -69,
-     -69,   -44,   -20,   -20,   -49,   -69,   -69,   -69
+     -45,   -59,   -69,   -69,   -69,   -37,   -69,   -69,   -68,   -50,
+     -69,   -45,   -45,   -45,   -45,   -69,   -69,   -69,   -20,   -48,
+     -48,   -69,   -69,   -44,   -20,   -20,   -49,   -69,   -69,   -69,
+     -69
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -69,    28,   -69,     6,     8,   -69,    -8,   -69,    -6
+     -69,    28,   -69,     6,     8,   -69,    -8,   -69,   -69,   -69,
+     -69,    -7
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -601,10 +609,10 @@ static const yytype_int8 yypgoto[] =
 static const yytype_uint8 yytable[] =
 {
        1,     1,    21,    22,    23,    24,     5,    25,     6,     8,
-       5,    12,     6,    27,    28,    29,    30,    10,    16,    19,
-      11,    17,    14,    15,    23,    24,    35,    36,    20,    26,
-      10,    37,    13,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     2,    31
+       5,    12,     6,    29,    30,    31,    32,    10,    16,    19,
+      11,    17,    14,    15,    23,    24,    20,    37,    38,    26,
+      10,    39,    13,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     2,    33
 };
 
 #define yypact_value_is_default(yystate) \
@@ -617,7 +625,7 @@ static const yytype_int8 yycheck[] =
 {
       21,    21,    70,    71,    72,    73,     0,    75,     0,    63,
        4,     0,     4,    21,    22,    23,    24,    74,    63,    78,
-      77,    66,    75,    76,    72,    73,    32,    33,    63,    79,
+      77,    66,    75,    76,    72,    73,    63,    34,    35,    79,
       74,    80,     4,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    63,    63
 };
@@ -628,8 +636,9 @@ static const yytype_uint8 yystos[] =
 {
        0,    21,    63,    82,    83,    84,    85,    88,    63,    86,
       74,    77,     0,    82,    75,    76,    63,    66,    87,    78,
-      63,    70,    71,    72,    73,    75,    79,    87,    87,    87,
-      87,    63,    84,    85,    89,    89,    89,    80
+      63,    70,    71,    72,    73,    75,    79,    89,    90,    87,
+      87,    87,    87,    63,    84,    85,    92,    92,    92,    80,
+      91
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1466,7 +1475,7 @@ yyreduce:
         case 7:
 
 /* Line 1806 of yacc.c  */
-#line 114 "hw2.y"
+#line 116 "hw2.y"
     {
 								printf("assignment\n");
 								(yyval) = (yyvsp[(3) - (4)]);
@@ -1478,7 +1487,7 @@ yyreduce:
   case 8:
 
 /* Line 1806 of yacc.c  */
-#line 122 "hw2.y"
+#line 124 "hw2.y"
     {
 								printf("declaration\n");
 							}
@@ -1487,7 +1496,7 @@ yyreduce:
   case 9:
 
 /* Line 1806 of yacc.c  */
-#line 127 "hw2.y"
+#line 129 "hw2.y"
     {
 								printf("list\n");
 								INSTALL(curr_table, (yyvsp[(1) - (1)]));
@@ -1497,7 +1506,7 @@ yyreduce:
   case 10:
 
 /* Line 1806 of yacc.c  */
-#line 131 "hw2.y"
+#line 133 "hw2.y"
     {
 								printf("list\n");
 								INSTALL(curr_table, (yyvsp[(3) - (3)]));
@@ -1507,56 +1516,83 @@ yyreduce:
   case 11:
 
 /* Line 1806 of yacc.c  */
-#line 138 "hw2.y"
+#line 140 "hw2.y"
     {(yyval) = RETRIEVE(curr_table, (yyvsp[(1) - (1)]).ident_val);}
     break;
 
   case 12:
 
 /* Line 1806 of yacc.c  */
-#line 139 "hw2.y"
+#line 141 "hw2.y"
     {(yyval) = (yyvsp[(1) - (1)]);}
     break;
 
   case 13:
 
 /* Line 1806 of yacc.c  */
-#line 140 "hw2.y"
+#line 142 "hw2.y"
     {(yyval) = ADD((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));}
     break;
 
   case 14:
 
 /* Line 1806 of yacc.c  */
-#line 141 "hw2.y"
+#line 143 "hw2.y"
     {(yyval) = SUBTRACT((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));}
     break;
 
   case 15:
 
 /* Line 1806 of yacc.c  */
-#line 142 "hw2.y"
+#line 144 "hw2.y"
     {(yyval) = MULTIPLY((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));}
     break;
 
   case 16:
 
 /* Line 1806 of yacc.c  */
-#line 143 "hw2.y"
+#line 145 "hw2.y"
     {(yyval) = DIVIDE((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));}
     break;
 
   case 17:
 
 /* Line 1806 of yacc.c  */
-#line 146 "hw2.y"
+#line 148 "hw2.y"
     {printf("function\n");}
+    break;
+
+  case 18:
+
+/* Line 1806 of yacc.c  */
+#line 151 "hw2.y"
+    {}
+    break;
+
+  case 19:
+
+/* Line 1806 of yacc.c  */
+#line 154 "hw2.y"
+    {
+								SPUSH(); 
+								printf("entering function scope\n");
+							}
+    break;
+
+  case 20:
+
+/* Line 1806 of yacc.c  */
+#line 160 "hw2.y"
+    {
+								SPOP(); 
+                                printf("leaving function scope\n");
+							}
     break;
 
 
 
 /* Line 1806 of yacc.c  */
-#line 1560 "hw2.tab.c"
+#line 1596 "hw2.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1787,7 +1823,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 154 "hw2.y"
+#line 170 "hw2.y"
 
 /* Function definitions go here */
 int main()
@@ -1835,6 +1871,22 @@ YYSTYPE RETRIEVE(SYMTABLE *t, char *key)
 	}
 	res = tc->value;
 	return res;
+}
+
+/* SCOPE */
+void SPOP()
+{
+	SYMTABLE *temp = curr_table;
+	curr_table = curr_table->parent;
+	free(temp->cells);
+	free(temp);
+}
+
+void SPUSH()
+{
+	SYMTABLE *temp = malloc(sizeof(SYMTABLE));
+	init_table(temp, 256, curr_table);
+	curr_table = temp;
 }
 
 /* ARITHMETIC */
@@ -2013,8 +2065,8 @@ TABLECELL *in_table(SYMTABLE *t, char *key)
     TABLECELL *currcell;
 	while (ct)
 	{
-    	int index = h(key, t->capacity);
-    	currcell = t->cells[index];
+    	int index = h(key, ct->capacity);
+    	currcell = ct->cells[index];
     	while (currcell != NULL)
     	{
         	if (!strcmp(key, currcell->name))
@@ -2023,6 +2075,7 @@ TABLECELL *in_table(SYMTABLE *t, char *key)
         	}
     	}
 		// keep moving up in the stack
+		//printf("checking parent...\n");
 		ct = ct->parent;
 	}
     return NULL;
