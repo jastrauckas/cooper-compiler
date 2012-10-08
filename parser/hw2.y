@@ -155,7 +155,7 @@ body:
 /* Function definitions go here */
 int main()
 {
-	init_table(&t, 512);
+	init_table(&t, 512, NULL);
 	curr_table = &t; // initialize scope to global scope
 	yyparse();
 	return 0;
@@ -248,8 +248,9 @@ long h(char *key, long max)
 }
 
 // initialize table
-void init_table(SYMTABLE *t, long c)
+void init_table(SYMTABLE *t, long c, SYMTABLE *parent)
 {
+	t->parent = parent;
     t->occupied = 0;
     t->capacity = c;
     if ((t->cells = calloc(c, sizeof(TABLECELL*))) < 0)
@@ -265,7 +266,7 @@ void resize_table(SYMTABLE *t)
 {
     //printf("RESIZE\n");
     SYMTABLE *new_table = malloc(sizeof(SYMTABLE));
-    init_table(new_table, 2*t->capacity);
+    init_table(new_table, 2*t->capacity, t->parent);
     int i;
     TABLECELL *currcell;
     // copy over all the cells and their contents
@@ -367,19 +368,26 @@ void del_table(SYMTABLE *t, char *key)
     }
 }
 
-// check membership
+// check membership and return data if found
 TABLECELL *in_table(SYMTABLE *t, char *key)
 {
-    int index = h(key, t->capacity);
+	SYMTABLE *ct;
+	ct = t;
     TABLECELL *currcell;
-    currcell = t->cells[index];
-    while (currcell != NULL)
-    {
-        if (!strcmp(key, currcell->name))
-        {
-            return currcell; // return pointer to cell found
-        }
-    }
+	while (ct)
+	{
+    	int index = h(key, t->capacity);
+    	currcell = t->cells[index];
+    	while (currcell != NULL)
+    	{
+        	if (!strcmp(key, currcell->name))
+        	{
+            	return currcell; // return pointer to cell found
+        	}
+    	}
+		// keep moving up in the stack
+		ct = ct->parent;
+	}
     return NULL;
 }
 

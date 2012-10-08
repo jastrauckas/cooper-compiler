@@ -28,6 +28,8 @@ typedef struct tableCell
 // symbol table
 typedef struct symbolTable
 {
+	// to implement a "stack", keep track of parent
+	struct symbolTable *parent;
 	// keep track of the capacity and how full it is
 	long occupied;
 	long capacity;
@@ -41,7 +43,7 @@ typedef struct symbolTable
 long h(char *key, long max);
 
 // initialize and resize table
-void init_table(SYMTABLE *t, long c);
+void init_table(SYMTABLE *t, long c, SYMTABLE *parent);
 void resize_table(SYMTABLE *t);
 
 // insert into and delete from existing table
