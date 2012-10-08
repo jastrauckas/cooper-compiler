@@ -97,6 +97,7 @@
 %token NEWLINE
 
 %left ','
+%left '='
 %left '+' '-'
 %left '*' '/'
 %left PLUSPLUS MINUSMINUS
@@ -115,7 +116,6 @@ expression:
 |	assignment
 |	function /* does this really belong here? */
 
-
 assignment: 
 	IDENT '=' math ';'		{
 								printf("assignment\n");
@@ -123,9 +123,7 @@ assignment:
 								UPDATE(curr_table, $1.ident_val, $3);
 								PRINTEXP($3);
 							}
-|	unaryexp ';'			{
-								PRINTEXP($1);	
-							}
+|	math ';'				{PRINTEXP($1);}
 
 declaration: 
 	INT list	';'			{
