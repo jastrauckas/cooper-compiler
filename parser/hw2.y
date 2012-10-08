@@ -17,11 +17,9 @@
 	void INSTALL(SYMTABLE *t, YYSTYPE val);
 	void UPDATE(SYMTABLE *t, char *key, YYSTYPE val);
 	YYSTYPE RETRIEVE(SYMTABLE *t, char *key);
-	YYSTYPE ADD(YYSTYPE v1, YYSTYPE v2);
-	YYSTYPE MULTIPLY(YYSTYPE v1, YYSTYPE v2);
-	YYSTYPE SUBTRACT(YYSTYPE v1, YYSTYPE v2);
-	YYSTYPE DIVIDE(YYSTYPE v1, YYSTYPE v2);
 	YYSTYPE UNARY(char *key, int op);
+	YYSTYPE BINARY(YYSTYPE v1, YYSTYPE v2, int op);
+	YYSTYPE TERNARY(YYSTYPE v1, YYSTYPE v2, YYSTYPE v3);
 	void SPOP();
 	void SPUSH();
 	void PRINTEXP(YYSTYPE v);
@@ -98,6 +96,7 @@
 
 %left ','
 %left '='
+%left '?' ':'
 %left '+' '-'
 %left '*' '/'
 %left PLUSPLUS MINUSMINUS
@@ -124,6 +123,7 @@ value:
 							}
 |	math					{$$ = $1;}
 | 	value ',' value			{$$ = $3;}
+| 	value '?' value ':' value	{$$ = TERNARY($1, $2, $3);}
 
 declaration: 
 	INT list	';'			{
@@ -145,10 +145,10 @@ math:
 	IDENT					{$$ = RETRIEVE(curr_table, $1.ident_val);}
 |	NUMBER                 	{$$ = $1;}
 | 	'(' math ')'			{$$ = $2;} 
-| 	math '+' math         	{$$ = ADD($1, $3);}
-| 	math '-' math          	{$$ = SUBTRACT($1, $3);}        	
-| 	math '*' math          	{$$ = MULTIPLY($1, $3);}        	
-| 	math '/' math          	{$$ = DIVIDE($1, $3);}
+| 	math '+' math         	{$$ = BINARY($1, $3, '+');}
+| 	math '-' math          	{$$ = BINARY($1, $3, '-');}        	
+| 	math '*' math          	{$$ = BINARY($1, $3, '*');}        	
+| 	math '/' math          	{$$ = BINARY($1, $3, '/');}
 | unaryexp
 
 unaryexp:        	
@@ -263,54 +263,6 @@ void SPUSH()
 
 /* ARITHMETIC */
 // for now it is only defined for integers
-YYSTYPE ADD(YYSTYPE v1, YYSTYPE v2)
-{
-	YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
-	if (!v1.has_val || !v2.has_val)
-	{
-		return *res;
-	}
-	res->int_val = v1.int_val + v2.int_val;
-	res->metadata.tokname = "NUMBER";
-	res->has_val = 1;
-	return *res;
-}
-YYSTYPE MULTIPLY(YYSTYPE v1, YYSTYPE v2)
-{
-	YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
-	if (!v1.has_val || !v2.has_val)
-	{
-		return *res;
-	}
-    res->int_val = v1.int_val * v2.int_val;
-	res->metadata.tokname = "NUMBER";
-	res->has_val = 1;
-	return *res;
-}
-YYSTYPE SUBTRACT(YYSTYPE v1, YYSTYPE v2)
-{
-	YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
-	if (!v1.has_val || !v2.has_val)
-	{
-		return *res;
-	}
-    res->int_val = v1.int_val - v2.int_val;
-	res->metadata.tokname = "NUMBER";
-	res->has_val = 1;
-	return *res;
-}
-YYSTYPE DIVIDE(YYSTYPE v1, YYSTYPE v2)
-{
-	YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
-	if (!v1.has_val || !v2.has_val)
-	{
-		return *res;
-	}
-    res->int_val = v1.int_val / v2.int_val;
-	res->metadata.tokname = "NUMBER";
-	res->has_val = 1;
-	return *res;
-}
 
 YYSTYPE UNARY(char *key, int op)
 {
@@ -322,7 +274,7 @@ YYSTYPE UNARY(char *key, int op)
 		return tc->value;
 	}
 	YYSTYPE v = tc->value;
-	if (!v.int_val)
+	if (!v.has_val)
 	{	
 		fprintf(stderr, "Error: identifier %s undefined\n", v.ident_val);
 		return v;
@@ -336,6 +288,62 @@ YYSTYPE UNARY(char *key, int op)
 			tc->value.int_val = tc->value.int_val -1;
 	}
 	return tc->value;
+}
+
+
+YYSTYPE BINARY(YYSTYPE v1, YYSTYPE v2, int op)
+{
+    YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
+    if (!CHECK(v1) || !CHECK(v2))
+    {
+        return *res;
+    }
+	res->metadata.tokname = "NUMBER";
+	res->has_val = 1;
+	switch (op)
+	{
+		case '/':
+			res->int_val = v1.int_val / v2.int_val; break;
+		case '*':
+			res->int_val = v1.int_val * v2.int_val; break;
+		case '+':
+			res->int_val = v1.int_val + v2.int_val; break;
+		case '-':
+			res->int_val = v1.int_val - v2.int_val; break;
+		case SHL:
+			res->int_val = v1.int_val << v2.int_val; break;
+		case SHR:
+			res->int_val = v1.int_val >> v2.int_val; break;
+	}
+	return *res;
+
+
+}
+
+YYSTYPE TERNARY(YYSTYPE v1, YYSTYPE v2, YYSTYPE v3)
+{
+	YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
+	if (!CHECK(v1) | !CHECK(v2) | !CHECK(v3))
+		return *res;
+	if (v1.int_val)
+	{
+		return v2;
+	}
+	else
+	{
+		return v3;
+	}
+}
+
+
+int CHECK(YYSTYPE v)
+{
+    if (!v.has_val)
+    {
+        fprintf(stderr, "Error: identifier %s undefined\n", v.ident_val);
+        return 0;
+    }
+	return 1;
 }
 
 /* SYMBOL TABLE */
