@@ -24,6 +24,7 @@ typedef struct Metatype
 
 typedef struct 
 {
+	int has_val;
 	char *ident_val;
 	// do these need to be ints to accomodate codes for wide characters?
 	int char_literal;

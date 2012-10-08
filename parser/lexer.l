@@ -188,6 +188,7 @@ fallback	.
 				yylval.metadata.num_class = INT_CLASS; 
 				ll = strtoll(yytext, &end, 10);
 				yylval.int_val = ll;
+				yylval.has_val = 1;
 				set_int_type(end, &yylval.metadata);
 				return(NUMBER);
 			}
@@ -196,6 +197,7 @@ fallback	.
 				yylval.metadata.num_class = INT_CLASS; 
 				ll = strtoll(yytext, &end, 8);
 				yylval.int_val = ll;
+				yylval.has_val = 1;
 				set_int_type(end, &yylval.metadata);
 				return(NUMBER);
 			}
@@ -204,6 +206,7 @@ fallback	.
 				yylval.metadata.num_class = INT_CLASS; 
 				ll = strtoll(yytext+2, &end, 16);
 				yylval.int_val = ll;
+				yylval.has_val = 1;
 				set_int_type(end, &yylval.metadata);
 				return(NUMBER);
 			}
@@ -212,6 +215,7 @@ fallback	.
 				yylval.metadata.num_class = REAL_CLASS;
 				ld = strtold(yytext, &end);
 				yylval.double_val = ld;
+				yylval.has_val = 1;
 				set_double_type(end, &yylval.metadata);
 				return(NUMBER);
 			}
@@ -221,6 +225,7 @@ fallback	.
 				yylval.metadata.num_class = REAL_CLASS;
 				ld = strtold(yytext, &end);
 				yylval.double_val = ld;
+				yylval.has_val = 1;
 				set_double_type(end, &yylval.metadata);
 				return(NUMBER);
 			}

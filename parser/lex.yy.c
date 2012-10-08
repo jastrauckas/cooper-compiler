@@ -1619,54 +1619,59 @@ YY_RULE_SETUP
 				yylval.metadata.num_class = INT_CLASS; 
 				ll = strtoll(yytext, &end, 10);
 				yylval.int_val = ll;
+				yylval.has_val = 1;
 				set_int_type(end, &yylval.metadata);
 				return(NUMBER);
 			}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 194 "lexer.l"
+#line 195 "lexer.l"
 {
 				yylval.metadata.tokname="NUMBER"; 
 				yylval.metadata.num_class = INT_CLASS; 
 				ll = strtoll(yytext, &end, 8);
 				yylval.int_val = ll;
+				yylval.has_val = 1;
 				set_int_type(end, &yylval.metadata);
 				return(NUMBER);
 			}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 202 "lexer.l"
+#line 204 "lexer.l"
 {
 				yylval.metadata.tokname="NUMBER"; 
 				yylval.metadata.num_class = INT_CLASS; 
 				ll = strtoll(yytext+2, &end, 16);
 				yylval.int_val = ll;
+				yylval.has_val = 1;
 				set_int_type(end, &yylval.metadata);
 				return(NUMBER);
 			}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 210 "lexer.l"
+#line 213 "lexer.l"
 {
 				yylval.metadata.tokname="NUMBER";
 				yylval.metadata.num_class = REAL_CLASS;
 				ld = strtold(yytext, &end);
 				yylval.double_val = ld;
+				yylval.has_val = 1;
 				set_double_type(end, &yylval.metadata);
 				return(NUMBER);
 			}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 219 "lexer.l"
+#line 223 "lexer.l"
 {
 				yylval.metadata.tokname="NUMBER";
 				yylval.metadata.num_class = REAL_CLASS;
 				ld = strtold(yytext, &end);
 				yylval.double_val = ld;
+				yylval.has_val = 1;
 				set_double_type(end, &yylval.metadata);
 				return(NUMBER);
 			}
@@ -1674,432 +1679,432 @@ YY_RULE_SETUP
 case 24:
 /* rule 24 can match eol */
 YY_RULE_SETUP
-#line 228 "lexer.l"
+#line 233 "lexer.l"
 {line++;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 229 "lexer.l"
+#line 234 "lexer.l"
 {yylval.metadata.tokname="AUTO"; return(AUTO);}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 230 "lexer.l"
+#line 235 "lexer.l"
 {yylval.metadata.tokname="BREAK"; return(BREAK);}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 231 "lexer.l"
+#line 236 "lexer.l"
 {yylval.metadata.tokname="CASE"; return(CASE);}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 232 "lexer.l"
+#line 237 "lexer.l"
 {yylval.metadata.tokname="CHAR"; return(CHAR);}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 233 "lexer.l"
+#line 238 "lexer.l"
 {yylval.metadata.tokname="CONST"; return(CONST);}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 234 "lexer.l"
+#line 239 "lexer.l"
 {yylval.metadata.tokname="CONTINUE"; return(CONTINUE);}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 235 "lexer.l"
+#line 240 "lexer.l"
 {yylval.metadata.tokname="DEFAULT"; return(DEFAULT);}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 236 "lexer.l"
+#line 241 "lexer.l"
 {yylval.metadata.tokname="DO"; return(DO);}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 237 "lexer.l"
+#line 242 "lexer.l"
 {yylval.metadata.tokname="DOUBLE"; return(DOUBLE);}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 238 "lexer.l"
+#line 243 "lexer.l"
 {yylval.metadata.tokname="ELSE"; return(ELSE);}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 239 "lexer.l"
+#line 244 "lexer.l"
 {yylval.metadata.tokname="ENUM"; return(ENUM);}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 240 "lexer.l"
+#line 245 "lexer.l"
 {yylval.metadata.tokname="EXTERN"; return(EXTERN);}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 241 "lexer.l"
+#line 246 "lexer.l"
 {yylval.metadata.tokname="FLOAT"; return(FLOAT);}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 242 "lexer.l"
+#line 247 "lexer.l"
 {yylval.metadata.tokname="FOR"; return(FOR);}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 243 "lexer.l"
+#line 248 "lexer.l"
 {yylval.metadata.tokname="GOTO"; return(GOTO);}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 244 "lexer.l"
+#line 249 "lexer.l"
 {yylval.metadata.tokname="IF"; return(IF);}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 245 "lexer.l"
+#line 250 "lexer.l"
 {yylval.metadata.tokname="INLINE"; return(INLINE);}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 246 "lexer.l"
+#line 251 "lexer.l"
 {yylval.metadata.tokname="INT"; return(INT);}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 247 "lexer.l"
+#line 252 "lexer.l"
 {yylval.metadata.tokname="LONG"; return(LONG);}
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 248 "lexer.l"
+#line 253 "lexer.l"
 {yylval.metadata.tokname="REGISTER"; return(REGISTER);}
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 249 "lexer.l"
+#line 254 "lexer.l"
 {yylval.metadata.tokname="RESTRICT"; return(RESTRICT);}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 250 "lexer.l"
+#line 255 "lexer.l"
 {yylval.metadata.tokname="RETURN"; return(RETURN);}
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 251 "lexer.l"
+#line 256 "lexer.l"
 {yylval.metadata.tokname="SHORT"; return(SHORT);}
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 252 "lexer.l"
+#line 257 "lexer.l"
 {yylval.metadata.tokname="SIGNED"; return(SIGNED);}
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 253 "lexer.l"
+#line 258 "lexer.l"
 {yylval.metadata.tokname="SIZEOF"; return(SIZEOF);}
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 254 "lexer.l"
+#line 259 "lexer.l"
 {yylval.metadata.tokname="STATIC"; return(STATIC);}
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 255 "lexer.l"
+#line 260 "lexer.l"
 {yylval.metadata.tokname="STRUCT"; return(STRUCT);}
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 256 "lexer.l"
+#line 261 "lexer.l"
 {yylval.metadata.tokname="SWITCH"; return(SWITCH);}
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 257 "lexer.l"
+#line 262 "lexer.l"
 {yylval.metadata.tokname="TYPEDEF"; return(TYPEDEF);}
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 258 "lexer.l"
+#line 263 "lexer.l"
 {yylval.metadata.tokname="UNION"; return(UNION);}
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 259 "lexer.l"
+#line 264 "lexer.l"
 {yylval.metadata.tokname="UNSIGNED"; return(UNSIGNED);}
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 260 "lexer.l"
+#line 265 "lexer.l"
 {yylval.metadata.tokname="VOID"; return(VOID);}
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 261 "lexer.l"
+#line 266 "lexer.l"
 {yylval.metadata.tokname="VOLATILE"; return(VOLATILE);}
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 262 "lexer.l"
+#line 267 "lexer.l"
 {yylval.metadata.tokname="WHILE"; return(WHILE);}
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 263 "lexer.l"
+#line 268 "lexer.l"
 {yylval.metadata.tokname="_BOOL"; return(_BOOL);}
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 264 "lexer.l"
+#line 269 "lexer.l"
 {yylval.metadata.tokname="_COMPLEX"; return(_COMPLEX);}
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 265 "lexer.l"
+#line 270 "lexer.l"
 {yylval.metadata.tokname="_IMAGINARY"; return(_IMAGINARY);}
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 266 "lexer.l"
+#line 271 "lexer.l"
 {yylval.metadata.tokname="["; return('[');}
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 267 "lexer.l"
+#line 272 "lexer.l"
 {yylval.metadata.tokname="]"; return(']');}
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 268 "lexer.l"
+#line 273 "lexer.l"
 {yylval.metadata.tokname="("; return('(');}
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 269 "lexer.l"
+#line 274 "lexer.l"
 {yylval.metadata.tokname=")"; return(')');}
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 270 "lexer.l"
+#line 275 "lexer.l"
 {yylval.metadata.tokname="{"; return('{');}
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 271 "lexer.l"
+#line 276 "lexer.l"
 {yylval.metadata.tokname="}"; return('}');}
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 272 "lexer.l"
+#line 277 "lexer.l"
 {yylval.metadata.tokname="."; return('.');}
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 273 "lexer.l"
+#line 278 "lexer.l"
 {yylval.metadata.tokname="&"; return('&');}
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 274 "lexer.l"
+#line 279 "lexer.l"
 {yylval.metadata.tokname="*"; return('*');}
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 275 "lexer.l"
+#line 280 "lexer.l"
 {yylval.metadata.tokname="+"; return('+');}
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 276 "lexer.l"
+#line 281 "lexer.l"
 {yylval.metadata.tokname="-"; return('-');}
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 277 "lexer.l"
+#line 282 "lexer.l"
 {yylval.metadata.tokname="~"; return('~');}
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 278 "lexer.l"
+#line 283 "lexer.l"
 {yylval.metadata.tokname="!"; return('!');}
 	YY_BREAK
 case 75:
 YY_RULE_SETUP
-#line 279 "lexer.l"
+#line 284 "lexer.l"
 {yylval.metadata.tokname="/"; return('/');}
 	YY_BREAK
 case 76:
 YY_RULE_SETUP
-#line 280 "lexer.l"
+#line 285 "lexer.l"
 {yylval.metadata.tokname="%"; return('%');}
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
-#line 281 "lexer.l"
+#line 286 "lexer.l"
 {yylval.metadata.tokname="<"; return('<');}
 	YY_BREAK
 case 78:
 YY_RULE_SETUP
-#line 282 "lexer.l"
+#line 287 "lexer.l"
 {yylval.metadata.tokname=">"; return('>');}
 	YY_BREAK
 case 79:
 YY_RULE_SETUP
-#line 283 "lexer.l"
+#line 288 "lexer.l"
 {yylval.metadata.tokname="^"; return('^');}
 	YY_BREAK
 case 80:
 YY_RULE_SETUP
-#line 284 "lexer.l"
+#line 289 "lexer.l"
 {yylval.metadata.tokname="|"; return('|');}
 	YY_BREAK
 case 81:
 YY_RULE_SETUP
-#line 285 "lexer.l"
+#line 290 "lexer.l"
 {yylval.metadata.tokname="?"; return('?');}
 	YY_BREAK
 case 82:
 YY_RULE_SETUP
-#line 286 "lexer.l"
+#line 291 "lexer.l"
 {yylval.metadata.tokname=":"; return(':');}
 	YY_BREAK
 case 83:
 YY_RULE_SETUP
-#line 287 "lexer.l"
+#line 292 "lexer.l"
 {yylval.metadata.tokname=";"; return(';');}
 	YY_BREAK
 case 84:
 YY_RULE_SETUP
-#line 288 "lexer.l"
+#line 293 "lexer.l"
 {yylval.metadata.tokname="="; return('=');}
 	YY_BREAK
 case 85:
 YY_RULE_SETUP
-#line 289 "lexer.l"
+#line 294 "lexer.l"
 {yylval.metadata.tokname=","; return(',');}
 	YY_BREAK
 case 86:
 YY_RULE_SETUP
-#line 290 "lexer.l"
+#line 295 "lexer.l"
 {yylval.metadata.tokname="#"; return('#');}
 	YY_BREAK
 case 87:
 YY_RULE_SETUP
-#line 291 "lexer.l"
+#line 296 "lexer.l"
 {yylval.metadata.tokname="INDSEL"; return(INDSEL);}
 	YY_BREAK
 case 88:
 YY_RULE_SETUP
-#line 292 "lexer.l"
+#line 297 "lexer.l"
 {yylval.metadata.tokname="PLUSPLUS"; return(PLUSPLUS);}
 	YY_BREAK
 case 89:
 YY_RULE_SETUP
-#line 293 "lexer.l"
+#line 298 "lexer.l"
 {yylval.metadata.tokname="MINUSMINUS"; return(MINUSMINUS);}
 	YY_BREAK
 case 90:
 YY_RULE_SETUP
-#line 294 "lexer.l"
+#line 299 "lexer.l"
 {yylval.metadata.tokname="SHL"; return(SHL);}
 	YY_BREAK
 case 91:
 YY_RULE_SETUP
-#line 295 "lexer.l"
+#line 300 "lexer.l"
 {yylval.metadata.tokname="SHR"; return(SHR);}
 	YY_BREAK
 case 92:
 YY_RULE_SETUP
-#line 296 "lexer.l"
+#line 301 "lexer.l"
 {yylval.metadata.tokname="LTEQ"; return(LTEQ);}
 	YY_BREAK
 case 93:
 YY_RULE_SETUP
-#line 297 "lexer.l"
+#line 302 "lexer.l"
 {yylval.metadata.tokname="GTEQ"; return(GTEQ);}
 	YY_BREAK
 case 94:
 YY_RULE_SETUP
-#line 298 "lexer.l"
+#line 303 "lexer.l"
 {yylval.metadata.tokname="EQEQ"; return(EQEQ);}
 	YY_BREAK
 case 95:
 YY_RULE_SETUP
-#line 299 "lexer.l"
+#line 304 "lexer.l"
 {yylval.metadata.tokname="NOTEQ"; return(NOTEQ);}
 	YY_BREAK
 case 96:
 YY_RULE_SETUP
-#line 300 "lexer.l"
+#line 305 "lexer.l"
 {yylval.metadata.tokname="LOGAND"; return(LOGAND);}
 	YY_BREAK
 case 97:
 YY_RULE_SETUP
-#line 301 "lexer.l"
+#line 306 "lexer.l"
 {yylval.metadata.tokname="LOGOR"; return(LOGOR);}
 	YY_BREAK
 case 98:
 YY_RULE_SETUP
-#line 302 "lexer.l"
+#line 307 "lexer.l"
 {yylval.metadata.tokname="ELLIPSES"; return(ELLIPSES);}
 	YY_BREAK
 case 99:
 YY_RULE_SETUP
-#line 303 "lexer.l"
+#line 308 "lexer.l"
 {yylval.metadata.tokname="TIMESEQ"; return(TIMESEQ);}
 	YY_BREAK
 case 100:
 YY_RULE_SETUP
-#line 304 "lexer.l"
+#line 309 "lexer.l"
 {yylval.metadata.tokname="DIVEQ"; return(DIVEQ);}
 	YY_BREAK
 case 101:
 YY_RULE_SETUP
-#line 305 "lexer.l"
+#line 310 "lexer.l"
 {yylval.metadata.tokname="MODEQ"; return(MODEQ);}
 	YY_BREAK
 case 102:
 YY_RULE_SETUP
-#line 306 "lexer.l"
+#line 311 "lexer.l"
 {yylval.metadata.tokname="PLUSEQ"; return(PLUSEQ);}
 	YY_BREAK
 case 103:
 YY_RULE_SETUP
-#line 307 "lexer.l"
+#line 312 "lexer.l"
 {yylval.metadata.tokname="MINUSEQ"; return(MINUSEQ);}
 	YY_BREAK
 case 104:
 YY_RULE_SETUP
-#line 308 "lexer.l"
+#line 313 "lexer.l"
 {yylval.metadata.tokname="SHLEQ"; return(SHLEQ);}
 	YY_BREAK
 case 105:
 YY_RULE_SETUP
-#line 309 "lexer.l"
+#line 314 "lexer.l"
 {yylval.metadata.tokname="SHREQ"; return(SHREQ);}
 	YY_BREAK
 case 106:
 YY_RULE_SETUP
-#line 310 "lexer.l"
+#line 315 "lexer.l"
 {yylval.metadata.tokname="ANDEQ"; return(ANDEQ);}
 	YY_BREAK
 case 107:
 YY_RULE_SETUP
-#line 311 "lexer.l"
+#line 316 "lexer.l"
 {yylval.metadata.tokname="OREQ"; return(OREQ);}
 	YY_BREAK
 case 108:
 YY_RULE_SETUP
-#line 312 "lexer.l"
+#line 317 "lexer.l"
 {yylval.metadata.tokname="XOREQ"; return(XOREQ);}
 	YY_BREAK
 case 109:
 YY_RULE_SETUP
-#line 314 "lexer.l"
+#line 319 "lexer.l"
 {
 				yylval.metadata.tokname = "IDENT";
 				yylval.ident_val = malloc(sizeof(char) * (strlen(yytext)+1)); 
@@ -2110,7 +2115,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 110:
 YY_RULE_SETUP
-#line 321 "lexer.l"
+#line 326 "lexer.l"
 {
 				sscanf(yytext, "# %d \"%[^\"]", &line, minibuf);
 				line = 0; // reset following directive
@@ -2118,10 +2123,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 111:
 YY_RULE_SETUP
-#line 326 "lexer.l"
+#line 331 "lexer.l"
 ECHO;
 	YY_BREAK
-#line 2125 "lex.yy.c"
+#line 2130 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(STR):
 case YY_STATE_EOF(ESC):
@@ -3122,7 +3127,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 326 "lexer.l"
+#line 331 "lexer.l"
 
 
 /*

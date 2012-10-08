@@ -21,8 +21,10 @@
 	YYSTYPE MULTIPLY(YYSTYPE v1, YYSTYPE v2);
 	YYSTYPE SUBTRACT(YYSTYPE v1, YYSTYPE v2);
 	YYSTYPE DIVIDE(YYSTYPE v1, YYSTYPE v2);
+	YYSTYPE UNARY(char *key, int op);
 	void SPOP();
 	void SPUSH();
+	void PRINTEXP(YYSTYPE v);
 %}
 
 
@@ -96,7 +98,7 @@
 
 %left '+' '-'
 %left '*' '/'
-
+%left PLUSPLUS MINUSMINUS
 
 %%
 /* Grammar rules go here */
@@ -117,7 +119,10 @@ assignment:
 								printf("assignment\n");
 								$$ = $3;
 								UPDATE(curr_table, $1.ident_val, $3);
-								printf("expression value: %d\n", (int) $3.int_val);
+								PRINTEXP($3);
+							}
+|	unaryexp ';'			{
+								PRINTEXP($1);	
 							}
 
 declaration: 
@@ -142,7 +147,14 @@ math:
 | 	math '+' math         	{$$ = ADD($1, $3);}
 | 	math '-' math          	{$$ = SUBTRACT($1, $3);}        	
 | 	math '*' math          	{$$ = MULTIPLY($1, $3);}        	
-| 	math '/' math          	{$$ = DIVIDE($1, $3);}        	
+| 	math '/' math          	{$$ = DIVIDE($1, $3);}
+| unaryexp
+
+unaryexp:        	
+	IDENT PLUSPLUS          {$$ = UNARY($1.ident_val, PLUSPLUS);}  
+| 	IDENT MINUSMINUS        {$$ = UNARY($1.ident_val, MINUSMINUS);}        	
+| 	PLUSPLUS IDENT        	{$$ = UNARY($2.ident_val, PLUSPLUS);}        	
+| 	MINUSMINUS IDENT        {$$ = UNARY($2.ident_val, MINUSMINUS);}        	
 
 function:
 	IDENT '(' ')' block 	{printf("function\n");}
@@ -182,6 +194,12 @@ void yyerror (char const *s)
 	fprintf(stderr, "%s\n", s);
 }
 
+void PRINTEXP(YYSTYPE v)
+{
+	if (v.has_val)
+		printf("expression value: %d\n", (int) v.int_val);
+}
+
 
 // add a new identifier to the current symbol table
 void INSTALL(SYMTABLE *t, YYSTYPE val)
@@ -191,16 +209,25 @@ void INSTALL(SYMTABLE *t, YYSTYPE val)
     	fprintf(stderr, "Error: redeclaration of %s\n", val.ident_val);
 		return;
     }
+	val.has_val = 0;
    	ins_table(t, val.ident_val, val); // junk value 
 }
 
+// add or update the value associated with an identifier
 void UPDATE(SYMTABLE *t, char *key, YYSTYPE val)
 {
+	TABLECELL *tc;
     if (!in_table(t, key))
     {
         fprintf(stderr, "Error: identifier %s undeclared\n", val.ident_val);
         return;
     }
+	if (!val.has_val)
+	{
+		fprintf(stderr, "Error: identifier %s undefined\n", key);
+		return;	
+	}
+	val.has_val = 1;
 	update_table(t, key, val);
 }
 
@@ -210,7 +237,8 @@ YYSTYPE RETRIEVE(SYMTABLE *t, char *key)
 	TABLECELL *tc;
 	if (!(tc = in_table(t, key)))
 	{
-		fprintf(stderr, "Error: identifier %s undefined\n", key);	
+		fprintf(stderr, "Error: identifier %s undefined\n", key);
+		return res;	
 	}
 	res = tc->value;
 	return res;
@@ -236,31 +264,77 @@ void SPUSH()
 // for now it is only defined for integers
 YYSTYPE ADD(YYSTYPE v1, YYSTYPE v2)
 {
-	YYSTYPE *res = malloc(sizeof(YYSTYPE));
+	YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
+	if (!v1.has_val || !v2.has_val)
+	{
+		return *res;
+	}
 	res->int_val = v1.int_val + v2.int_val;
 	res->metadata.tokname = "NUMBER";
+	res->has_val = 1;
 	return *res;
 }
 YYSTYPE MULTIPLY(YYSTYPE v1, YYSTYPE v2)
 {
-    YYSTYPE res;
-    res.int_val = v1.int_val * v2.int_val;
-	res.metadata.tokname = "NUMBER";
-	return res;
+	YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
+	if (!v1.has_val || !v2.has_val)
+	{
+		return *res;
+	}
+    res->int_val = v1.int_val * v2.int_val;
+	res->metadata.tokname = "NUMBER";
+	res->has_val = 1;
+	return *res;
 }
 YYSTYPE SUBTRACT(YYSTYPE v1, YYSTYPE v2)
 {
-    YYSTYPE res;
-    res.int_val = v1.int_val - v2.int_val;
-	res.metadata.tokname = "NUMBER";
-	return res;
+	YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
+	if (!v1.has_val || !v2.has_val)
+	{
+		return *res;
+	}
+    res->int_val = v1.int_val - v2.int_val;
+	res->metadata.tokname = "NUMBER";
+	res->has_val = 1;
+	return *res;
 }
 YYSTYPE DIVIDE(YYSTYPE v1, YYSTYPE v2)
 {
-    YYSTYPE res;
-    res.int_val = v1.int_val / v2.int_val;
-	res.metadata.tokname = "NUMBER";
-	return res;
+	YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
+	if (!v1.has_val || !v2.has_val)
+	{
+		return *res;
+	}
+    res->int_val = v1.int_val / v2.int_val;
+	res->metadata.tokname = "NUMBER";
+	res->has_val = 1;
+	return *res;
+}
+
+YYSTYPE UNARY(char *key, int op)
+{
+	TABLECELL *tc = in_table(curr_table, key);
+	if (!tc)
+	{
+		fprintf(stderr, "Error: identifier %s undeclared\n", key);
+		tc = calloc(sizeof(TABLECELL),1);
+		return tc->value;
+	}
+	YYSTYPE v = tc->value;
+	if (!v.int_val)
+	{	
+		fprintf(stderr, "Error: identifier %s undefined\n", v.ident_val);
+		return v;
+	}
+	switch (op)
+	{
+		case PLUSPLUS:
+			tc->value.int_val = tc->value.int_val + 1;
+			break;
+		case MINUSMINUS:
+			tc->value.int_val = tc->value.int_val -1;
+	}
+	return tc->value;
 }
 
 /* SYMBOL TABLE */
