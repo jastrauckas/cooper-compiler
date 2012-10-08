@@ -82,6 +82,7 @@
 	/* functions that will be defined */
 	void INSTALL(SYMTABLE *t, YYSTYPE val);
 	void UPDATE(SYMTABLE *t, char *key, YYSTYPE val);
+	YYSTYPE FIXNUM(YYSTYPE v);
 	YYSTYPE RETRIEVE(SYMTABLE *t, char *key);
 	YYSTYPE UNARY(char *key, int op);
 	YYSTYPE BINARY(YYSTYPE v1, YYSTYPE v2, int op);
@@ -93,7 +94,7 @@
 
 
 /* Line 268 of yacc.c  */
-#line 97 "hw2.tab.c"
+#line 98 "hw2.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -206,7 +207,7 @@ typedef int YYSTYPE;
 
 
 /* Line 343 of yacc.c  */
-#line 210 "hw2.tab.c"
+#line 211 "hw2.tab.c"
 
 #ifdef short
 # undef short
@@ -516,11 +517,11 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   119,   119,   120,   123,   124,   125,   128,   133,   134,
-     135,   136,   137,   138,   139,   140,   141,   142,   143,   144,
-     145,   146,   153,   158,   162,   169,   170,   171,   172,   173,
-     174,   175,   176,   179,   180,   181,   182,   185,   188,   191,
-     197,   202,   203,   204,   205
+       0,   120,   120,   121,   124,   125,   126,   129,   134,   135,
+     136,   137,   138,   139,   140,   141,   142,   143,   144,   145,
+     146,   147,   154,   159,   163,   170,   171,   172,   173,   174,
+     175,   176,   177,   180,   181,   182,   183,   186,   189,   192,
+     198,   203,   204,   205,   206
 };
 #endif
 
@@ -1527,14 +1528,14 @@ yyreduce:
         case 5:
 
 /* Line 1806 of yacc.c  */
-#line 124 "hw2.y"
+#line 125 "hw2.y"
     {PRINTEXP((yyvsp[(1) - (2)]));}
     break;
 
   case 7:
 
 /* Line 1806 of yacc.c  */
-#line 128 "hw2.y"
+#line 129 "hw2.y"
     {
 								printf("assignment\n");
 								(yyval) = (yyvsp[(3) - (3)]);
@@ -1545,98 +1546,98 @@ yyreduce:
   case 8:
 
 /* Line 1806 of yacc.c  */
-#line 133 "hw2.y"
+#line 134 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), TIMESEQ);}
     break;
 
   case 9:
 
 /* Line 1806 of yacc.c  */
-#line 134 "hw2.y"
+#line 135 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), DIVEQ);}
     break;
 
   case 10:
 
 /* Line 1806 of yacc.c  */
-#line 135 "hw2.y"
+#line 136 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), MODEQ);}
     break;
 
   case 11:
 
 /* Line 1806 of yacc.c  */
-#line 136 "hw2.y"
+#line 137 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), PLUSEQ);}
     break;
 
   case 12:
 
 /* Line 1806 of yacc.c  */
-#line 137 "hw2.y"
+#line 138 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), MINUSEQ);}
     break;
 
   case 13:
 
 /* Line 1806 of yacc.c  */
-#line 138 "hw2.y"
+#line 139 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), SHLEQ);}
     break;
 
   case 14:
 
 /* Line 1806 of yacc.c  */
-#line 139 "hw2.y"
+#line 140 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), SHREQ);}
     break;
 
   case 15:
 
 /* Line 1806 of yacc.c  */
-#line 140 "hw2.y"
+#line 141 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), ANDEQ);}
     break;
 
   case 16:
 
 /* Line 1806 of yacc.c  */
-#line 141 "hw2.y"
+#line 142 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), OREQ);}
     break;
 
   case 17:
 
 /* Line 1806 of yacc.c  */
-#line 142 "hw2.y"
+#line 143 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), XOREQ);}
     break;
 
   case 18:
 
 /* Line 1806 of yacc.c  */
-#line 143 "hw2.y"
+#line 144 "hw2.y"
     {(yyval) = (yyvsp[(1) - (1)]);}
     break;
 
   case 19:
 
 /* Line 1806 of yacc.c  */
-#line 144 "hw2.y"
+#line 145 "hw2.y"
     {(yyval) = (yyvsp[(3) - (3)]);}
     break;
 
   case 20:
 
 /* Line 1806 of yacc.c  */
-#line 145 "hw2.y"
+#line 146 "hw2.y"
     {(yyval) = TERNARY((yyvsp[(1) - (5)]), (yyvsp[(2) - (5)]), (yyvsp[(3) - (5)]));}
     break;
 
   case 21:
 
 /* Line 1806 of yacc.c  */
-#line 146 "hw2.y"
+#line 147 "hw2.y"
     {
 								(yyval) = (yyvsp[(3) - (4)]);
 								(yyval).has_val = 0; 
@@ -1647,7 +1648,7 @@ yyreduce:
   case 22:
 
 /* Line 1806 of yacc.c  */
-#line 153 "hw2.y"
+#line 154 "hw2.y"
     {
 								printf("declaration\n");
 							}
@@ -1656,7 +1657,7 @@ yyreduce:
   case 23:
 
 /* Line 1806 of yacc.c  */
-#line 158 "hw2.y"
+#line 159 "hw2.y"
     {
 								printf("list\n");
 								INSTALL(curr_table, (yyvsp[(1) - (1)]));
@@ -1666,7 +1667,7 @@ yyreduce:
   case 24:
 
 /* Line 1806 of yacc.c  */
-#line 162 "hw2.y"
+#line 163 "hw2.y"
     {
 								printf("list\n");
 								INSTALL(curr_table, (yyvsp[(3) - (3)]));
@@ -1676,98 +1677,98 @@ yyreduce:
   case 25:
 
 /* Line 1806 of yacc.c  */
-#line 169 "hw2.y"
+#line 170 "hw2.y"
     {(yyval) = RETRIEVE(curr_table, (yyvsp[(1) - (1)]).ident_val);}
     break;
 
   case 26:
 
 /* Line 1806 of yacc.c  */
-#line 170 "hw2.y"
-    {(yyval) = (yyvsp[(1) - (1)]);}
+#line 171 "hw2.y"
+    {(yyval) = FIXNUM((yyvsp[(1) - (1)]));}
     break;
 
   case 27:
 
 /* Line 1806 of yacc.c  */
-#line 171 "hw2.y"
+#line 172 "hw2.y"
     {(yyval) = (yyvsp[(2) - (3)]);}
     break;
 
   case 28:
 
 /* Line 1806 of yacc.c  */
-#line 172 "hw2.y"
+#line 173 "hw2.y"
     {(yyval) = BINARY((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), '+');}
     break;
 
   case 29:
 
 /* Line 1806 of yacc.c  */
-#line 173 "hw2.y"
+#line 174 "hw2.y"
     {(yyval) = BINARY((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), '-');}
     break;
 
   case 30:
 
 /* Line 1806 of yacc.c  */
-#line 174 "hw2.y"
+#line 175 "hw2.y"
     {(yyval) = BINARY((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), '*');}
     break;
 
   case 31:
 
 /* Line 1806 of yacc.c  */
-#line 175 "hw2.y"
+#line 176 "hw2.y"
     {(yyval) = BINARY((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), '/');}
     break;
 
   case 33:
 
 /* Line 1806 of yacc.c  */
-#line 179 "hw2.y"
+#line 180 "hw2.y"
     {(yyval) = UNARY((yyvsp[(1) - (2)]).ident_val, PLUSPLUS);}
     break;
 
   case 34:
 
 /* Line 1806 of yacc.c  */
-#line 180 "hw2.y"
+#line 181 "hw2.y"
     {(yyval) = UNARY((yyvsp[(1) - (2)]).ident_val, MINUSMINUS);}
     break;
 
   case 35:
 
 /* Line 1806 of yacc.c  */
-#line 181 "hw2.y"
+#line 182 "hw2.y"
     {(yyval) = UNARY((yyvsp[(2) - (2)]).ident_val, PLUSPLUS);}
     break;
 
   case 36:
 
 /* Line 1806 of yacc.c  */
-#line 182 "hw2.y"
+#line 183 "hw2.y"
     {(yyval) = UNARY((yyvsp[(2) - (2)]).ident_val, MINUSMINUS);}
     break;
 
   case 37:
 
 /* Line 1806 of yacc.c  */
-#line 185 "hw2.y"
+#line 186 "hw2.y"
     {printf("function\n");}
     break;
 
   case 38:
 
 /* Line 1806 of yacc.c  */
-#line 188 "hw2.y"
+#line 189 "hw2.y"
     {}
     break;
 
   case 39:
 
 /* Line 1806 of yacc.c  */
-#line 191 "hw2.y"
+#line 192 "hw2.y"
     {
 								SPUSH(); 
 								printf("entering function scope\n");
@@ -1777,7 +1778,7 @@ yyreduce:
   case 40:
 
 /* Line 1806 of yacc.c  */
-#line 197 "hw2.y"
+#line 198 "hw2.y"
     {
 								SPOP(); 
                                 printf("leaving function scope\n");
@@ -1787,7 +1788,7 @@ yyreduce:
 
 
 /* Line 1806 of yacc.c  */
-#line 1791 "hw2.tab.c"
+#line 1792 "hw2.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2018,7 +2019,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 207 "hw2.y"
+#line 208 "hw2.y"
 
 /* Function definitions go here */
 int main()
@@ -2051,6 +2052,28 @@ void INSTALL(SYMTABLE *t, YYSTYPE val)
     }
 	val.has_val = 0;
    	ins_table(t, val.ident_val, val); // junk value 
+}
+
+// make sure the number has an integer equivalent
+YYSTYPE FIXNUM(YYSTYPE v)
+{
+	if (v.metadata.num_class == REAL_CLASS)
+	{
+		fprintf(stderr, "Warning: rounding real number to integer\n");
+		if (!strcmp(v.metadata.num_type, "DOUBLE"))
+		{
+			v.int_val = llrint(v.double_val);		
+		}
+		else if (!strcmp(v.metadata.num_type, "LONGDOUBLE"))
+		{
+			v.int_val = llrintl(v.double_val);
+		}
+		else
+		{
+			v.int_val = llrintf(v.float_val);
+		}
+	}
+	return v;
 }
 
 // add or update the value associated with an identifier

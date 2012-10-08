@@ -16,6 +16,7 @@
 	/* functions that will be defined */
 	void INSTALL(SYMTABLE *t, YYSTYPE val);
 	void UPDATE(SYMTABLE *t, char *key, YYSTYPE val);
+	YYSTYPE FIXNUM(YYSTYPE v);
 	YYSTYPE RETRIEVE(SYMTABLE *t, char *key);
 	YYSTYPE UNARY(char *key, int op);
 	YYSTYPE BINARY(YYSTYPE v1, YYSTYPE v2, int op);
@@ -167,7 +168,7 @@ list:
 
 math:
 	IDENT					{$$ = RETRIEVE(curr_table, $1.ident_val);}
-|	NUMBER                 	{$$ = $1;}
+|	NUMBER                 	{$$ = FIXNUM($1);}
 | 	'(' math ')'			{$$ = $2;} 
 | 	math '+' math         	{$$ = BINARY($1, $3, '+');}
 | 	math '-' math          	{$$ = BINARY($1, $3, '-');}        	
@@ -236,6 +237,28 @@ void INSTALL(SYMTABLE *t, YYSTYPE val)
     }
 	val.has_val = 0;
    	ins_table(t, val.ident_val, val); // junk value 
+}
+
+// make sure the number has an integer equivalent
+YYSTYPE FIXNUM(YYSTYPE v)
+{
+	if (v.metadata.num_class == REAL_CLASS)
+	{
+		fprintf(stderr, "Warning: rounding real number to integer\n");
+		if (!strcmp(v.metadata.num_type, "DOUBLE"))
+		{
+			v.int_val = llrint(v.double_val);		
+		}
+		else if (!strcmp(v.metadata.num_type, "LONGDOUBLE"))
+		{
+			v.int_val = llrintl(v.double_val);
+		}
+		else
+		{
+			v.int_val = llrintf(v.float_val);
+		}
+	}
+	return v;
 }
 
 // add or update the value associated with an identifier
