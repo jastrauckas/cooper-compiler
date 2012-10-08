@@ -12,7 +12,7 @@
 	int buf[2048]; 
 	char minibuf[128];
 	char *end; 
-	int n, line, overflow, bptr=0;
+	int n, overflow, bptr=0;
 	char *fname = "<stdin>";
 	long l;
 	long long ll;
@@ -230,7 +230,7 @@ fallback	.
 				return(NUMBER);
 			}
 
-\n			{line++; return '\n';}
+\n			{line++;}
 auto		{yylval.metadata.tokname="AUTO"; return(AUTO);}
 break		{yylval.metadata.tokname="BREAK"; return(BREAK);}
 case 		{yylval.metadata.tokname="CASE"; return(CASE);}
@@ -327,7 +327,7 @@ _Imaginary 	{yylval.metadata.tokname="_IMAGINARY"; return(_IMAGINARY);}
 				sscanf(yytext, "# %d \"%[^\"]", &line, minibuf);
 				line = 0; // reset following directive
 				yylval.ident_val = malloc(sizeof(char)*(strlen(yytext)+1));
-				strcpy(yylval.ident_val, yytext);
+				strcpy(yylval.ident_val, minibuf);
 				return FILEDIR;
 			}
 

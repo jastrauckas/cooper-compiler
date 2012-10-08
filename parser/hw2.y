@@ -15,7 +15,7 @@
 	TABLECELL *tc; // store stuff here
 	SYMTABLE *curr_table; // points to the current scope's symbol table
 	char curr_file[MAXLEN+1];
-	int curr_line, stat;
+	int stat;
 
 	/* functions that will be defined */
 	void INSTALL(SYMTABLE *t, YYSTYPE val);
@@ -129,15 +129,13 @@ expression:
 	declaration 
 |	value ';'				{PRINTEXP($1);}
 |	function /* does this belong here? */
-| 	FILEDIR					{strncpy(curr_file, $1.ident_val, MAXLEN); curr_line=0;}
-| 	'\n'					{curr_line++;}
+| 	FILEDIR					{strncpy(curr_file, $1.ident_val, MAXLEN); line=0;}
 
 value: 
 	IDENT '=' math			{
-								printf("assignment\n");
-								$$ = $3;
 								stat = UPDATE(curr_table, $1.ident_val, $3);
-								if (stat) {$$.has_val = 0;}
+								$$ = $3;
+								if (stat) {$$.int_val=0;}
 							}
 |	IDENT TIMESEQ math		{$$ = OPASSIGN($1, $3, TIMESEQ);}
 |	IDENT DIVEQ math		{$$ = OPASSIGN($1, $3, DIVEQ);}
@@ -155,29 +153,27 @@ value:
 |	IDENT '[' value ']'		{
 								$$ = $3;
 								$$.has_val = 0;
-								printf("%s:%d: ", curr_file, curr_line); 
+								$$.int_val = 0;
+								printf("%s:%d: ", curr_file, line); 
 								printf("Error: array not implemented\n");
 							}
 |	IDENT INDSEL IDENT		{
 								$$ = $3;
 								$$.has_val = 0;
-								printf("%s:%d: ", curr_file, curr_line); 
+								$$.int_val = 0;
+								printf("%s:%d: ", curr_file, line); 
 								printf("Error: struct/union not implemented\n");
 							}
 
 declaration: 
-	INT list	';'			{
-								printf("declaration\n");
-							}
+	INT list	';'			
 
 list: 
 	IDENT					{
-								printf("list\n");
-								INSTALL(curr_table, $1);
+								$$=$1; INSTALL(curr_table, $1);
 							}
 | 	list ',' IDENT          {
-								printf("list\n");
-								INSTALL(curr_table, $3);
+								$$=$3; INSTALL(curr_table, $3);
 							}
 
 
@@ -200,7 +196,9 @@ unaryexp:
 | 	'-' math        		{$$ = UNARY($2, '-');}        	
 
 function:
-	IDENT '(' ')' block 	{printf("function\n");}
+	IDENT '(' ')' block 
+|	IDENT '(' ')' '\n' block
+|	block	
 
 block:
 	scopepush body scopepop	{}
@@ -217,10 +215,12 @@ scopepop:
                                 printf("leaving function scope\n");
 							}
 body: 
-	value ';'
+	value ';'				{PRINTEXP($1);}
 |	declaration
 |	value ';' body
 |	declaration body
+| 	block
+| 	block body
 
 %%
 /* Function definitions go here */
@@ -229,7 +229,7 @@ int main()
 	init_table(&t, 512, NULL);
 	curr_table = &t; // initialize scope to global scope
 	strcpy(curr_file, "stdin");
-	curr_line = 1;
+	line = 1;
 	yyparse();
 	return 0;
 }
@@ -241,11 +241,8 @@ void yyerror (char const *s)
 
 void PRINTEXP(YYSTYPE v)
 {
-	if (v.has_val)
-	{
-		printf("%s:%d: ", curr_file, curr_line); 
-		printf("exprval=%lld\n", v.int_val);
-	}
+	printf("%s:%d: ", curr_file, line); 
+	printf("exprval=%lld\n", v.int_val);
 }
 
 
@@ -254,7 +251,7 @@ void INSTALL(SYMTABLE *t, YYSTYPE val)
 {
 	if (in_table(t, val.ident_val))
 	{
-		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
+		fprintf(stderr, "%s:%d: ", curr_file, line); 
     	fprintf(stderr, "Error: redeclaration of %s\n", val.ident_val);
 		return;
     }
@@ -267,7 +264,7 @@ YYSTYPE FIXNUM(YYSTYPE v)
 {
 	if (v.metadata.num_class == REAL_CLASS)
 	{
-		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
+		fprintf(stderr, "%s:%d: ", curr_file, line); 
 		fprintf(stderr, "Warning: rounding real number to integer\n");
 		if (!strcmp(v.metadata.num_type, "DOUBLE"))
 		{
@@ -291,16 +288,15 @@ int UPDATE(SYMTABLE *t, char *key, YYSTYPE val)
 	TABLECELL *tc;
     if (!in_table(t, key))
     {
-		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
+		fprintf(stderr, "%s:%d: ", curr_file, line); 
         fprintf(stderr, "Error: identifier %s undeclared\n", val.ident_val);
         return 1;
     }
-	if (!val.has_val)
+	if (!val.has_val) // don't bother updating
 	{
-		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
-		fprintf(stderr, "Error: identifier %s undefined\n", key);
 		return 1;	
 	}
+	val.has_val = 1;
 	update_table(t, key, val);
 	return 0;
 }
@@ -311,13 +307,18 @@ YYSTYPE RETRIEVE(SYMTABLE *t, char *key)
 	TABLECELL *tc;
 	if (!(tc = in_table(t, key)))
 	{
-		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
+		fprintf(stderr, "%s:%d: ", curr_file, line); 
 		fprintf(stderr, "Error: identifier %s undeclared\n", key);
+		res->int_val = 0;
 		return *res;	
 	}
-	
 	*res = tc->value;
-	CHECK(*res);
+    if (!res->has_val)
+	{
+        fprintf(stderr, "%s:%d: ", curr_file, line);
+        fprintf(stderr, "Error: identifier %s undefined\n", key);
+        res->int_val=0;
+	}	
 	return *res;
 }
 
@@ -342,12 +343,6 @@ void SPUSH()
 
 YYSTYPE UNARY(YYSTYPE v, int op)
 {
-	if (!v.has_val)
-	{	
-		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
-		fprintf(stderr, "Error: identifier %s undefined\n", v.ident_val);
-		return v;
-	}
 	switch (op)
 	{
 		case PLUSPLUS:
@@ -374,10 +369,6 @@ YYSTYPE UNARY(YYSTYPE v, int op)
 YYSTYPE BINARY(YYSTYPE v1, YYSTYPE v2, int op)
 {
     YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
-    if (!CHECK(v1) || !CHECK(v2))
-    {
-        return *res;
-    }
 	res->metadata.tokname = "NUMBER";
 	res->has_val = 1;
 	switch (op)
@@ -403,13 +394,14 @@ YYSTYPE OPASSIGN(YYSTYPE v1, YYSTYPE v2, int op)
 {
 	TABLECELL *tc;
     YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
-    if (!CHECK(v1) || !CHECK(v2))
+	res->int_val = 0;
+    if (!CHECK(v1))
     {
         return *res;
     }
     if (!(tc = in_table(curr_table, v1.ident_val)))
     {
-		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
+		fprintf(stderr, "%s:%d: ", curr_file, line); 
         fprintf(stderr, "Error: identifier %s undeclared\n", v1.ident_val);
         return *res;
     }
@@ -445,8 +437,6 @@ YYSTYPE OPASSIGN(YYSTYPE v1, YYSTYPE v2, int op)
 YYSTYPE TERNARY(YYSTYPE v1, YYSTYPE v2, YYSTYPE v3)
 {
 	YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
-	if (!CHECK(v1) | !CHECK(v2) | !CHECK(v3))
-		return *res;
 	if (v1.int_val)
 	{
 		return v2;
@@ -462,7 +452,7 @@ int CHECK(YYSTYPE v)
 {
     if (!v.has_val)
     {
-		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
+		fprintf(stderr, "%s:%d: ", curr_file, line); 
         fprintf(stderr, "Error: identifier %s undefined\n", v.ident_val);
         return 0;
     }

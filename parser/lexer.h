@@ -4,7 +4,7 @@
 #define LEXER
 // classes
 enum {INT_CLASS, REAL_CLASS};
-
+int line;
 // types
 /*
 char *int_type = "INT";

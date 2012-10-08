@@ -1127,7 +1127,7 @@ char *yytext;
 	int buf[2048]; 
 	char minibuf[128];
 	char *end; 
-	int n, line, overflow, bptr=0;
+	int n, overflow, bptr=0;
 	char *fname = "<stdin>";
 	long l;
 	long long ll;
@@ -1680,7 +1680,7 @@ case 24:
 /* rule 24 can match eol */
 YY_RULE_SETUP
 #line 233 "lexer.l"
-{line++; return '\n';}
+{line++;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
@@ -2120,7 +2120,7 @@ YY_RULE_SETUP
 				sscanf(yytext, "# %d \"%[^\"]", &line, minibuf);
 				line = 0; // reset following directive
 				yylval.ident_val = malloc(sizeof(char)*(strlen(yytext)+1));
-				strcpy(yylval.ident_val, yytext);
+				strcpy(yylval.ident_val, minibuf);
 				return FILEDIR;
 			}
 	YY_BREAK
