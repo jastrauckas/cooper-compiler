@@ -22,7 +22,7 @@
 	int UPDATE(SYMTABLE *t, char *key, YYSTYPE val);
 	YYSTYPE FIXNUM(YYSTYPE v);
 	YYSTYPE RETRIEVE(SYMTABLE *t, char *key);
-	YYSTYPE UNARY(char *key, int op);
+	YYSTYPE UNARY(YYSTYPE v, int op);
 	YYSTYPE BINARY(YYSTYPE v1, YYSTYPE v2, int op);
 	YYSTYPE OPASSIGN(YYSTYPE v1, YYSTYPE v2, int op);
 	YYSTYPE TERNARY(YYSTYPE v1, YYSTYPE v2, YYSTYPE v3);
@@ -192,10 +192,12 @@ math:
 | unaryexp
 
 unaryexp:        	
-	IDENT PLUSPLUS          {$$ = UNARY($1.ident_val, PLUSPLUS);}  
-| 	IDENT MINUSMINUS        {$$ = UNARY($1.ident_val, MINUSMINUS);}        	
-| 	PLUSPLUS IDENT        	{$$ = UNARY($2.ident_val, PLUSPLUS);}        	
-| 	MINUSMINUS IDENT        {$$ = UNARY($2.ident_val, MINUSMINUS);}        	
+	math PLUSPLUS          	{$$ = UNARY($1, PLUSPLUS);}  
+| 	math MINUSMINUS        	{$$ = UNARY($1, MINUSMINUS);}        	
+| 	PLUSPLUS math        	{$$ = UNARY($2, PLUSPLUS);}        	
+| 	MINUSMINUS math        	{$$ = UNARY($2, MINUSMINUS);}        	
+| 	'+' math        		{$$ = UNARY($2, '+');}        	
+| 	'-' math        		{$$ = UNARY($2, '-');}        	
 
 function:
 	IDENT '(' ')' block 	{printf("function\n");}
@@ -338,17 +340,8 @@ void SPUSH()
 /* ARITHMETIC */
 // for now it is only defined for integers
 
-YYSTYPE UNARY(char *key, int op)
+YYSTYPE UNARY(YYSTYPE v, int op)
 {
-	TABLECELL *tc = in_table(curr_table, key);
-	if (!tc)
-	{
-		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
-		fprintf(stderr, "Error: identifier %s undeclared\n", key);
-		tc = calloc(sizeof(TABLECELL),1);
-		return tc->value;
-	}
-	YYSTYPE v = tc->value;
 	if (!v.has_val)
 	{	
 		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
@@ -358,12 +351,23 @@ YYSTYPE UNARY(char *key, int op)
 	switch (op)
 	{
 		case PLUSPLUS:
-			tc->value.int_val = tc->value.int_val + 1;
+			v.int_val = v.int_val + 1;
 			break;
 		case MINUSMINUS:
-			tc->value.int_val = tc->value.int_val -1;
+			v.int_val = v.int_val -1;
+			break;
+		case '+':
+			v.int_val = ((v.int_val > 0) ? v.int_val : (-1*v.int_val));
+			break;
+		case '-':
+			v.int_val = ((v.int_val < 0) ? v.int_val : (-1*v.int_val));
+			break;
 	}
-	return tc->value;
+	if (v.ident_val && in_table(curr_table, v.ident_val))
+	{
+		UPDATE(curr_table, v.ident_val, v);
+	}
+	return v;
 }
 
 
