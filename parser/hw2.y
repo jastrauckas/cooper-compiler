@@ -15,11 +15,11 @@
 	TABLECELL *tc; // store stuff here
 	SYMTABLE *curr_table; // points to the current scope's symbol table
 	char curr_file[MAXLEN+1];
-	int curr_line;
+	int curr_line, stat;
 
 	/* functions that will be defined */
 	void INSTALL(SYMTABLE *t, YYSTYPE val);
-	void UPDATE(SYMTABLE *t, char *key, YYSTYPE val);
+	int UPDATE(SYMTABLE *t, char *key, YYSTYPE val);
 	YYSTYPE FIXNUM(YYSTYPE v);
 	YYSTYPE RETRIEVE(SYMTABLE *t, char *key);
 	YYSTYPE UNARY(char *key, int op);
@@ -136,7 +136,8 @@ value:
 	IDENT '=' math			{
 								printf("assignment\n");
 								$$ = $3;
-								UPDATE(curr_table, $1.ident_val, $3);
+								stat = UPDATE(curr_table, $1.ident_val, $3);
+								if (stat) {$$.has_val = 0;}
 							}
 |	IDENT TIMESEQ math		{$$ = OPASSIGN($1, $3, TIMESEQ);}
 |	IDENT DIVEQ math		{$$ = OPASSIGN($1, $3, DIVEQ);}
@@ -155,7 +156,13 @@ value:
 								$$ = $3;
 								$$.has_val = 0;
 								printf("%s:%d: ", curr_file, curr_line); 
-								printf("Error: arrays not recognized\n");
+								printf("Error: array not implemented\n");
+							}
+|	IDENT INDSEL IDENT		{
+								$$ = $3;
+								$$.has_val = 0;
+								printf("%s:%d: ", curr_file, curr_line); 
+								printf("Error: struct/union not implemented\n");
 							}
 
 declaration: 
@@ -277,23 +284,23 @@ YYSTYPE FIXNUM(YYSTYPE v)
 }
 
 // add or update the value associated with an identifier
-void UPDATE(SYMTABLE *t, char *key, YYSTYPE val)
+int UPDATE(SYMTABLE *t, char *key, YYSTYPE val)
 {
 	TABLECELL *tc;
     if (!in_table(t, key))
     {
 		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
         fprintf(stderr, "Error: identifier %s undeclared\n", val.ident_val);
-        return;
+        return 1;
     }
 	if (!val.has_val)
 	{
 		fprintf(stderr, "%s:%d: ", curr_file, curr_line); 
 		fprintf(stderr, "Error: identifier %s undefined\n", key);
-		return;	
+		return 1;	
 	}
-	val.has_val = 1;
 	update_table(t, key, val);
+	return 0;
 }
 
 YYSTYPE RETRIEVE(SYMTABLE *t, char *key)
