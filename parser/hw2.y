@@ -10,6 +10,8 @@
 	#include "symTable.h"
 	#include "symTable.c"
 
+	#define YYDEBUG 1
+
 	#define MAXLEN 512
 
 	SYMTABLE t;
@@ -150,12 +152,12 @@ arglist:
 |	arglist ',' assign_expr
 
 unary_expr: 
-	postfix_expr
-|	PLUSPLUS unary_expr 
-|	MINUSMINUS unary_expr 
-|	unary_op cast_expr
-|	SIZEOF	unary_expr
-|	SIZEOF '(' type_name ')'
+	postfix_expr				{printf("unary_expr 1\n");}
+|	PLUSPLUS unary_expr			{printf("unary_expr2\n");} 
+|	MINUSMINUS unary_expr		{printf("unary_expr\n");} 
+|	unary_op cast_expr			{printf("unary_expr\n");}
+|	SIZEOF	unary_expr			{printf("unary_expr\n");}
+|	SIZEOF '(' type_name ')'	{printf("unary_expr\n");}
 
 unary_op:
 	'&'
@@ -198,7 +200,7 @@ assign_expr:
 |	unary_expr assign_op assign_expr
 
 assign_op:
-	'='
+	'='	{printf("equalsign\n");}
 |	TIMESEQ
 |	DIVEQ
 |	MODEQ
@@ -441,6 +443,7 @@ function_definition:
 /* Function definitions go here */
 int main()
 {
+	yydebug = 1;
 	init_table(&t, 512, NULL);
 	curr_table = &t; // initialize scope to global scope
 	strcpy(curr_file, "stdin");
