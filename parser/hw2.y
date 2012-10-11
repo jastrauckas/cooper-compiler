@@ -116,6 +116,7 @@
 %left '*' '/' 
 %left PLUSPLUS MINUSMINUS
 %right '!' '~'
+%left INDSEL
 
 %%
 /* Grammar rules go here */
@@ -133,22 +134,22 @@ expression:
 | 	FILEDIR					{strncpy(curr_file, $1.ident_val, MAXLEN);}
 
 value: 
-	IDENT '=' math			{
+	math					{$$ = $1;}
+|	IDENT '=' value			{
 								stat = UPDATE(curr_table, $1.ident_val, $3);
 								$$ = $3;
-								if (stat) {$$.int_val=0;}
+								//if (stat) {$$.int_val=0;}
 							}
-|	math					{$$ = $1;}
-|	IDENT TIMESEQ math		{$$ = OPASSIGN($1, $3, TIMESEQ);}
-|	IDENT DIVEQ math		{$$ = OPASSIGN($1, $3, DIVEQ);}
-|	IDENT MODEQ math		{$$ = OPASSIGN($1, $3, MODEQ);}
-|	IDENT PLUSEQ math		{$$ = OPASSIGN($1, $3, PLUSEQ);}
-|	IDENT MINUSEQ math		{$$ = OPASSIGN($1, $3, MINUSEQ);}
-|	IDENT SHLEQ math		{$$ = OPASSIGN($1, $3, SHLEQ);}
-|	IDENT SHREQ math		{$$ = OPASSIGN($1, $3, SHREQ);}
-|	IDENT ANDEQ math		{$$ = OPASSIGN($1, $3, ANDEQ);}
-|	IDENT OREQ math			{$$ = OPASSIGN($1, $3, OREQ);}
-|	IDENT XOREQ math		{$$ = OPASSIGN($1, $3, XOREQ);}
+|	IDENT TIMESEQ value		{$$ = OPASSIGN($1, $3, TIMESEQ);}
+|	IDENT DIVEQ value		{$$ = OPASSIGN($1, $3, DIVEQ);}
+|	IDENT MODEQ value		{$$ = OPASSIGN($1, $3, MODEQ);}
+|	IDENT PLUSEQ value		{$$ = OPASSIGN($1, $3, PLUSEQ);}
+|	IDENT MINUSEQ value		{$$ = OPASSIGN($1, $3, MINUSEQ);}
+|	IDENT SHLEQ value		{$$ = OPASSIGN($1, $3, SHLEQ);}
+|	IDENT SHREQ value		{$$ = OPASSIGN($1, $3, SHREQ);}
+|	IDENT ANDEQ value		{$$ = OPASSIGN($1, $3, ANDEQ);}
+|	IDENT OREQ value			{$$ = OPASSIGN($1, $3, OREQ);}
+|	IDENT XOREQ value		{$$ = OPASSIGN($1, $3, XOREQ);}
 | 	value ',' value			{$$ = $3;}
 | 	value '?' value ':' value	{$$ = TERNARY($1, $2, $3);}
 |	IDENT '[' value ']'		{
@@ -209,13 +210,13 @@ block:
 scopepush:
 	'{'						{
 								SPUSH(); 
-								printf("entering function scope\n");
+								//printf("entering function scope\n");
 							}
 
 scopepop:
 	'}'						{
 								SPOP(); 
-                                printf("leaving function scope\n");
+                                //printf("leaving function scope\n");
 							}
 body: 
 	value ';'				{PRINTEXP($1);}
@@ -401,7 +402,7 @@ YYSTYPE OPASSIGN(YYSTYPE v1, YYSTYPE v2, int op)
     {
 		fprintf(stderr, "%s:%d: ", curr_file, line); 
         fprintf(stderr, "Error: identifier %s undeclared\n", v1.ident_val);
-        res->int_val = 0;
+        res->int_val = v2.int_val;
 		res->has_val = 0;
 		return *res;
     }
@@ -412,7 +413,7 @@ YYSTYPE OPASSIGN(YYSTYPE v1, YYSTYPE v2, int op)
     
 	if (!CHECK(*res))
     {
-		res->int_val = 0;
+		res->int_val = v2.int_val;
 		res->has_val = 0;
         return *res;
     }
