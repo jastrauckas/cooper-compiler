@@ -102,21 +102,21 @@
 %token NEWLINE
 %token FILEDIR
 
-%left ','
-%left '=' PLUSEQ MINUSEQ TIMESEQ DIVEQ MODEQ SHLEQ SHREQ ANDEQ OREQ XOREQ
-%left '?' ':'
+%left IF
+%left ELSE
+%right '=' PLUSEQ MINUSEQ TIMESEQ DIVEQ MODEQ SHLEQ SHREQ ANDEQ OREQ XOREQ
 %left LOGOR
 %left LOGAND
+%left '^'
 %left '|'
 %left '&'
 %left EQEQ NOTEQ
 %left '>' '<' LTEQ GTEQ
-%left LSH RSH
+%left SHL SHR
 %left '+' '-'
 %left '*' '/' 
-%left PLUSPLUS MINUSMINUS
-%left '!' '~'
-%left INDSEL
+%right '!' '~'
+%right SIZEOF
 
 %start translation_unit
 %%
@@ -171,26 +171,23 @@ cast_expr:
 
 binary_expr:
 	cast_expr
-|	binary_expr binary_op binary_expr
-
-binary_op:
-	'+'
-| 	'-'
-| 	'*'
-| 	'/'
-|	'&'
-| 	'|'
-|	'^'
-| 	LSH
-| 	RSH
-| 	LOGOR
-| 	LOGAND
-|	EQEQ
-| 	NOTEQ
-| 	'<'
-|	'>'
-|	LTEQ
-| 	GTEQ
+|	binary_expr '+' binary_expr
+|	binary_expr '-' binary_expr
+|	binary_expr '*' binary_expr
+|	binary_expr '/' binary_expr
+|	binary_expr '&' binary_expr
+|	binary_expr '|' binary_expr
+|	binary_expr '^' binary_expr
+|	binary_expr SHL binary_expr
+|	binary_expr SHR binary_expr
+|	binary_expr LOGOR binary_expr
+|	binary_expr LOGAND binary_expr
+|	binary_expr EQEQ binary_expr
+|	binary_expr NOTEQ binary_expr
+|	binary_expr '>' binary_expr
+|	binary_expr '<' binary_expr
+|	binary_expr LTEQ binary_expr
+|	binary_expr GTEQ binary_expr
 
 conditional_expr:
 	binary_expr
@@ -387,7 +384,7 @@ statement:
 
 labeled_stmt:
 	IDENT ':' statement
-|	CASE constant_expr ':' statement
+|	CASE constant_expr ':' statement %prec CASE
 | 	DEFAULT ':' statement
 
 compound_stmt:
@@ -409,7 +406,7 @@ expr_stmt:
 |	expr ';'
 
 selection_stmt:
-	IF '(' expr ')' statement
+	IF '(' expr ')' statement %prec IF
 |	IF '(' expr ')' statement ELSE statement
 | SWITCH '(' expr ')' statement
 
@@ -420,11 +417,11 @@ iter_stmt:
 |	FOR '(' expr_stmt expr_stmt expr ')' statement
 
 jump_stmt:
-	GOTO IDENT ';'
+	GOTO IDENT ';' 
 | 	CONTINUE ';'
-| 	BREAK ';'
+| 	BREAK ';'	
 | 	RETURN ';'
-| 	RETURN expr ';'
+| 	RETURN expr ';' %prec RETURN
 
 translation_unit:
 	external_declaration
