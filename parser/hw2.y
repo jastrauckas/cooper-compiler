@@ -8,7 +8,8 @@
 	#include <math.h>
 	#include "lexer.h"
 	#include "symTable.h"
-
+	
+	#define YYDEBUG 1
 	#define MAXLEN 512
 
 	SYMTABLE t;
@@ -110,7 +111,7 @@
 %left '&'
 %left EQEQ NOTEQ
 %left '>' '<' LTEQ GTEQ
-%left LSH RSH
+%left SHL SHR
 %left '+' '-'
 %left '*' '/' 
 %left PLUSPLUS MINUSMINUS
@@ -137,6 +138,7 @@ value:
 								$$ = $3;
 								if (stat) {$$.int_val=0;}
 							}
+|	math					{$$ = $1;}
 |	IDENT TIMESEQ math		{$$ = OPASSIGN($1, $3, TIMESEQ);}
 |	IDENT DIVEQ math		{$$ = OPASSIGN($1, $3, DIVEQ);}
 |	IDENT MODEQ math		{$$ = OPASSIGN($1, $3, MODEQ);}
@@ -147,7 +149,6 @@ value:
 |	IDENT ANDEQ math		{$$ = OPASSIGN($1, $3, ANDEQ);}
 |	IDENT OREQ math			{$$ = OPASSIGN($1, $3, OREQ);}
 |	IDENT XOREQ math		{$$ = OPASSIGN($1, $3, XOREQ);}
-|	math					{$$ = $1;}
 | 	value ',' value			{$$ = $3;}
 | 	value '?' value ':' value	{$$ = TERNARY($1, $2, $3);}
 |	IDENT '[' value ']'		{
@@ -185,7 +186,9 @@ math:
 | 	math '-' math          	{$$ = BINARY($1, $3, '-');}        	
 | 	math '*' math          	{$$ = BINARY($1, $3, '*');}        	
 | 	math '/' math          	{$$ = BINARY($1, $3, '/');}
-| unaryexp
+| 	math SHL math          	{$$ = BINARY($1, $3, SHL);}
+| 	math SHR math          	{$$ = BINARY($1, $3, SHR);}
+| 	unaryexp
 
 unaryexp:        	
 	math PLUSPLUS          	{$$ = UNARY($1, PLUSPLUS);}  
