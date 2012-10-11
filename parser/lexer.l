@@ -231,6 +231,9 @@ fallback	.
 			}
 
 \n			{line++;}
+\040		{;}
+\t			{;}
+
 auto		{yylval.metadata.tokname="AUTO"; return(AUTO);}
 break		{yylval.metadata.tokname="BREAK"; return(BREAK);}
 case 		{yylval.metadata.tokname="CASE"; return(CASE);}
@@ -325,7 +328,7 @@ _Imaginary 	{yylval.metadata.tokname="_IMAGINARY"; return(_IMAGINARY);}
 			}
 {filedir} 	{
 				sscanf(yytext, "# %d \"%[^\"]", &line, minibuf);
-				line = 0; // reset following directive
+				line = 0; //printf("RESET\n");
 				yylval.ident_val = malloc(sizeof(char)*(strlen(yytext)+1));
 				strcpy(yylval.ident_val, minibuf);
 				return FILEDIR;
@@ -336,7 +339,7 @@ _Imaginary 	{yylval.metadata.tokname="_IMAGINARY"; return(_IMAGINARY);}
 int main(int argc, char *argv)
 {
         int tok, i;
-        line = 0;
+        line = 1;
         while (tok=yylex())
         {
             //printf("TOK: %d\n", tok);

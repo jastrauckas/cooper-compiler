@@ -103,7 +103,7 @@
 %token FILEDIR
 
 %left ','
-%left '=' PLUSEQ MINUSEQ TIMESEQ DIVEQ MODEQ SHLEQ SHREQ ANDEQ OREQ XOREQ
+%right '=' PLUSEQ MINUSEQ TIMESEQ DIVEQ MODEQ SHLEQ SHREQ ANDEQ OREQ XOREQ
 %left '?' ':'
 %left LOGOR
 %left LOGAND
@@ -115,7 +115,7 @@
 %left '+' '-'
 %left '*' '/' 
 %left PLUSPLUS MINUSMINUS
-%left '!' '~'
+%right '!' '~'
 
 %%
 /* Grammar rules go here */
@@ -130,7 +130,7 @@ expression:
 	declaration 
 |	value ';'				{PRINTEXP($1);}
 |	function /* does this belong here? */
-| 	FILEDIR					{strncpy(curr_file, $1.ident_val, MAXLEN); line=0;}
+| 	FILEDIR					{strncpy(curr_file, $1.ident_val, MAXLEN);}
 
 value: 
 	IDENT '=' math			{
@@ -220,10 +220,10 @@ scopepop:
 body: 
 	value ';'				{PRINTEXP($1);}
 |	declaration
-|	value ';' body
-|	declaration body
+|	body value ';'			{PRINTEXP($2);}
+|	body declaration
 | 	block
-| 	block body
+| 	body block
 
 %%
 /* Function definitions go here */
@@ -232,7 +232,6 @@ int main()
 	init_table(&t, 512, NULL);
 	curr_table = &t; // initialize scope to global scope
 	strcpy(curr_file, "stdin");
-	line = 1;
 	yyparse();
 	return 0;
 }
@@ -395,46 +394,55 @@ YYSTYPE BINARY(YYSTYPE v1, YYSTYPE v2, int op)
 
 YYSTYPE OPASSIGN(YYSTYPE v1, YYSTYPE v2, int op)
 {
+	// v1 is not actually a value, it is the YYSTYPE of an ident!
 	TABLECELL *tc;
     YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
-	res->int_val = 0;
-    if (!CHECK(v1))
-    {
-        return *res;
-    }
     if (!(tc = in_table(curr_table, v1.ident_val)))
     {
 		fprintf(stderr, "%s:%d: ", curr_file, line); 
         fprintf(stderr, "Error: identifier %s undeclared\n", v1.ident_val);
-        return *res;
+        res->int_val = 0;
+		res->has_val = 0;
+		return *res;
     }
+
+	*res = tc->value;
 	res->metadata.tokname = "NUMBER";
 	res->has_val = 1;
+    
+	if (!CHECK(*res))
+    {
+		res->int_val = 0;
+		res->has_val = 0;
+        return *res;
+    }
 	switch (op)
 	{
 		case PLUSEQ:
-			v1.int_val = v1.int_val + v2.int_val; break; 
+			printf("v1: %lld v2: %lld\n", res->int_val, v2.int_val); 
+			res->int_val = res->int_val + v2.int_val; break; 
 		case MINUSEQ:
-			v1.int_val = v1.int_val - v2.int_val; break; 
+			res->int_val = res->int_val - v2.int_val; break; 
 		case TIMESEQ:
-			v1.int_val = v1.int_val * v2.int_val; break; 
+			res->int_val = res->int_val * v2.int_val; break; 
 		case DIVEQ:
-			v1.int_val = v1.int_val / v2.int_val; break; 
+			res->int_val = res->int_val / v2.int_val; break; 
 		case MODEQ:
-			v1.int_val = v1.int_val % v2.int_val; break; 
+			res->int_val = res->int_val % v2.int_val; break; 
 		case SHLEQ:
-			v1.int_val = v1.int_val << v2.int_val; break; 
+			res->int_val = res->int_val << v2.int_val; break; 
 		case SHREQ:
-			v1.int_val = v1.int_val << v2.int_val; break; 
+			res->int_val = res->int_val << v2.int_val; break; 
 		case ANDEQ:
-			v1.int_val = v1.int_val & v2.int_val; break; 
+			res->int_val = res->int_val & v2.int_val; break; 
 		case OREQ:
-			v1.int_val = v1.int_val | v2.int_val; break; 
+			res->int_val = res->int_val | v2.int_val; break; 
 		case XOREQ:
-			v1.int_val = v1.int_val ^ v2.int_val; break; 
+			res->int_val = res->int_val ^ v2.int_val; break; 
 	}
-	UPDATE(curr_table, v1.ident_val, v1);
-	return v1;
+	
+	UPDATE(curr_table, v1.ident_val, *res);
+	return *res;
 }
 
 YYSTYPE TERNARY(YYSTYPE v1, YYSTYPE v2, YYSTYPE v3)
