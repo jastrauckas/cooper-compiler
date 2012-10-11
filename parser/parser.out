@@ -1,0 +1,21 @@
+test.c:18: Error: identifier ff1 undeclared
+test.c:20: Warning: rounding real number to integer
+test.c:22: Error: identifier foo undeclared
+test.c:7: exprval=3
+test.c:8: exprval=3
+test.c:11: exprval=10
+test.c:12: exprval=4
+test.c:13: exprval=200
+test.c:15: exprval=3
+test.c:16: exprval=55
+test.c:17: exprval=200
+test.c:18: exprval=0
+test.c:19: Error: struct/union not implemented
+test.c:19: exprval=0
+test.c:20: exprval=11
+test.c:21: exprval=99
+test.c:22: exprval=9
+test.c:23: exprval=-1
+test.c:24: exprval=0
+test.c:25: exprval=0
+test.c:26: exprval=0
