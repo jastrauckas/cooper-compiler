@@ -119,16 +119,8 @@
 %right '!' '~'
 %left INDSEL
 
+%start translation-unit
 %%
-/* Grammar rules go here */
-/* for now, really just declarations and expressions */
-
-
-run: 
-	primary-expression run 
-|	primary-expression
-
-/* EXPRESSIONS */
 
 primary-expression:
 	IDENT
@@ -143,7 +135,7 @@ postfix-expression:
 |	postfix-expression '(' ')'
 |	postfix-expression '(' argument-expression-list ')'
 |	postfix-expression '.' IDENT
-|	postfix-expression '->' IDENT
+|	postfix-expression INDSEL IDENT
 |	postfix-expression PLUSPLUS
 |	postfix-expression MINUSMINUS
 | 	'(' type-name ')' '{' initializer-list '}'
@@ -151,7 +143,7 @@ postfix-expression:
 
 argument-expression-list:
 	assignment-expression
-|	assignment-expression-list ',' assignment-expression
+|	argument-expression-list ',' assignment-expression
 
 unary-expression:
 	postfix-expression
@@ -166,13 +158,13 @@ unary-expression:
 
 cast-expression:
 	unary-expression
-|	'(' type_name ')' cast-expression
+|	'(' type-name ')' cast-expression
 
 binary-expression:
 	cast-expression
-|	binary-expression '*' cast-expression
-|	binary-expression '/' cast-expression
-|	binary-expression '+' cast-expression
+|	binary-expression '*' cast-expression	%prec '*'
+|	binary-expression '/' cast-expression	%prec '/'
+|	binary-expression '+' cast-expression	%prec '+'
 |	binary-expression '-' cast-expression
 |	binary-expression SHL cast-expression
 |	binary-expression SHR cast-expression
@@ -217,8 +209,8 @@ constant-expression:
 /* DECLARATIONS */
 
 declaration:
-	declaration-specifiers
-|	declaration-specifiers init-declarator-list
+	declaration-specifiers ';'
+|	declaration-specifiers init-declarator-list ';'
 
 declaration-specifiers:
 	storage-class-specifier
@@ -237,7 +229,7 @@ init-declarator:
 |	declarator '=' initializer
 
 storage-class-specifier:
-	TYPDEF
+	TYPEDEF
 |	EXTERN
 |	STATIC
 |	AUTO
@@ -254,17 +246,16 @@ type-specifier:
 |	SIGNED
 |	UNSIGNED
 |	struct-or-union-specifier
-|	enum-specifier
 |	typedef-name
 
 struct-or-union-specifier:
-	struct-or-union ident '{' struct-declaration-list '}'	
+	struct-or-union IDENT '{' struct-declaration-list '}'	
 |	struct-or-union '{' struct-declaration-list '}'	
-|	struct-or-union ident
+|	struct-or-union IDENT
 
 struct-or-union:
-	struct
-|	union
+	STRUCT
+|	UNION
 
 struct-declaration-list:
 	struct-declaration
@@ -299,7 +290,7 @@ direct-declarator:
 	IDENT
 	'(' declarator ')'
 	direct-declarator '(' parameter-type-list ')'
-	direct-declarator '(' identifier_list ')'
+	direct-declarator '(' identifier-list ')'
 	direct-declarator '(' ')'
 	
 pointer:
@@ -329,6 +320,85 @@ identifier-list:
 	IDENT
 |	identifier-list ',' IDENT
 
+type-name:
+	specifier-qualifier-list
+|	specifier-qualifier-list abstract-declarator
+
+abstract-declarator:
+	pointer
+|	pointer direct-abstract-declarator
+|	direct-abstract-declarator
+
+direct-abstract-declarator:
+	'(' abstract-declarator ')'
+|	direct-abstract-declarator '[' ']'
+|	direct-abstract-declarator '[' assignment-expression ']'
+|	direct-abstract-declarator '(' parameter-type-list ')'
+
+typedef-name:
+	IDENT
+
+/* INITIALIZATION */
+
+initializer:
+	assignment-expression
+|	'{' initializer-list '}'
+|	'{' initializer-list ',' '}'
+
+initializer-list:
+	designator
+|	designator-list designator
+
+designation:
+	designator-list '='
+
+designator-list:
+	designator
+|	designator-list designator
+
+designator:
+	'[' constant-expression ']'
+|	'.' IDENT
+
+
+/* STATEMENTS */
+
+statement:
+	compound-statement
+|	expression-statement
+
+compound-statement:
+	'{' '}'
+|	'{' block-item-list '}'
+
+block-item-list:
+	block-item
+	block-item-list block-item
+	
+block-item:
+	declaration
+|	statement
+
+expression-statement:
+	expression
+
+/* FUNCTION DEFINITIONS */
+function-definition:
+	declaration-specifiers declarator compound-statement
+|	declaration-specifiers declarator declaration-list compound-statement
+
+declaration-list:
+	declaration
+|	declaration-list declaration
+
+/* EXTERNAL DEFINITIONS */
+translation-unit:
+	external-declaration
+|	translation-unit external-declaration
+
+external-declaration:
+	function-definition
+|	declaration
 
 
 // HW2 GRAMMAR
