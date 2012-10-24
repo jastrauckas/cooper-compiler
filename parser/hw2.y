@@ -125,13 +125,222 @@
 
 
 run: 
+	primary-expression run 
+|	primary-expression
+
+/* EXPRESSIONS */
+
+primary-expression:
+	IDENT
+|	NUMBER
+|	STRING
+| 	'(' expression ')'
+
+postfix-expression:
+	primary-expression
+|	postfix-expression '[' ']'
+|	postfix-expression '[' NUMBER ']'
+|	postfix-expression '(' ')'
+|	postfix-expression '(' argument-expression-list ')'
+|	postfix-expression '.' IDENT
+|	postfix-expression '->' IDENT
+|	postfix-expression PLUSPLUS
+|	postfix-expression MINUSMINUS
+| 	'(' type-name ')' '{' initializer-list '}'
+| 	'(' type-name ')' '{' initializer-list ',' '}'
+
+argument-expression-list:
+	assignment-expression
+|	assignment-expression-list ',' assignment-expression
+
+unary-expression:
+	postfix-expression
+|	PLUSPLUS unary-expression
+|	MINUSMINUS unary-expression
+| 	'&' cast-expression
+| 	'*' cast-expression
+| 	'+' cast-expression
+| 	'-' cast-expression
+| 	'~' cast-expression
+| 	'!' cast-expression
+
+cast-expression:
+	unary-expression
+|	'(' type_name ')' cast-expression
+
+binary-expression:
+	cast-expression
+|	binary-expression '*' cast-expression
+|	binary-expression '/' cast-expression
+|	binary-expression '+' cast-expression
+|	binary-expression '-' cast-expression
+|	binary-expression SHL cast-expression
+|	binary-expression SHR cast-expression
+|	binary-expression '<' cast-expression
+|	binary-expression '>' cast-expression
+|	binary-expression LTEQ cast-expression
+|	binary-expression GTEQ cast-expression
+|	binary-expression EQEQ cast-expression
+|	binary-expression NOTEQ cast-expression
+|	binary-expression '&' cast-expression
+|	binary-expression '|' cast-expression
+|	binary-expression '^' cast-expression
+|	binary-expression LOGAND cast-expression
+|	binary-expression LOGOR cast-expression
+
+conditional-expression:
+	binary-expression
+|	binary-expression '?' expression ':' conditional-expression
+
+assignment-expression:
+	conditional-expression
+|	unary-expression '=' assignment-expression
+|	unary-expression TIMESEQ assignment-expression
+|	unary-expression DIVEQ assignment-expression
+|	unary-expression MODEQ assignment-expression
+|	unary-expression PLUSEQ assignment-expression
+|	unary-expression MINUSEQ assignment-expression
+|	unary-expression SHLEQ assignment-expression
+|	unary-expression SHREQ assignment-expression
+|	unary-expression ANDEQ assignment-expression
+|	unary-expression OREQ assignment-expression
+|	unary-expression XOREQ assignment-expression
+
+expression:
+	assignment-expression
+|	expression ',' assignment-expression
+
+constant-expression:
+	conditional-expression
+
+
+/* DECLARATIONS */
+
+declaration:
+	declaration-specifiers
+|	declaration-specifiers init-declarator-list
+
+declaration-specifiers:
+	storage-class-specifier
+|	storage-class-specifier declaration-specifiers
+|	type-specifier
+|	type-specifier declaration-specifiers
+| 	type-qualifier
+| 	type-qualifier declaration-specifiers
+
+init-declarator-list:
+	init-declarator
+|	init-declarator-list ',' init-declarator
+
+init-declarator:
+	declarator
+|	declarator '=' initializer
+
+storage-class-specifier:
+	TYPDEF
+|	EXTERN
+|	STATIC
+|	AUTO
+|	REGISTER
+
+type-specifier:
+	VOID
+|	CHAR
+|	SHORT
+|	INT
+|	LONG
+|	FLOAT
+|	DOUBLE
+|	SIGNED
+|	UNSIGNED
+|	struct-or-union-specifier
+|	enum-specifier
+|	typedef-name
+
+struct-or-union-specifier:
+	struct-or-union ident '{' struct-declaration-list '}'	
+|	struct-or-union '{' struct-declaration-list '}'	
+|	struct-or-union ident
+
+struct-or-union:
+	struct
+|	union
+
+struct-declaration-list:
+	struct-declaration
+|	struct-declaration-list struct-declaration
+
+struct-declaration:
+	specifier-qualifier-list struct-declarator-list ';'
+
+specifier-qualifier-list:
+	type-specifier
+|	specifier-qualifier-list type-specifier
+
+struct-declarator-list:	
+	struct-declarator
+|	struct-declarator-list ',' struct-declarator
+
+struct-declarator:
+	declarator
+|	declarator ':' constant-expression
+|	':' constant-expression
+
+type-qualifier:
+	CONST
+	RESTRICT
+	VOLATILE
+
+declarator:
+	pointer direct-declarator
+|	direct-declarator
+
+direct-declarator:
+	IDENT
+	'(' declarator ')'
+	direct-declarator '(' parameter-type-list ')'
+	direct-declarator '(' identifier_list ')'
+	direct-declarator '(' ')'
+	
+pointer:
+	'*'
+|	'*' type-qualifier-list
+|	'*' pointer
+|	'*' type-qualifier-list pointer
+
+type-qualifier-list:
+	type-qualifier
+|	type-qualifier-list type-qualifier
+
+parameter-type-list:
+	parameter-list
+|	parameter-list ',' ELLIPSES
+
+parameter-list:
+	parameter-declaration
+|	parameter-list ',' parameter-declaration
+
+parameter-declaration:
+	declaration-specifiers declarator
+|	declaration-specifiers
+|	declaration-specifiers abstract-declarator
+
+identifier-list:
+	IDENT
+|	identifier-list ',' IDENT
+
+
+
+// HW2 GRAMMAR
+/*
+run: 
 	expression run 
-|	expression    				/* forces bison to process many stmts */
+|	expression    			
 
 expression:
 	declaration 
 |	value ';'				{PRINTEXP($1);}
-|	function /* does this belong here? */
+|	function 
 | 	FILEDIR					{strncpy(curr_file, $1.ident_val, MAXLEN);}
 
 value: 
@@ -226,6 +435,7 @@ body:
 |	body declaration
 | 	block
 | 	body block
+*/
 
 %%
 /* Function definitions go here */
