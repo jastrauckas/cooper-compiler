@@ -74,6 +74,7 @@
 	#include <math.h>
 	#include "lexer.h"
 	#include "symTable.h"
+	#include "symTable.c"
 	
 	#define YYDEBUG 1
 	#define MAXLEN 512
@@ -99,7 +100,7 @@
 
 
 /* Line 268 of yacc.c  */
-#line 103 "hw2.tab.c"
+#line 104 "hw2.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -211,7 +212,7 @@ typedef int YYSTYPE;
 
 
 /* Line 343 of yacc.c  */
-#line 215 "hw2.tab.c"
+#line 216 "hw2.tab.c"
 
 #ifdef short
 # undef short
@@ -526,12 +527,12 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   127,   127,   128,   131,   132,   133,   134,   137,   138,
-     143,   144,   145,   146,   147,   148,   149,   150,   151,   152,
-     153,   154,   155,   162,   171,   174,   177,   183,   184,   185,
-     186,   187,   188,   189,   190,   191,   192,   195,   196,   197,
-     198,   199,   200,   203,   204,   205,   208,   211,   217,   222,
-     223,   224,   225,   226,   227
+       0,   128,   128,   129,   132,   133,   134,   135,   138,   139,
+     144,   145,   146,   147,   148,   149,   150,   151,   152,   153,
+     154,   155,   156,   163,   172,   175,   178,   184,   185,   186,
+     187,   188,   189,   190,   191,   192,   193,   196,   197,   198,
+     199,   200,   201,   204,   205,   206,   209,   212,   218,   223,
+     224,   225,   226,   227,   228
 };
 #endif
 
@@ -1555,28 +1556,28 @@ yyreduce:
         case 5:
 
 /* Line 1806 of yacc.c  */
-#line 132 "hw2.y"
+#line 133 "hw2.y"
     {PRINTEXP((yyvsp[(1) - (2)]));}
     break;
 
   case 7:
 
 /* Line 1806 of yacc.c  */
-#line 134 "hw2.y"
+#line 135 "hw2.y"
     {strncpy(curr_file, (yyvsp[(1) - (1)]).ident_val, MAXLEN);}
     break;
 
   case 8:
 
 /* Line 1806 of yacc.c  */
-#line 137 "hw2.y"
+#line 138 "hw2.y"
     {(yyval) = (yyvsp[(1) - (1)]);}
     break;
 
   case 9:
 
 /* Line 1806 of yacc.c  */
-#line 138 "hw2.y"
+#line 139 "hw2.y"
     {
 								stat = UPDATE(curr_table, (yyvsp[(1) - (3)]).ident_val, (yyvsp[(3) - (3)]));
 								(yyval) = (yyvsp[(3) - (3)]);
@@ -1587,91 +1588,91 @@ yyreduce:
   case 10:
 
 /* Line 1806 of yacc.c  */
-#line 143 "hw2.y"
+#line 144 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), TIMESEQ);}
     break;
 
   case 11:
 
 /* Line 1806 of yacc.c  */
-#line 144 "hw2.y"
+#line 145 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), DIVEQ);}
     break;
 
   case 12:
 
 /* Line 1806 of yacc.c  */
-#line 145 "hw2.y"
+#line 146 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), MODEQ);}
     break;
 
   case 13:
 
 /* Line 1806 of yacc.c  */
-#line 146 "hw2.y"
+#line 147 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), PLUSEQ);}
     break;
 
   case 14:
 
 /* Line 1806 of yacc.c  */
-#line 147 "hw2.y"
+#line 148 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), MINUSEQ);}
     break;
 
   case 15:
 
 /* Line 1806 of yacc.c  */
-#line 148 "hw2.y"
+#line 149 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), SHLEQ);}
     break;
 
   case 16:
 
 /* Line 1806 of yacc.c  */
-#line 149 "hw2.y"
+#line 150 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), SHREQ);}
     break;
 
   case 17:
 
 /* Line 1806 of yacc.c  */
-#line 150 "hw2.y"
+#line 151 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), ANDEQ);}
     break;
 
   case 18:
 
 /* Line 1806 of yacc.c  */
-#line 151 "hw2.y"
+#line 152 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), OREQ);}
     break;
 
   case 19:
 
 /* Line 1806 of yacc.c  */
-#line 152 "hw2.y"
+#line 153 "hw2.y"
     {(yyval) = OPASSIGN((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), XOREQ);}
     break;
 
   case 20:
 
 /* Line 1806 of yacc.c  */
-#line 153 "hw2.y"
+#line 154 "hw2.y"
     {(yyval) = (yyvsp[(3) - (3)]);}
     break;
 
   case 21:
 
 /* Line 1806 of yacc.c  */
-#line 154 "hw2.y"
+#line 155 "hw2.y"
     {(yyval) = TERNARY((yyvsp[(1) - (5)]), (yyvsp[(2) - (5)]), (yyvsp[(3) - (5)]));}
     break;
 
   case 22:
 
 /* Line 1806 of yacc.c  */
-#line 155 "hw2.y"
+#line 156 "hw2.y"
     {
 								(yyval) = (yyvsp[(3) - (4)]);
 								(yyval).has_val = 0;
@@ -1684,7 +1685,7 @@ yyreduce:
   case 23:
 
 /* Line 1806 of yacc.c  */
-#line 162 "hw2.y"
+#line 163 "hw2.y"
     {
 								(yyval) = (yyvsp[(3) - (3)]);
 								(yyval).has_val = 0;
@@ -1697,7 +1698,7 @@ yyreduce:
   case 25:
 
 /* Line 1806 of yacc.c  */
-#line 174 "hw2.y"
+#line 175 "hw2.y"
     {
 								(yyval)=(yyvsp[(1) - (1)]); INSTALL(curr_table, (yyvsp[(1) - (1)]));
 							}
@@ -1706,7 +1707,7 @@ yyreduce:
   case 26:
 
 /* Line 1806 of yacc.c  */
-#line 177 "hw2.y"
+#line 178 "hw2.y"
     {
 								(yyval)=(yyvsp[(3) - (3)]); INSTALL(curr_table, (yyvsp[(3) - (3)]));
 							}
@@ -1715,119 +1716,119 @@ yyreduce:
   case 27:
 
 /* Line 1806 of yacc.c  */
-#line 183 "hw2.y"
+#line 184 "hw2.y"
     {(yyval) = RETRIEVE(curr_table, (yyvsp[(1) - (1)]).ident_val);}
     break;
 
   case 28:
 
 /* Line 1806 of yacc.c  */
-#line 184 "hw2.y"
+#line 185 "hw2.y"
     {(yyval) = FIXNUM((yyvsp[(1) - (1)]));}
     break;
 
   case 29:
 
 /* Line 1806 of yacc.c  */
-#line 185 "hw2.y"
+#line 186 "hw2.y"
     {(yyval) = (yyvsp[(2) - (3)]);}
     break;
 
   case 30:
 
 /* Line 1806 of yacc.c  */
-#line 186 "hw2.y"
+#line 187 "hw2.y"
     {(yyval) = BINARY((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), '+');}
     break;
 
   case 31:
 
 /* Line 1806 of yacc.c  */
-#line 187 "hw2.y"
+#line 188 "hw2.y"
     {(yyval) = BINARY((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), '-');}
     break;
 
   case 32:
 
 /* Line 1806 of yacc.c  */
-#line 188 "hw2.y"
+#line 189 "hw2.y"
     {(yyval) = BINARY((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), '*');}
     break;
 
   case 33:
 
 /* Line 1806 of yacc.c  */
-#line 189 "hw2.y"
+#line 190 "hw2.y"
     {(yyval) = BINARY((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), '/');}
     break;
 
   case 34:
 
 /* Line 1806 of yacc.c  */
-#line 190 "hw2.y"
+#line 191 "hw2.y"
     {(yyval) = BINARY((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), SHL);}
     break;
 
   case 35:
 
 /* Line 1806 of yacc.c  */
-#line 191 "hw2.y"
+#line 192 "hw2.y"
     {(yyval) = BINARY((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]), SHR);}
     break;
 
   case 37:
 
 /* Line 1806 of yacc.c  */
-#line 195 "hw2.y"
+#line 196 "hw2.y"
     {(yyval) = UNARY((yyvsp[(1) - (2)]), PLUSPLUS);}
     break;
 
   case 38:
 
 /* Line 1806 of yacc.c  */
-#line 196 "hw2.y"
+#line 197 "hw2.y"
     {(yyval) = UNARY((yyvsp[(1) - (2)]), MINUSMINUS);}
     break;
 
   case 39:
 
 /* Line 1806 of yacc.c  */
-#line 197 "hw2.y"
+#line 198 "hw2.y"
     {(yyval) = UNARY((yyvsp[(2) - (2)]), PLUSPLUS);}
     break;
 
   case 40:
 
 /* Line 1806 of yacc.c  */
-#line 198 "hw2.y"
+#line 199 "hw2.y"
     {(yyval) = UNARY((yyvsp[(2) - (2)]), MINUSMINUS);}
     break;
 
   case 41:
 
 /* Line 1806 of yacc.c  */
-#line 199 "hw2.y"
+#line 200 "hw2.y"
     {(yyval) = UNARY((yyvsp[(2) - (2)]), '+');}
     break;
 
   case 42:
 
 /* Line 1806 of yacc.c  */
-#line 200 "hw2.y"
+#line 201 "hw2.y"
     {(yyval) = UNARY((yyvsp[(2) - (2)]), '-');}
     break;
 
   case 46:
 
 /* Line 1806 of yacc.c  */
-#line 208 "hw2.y"
+#line 209 "hw2.y"
     {}
     break;
 
   case 47:
 
 /* Line 1806 of yacc.c  */
-#line 211 "hw2.y"
+#line 212 "hw2.y"
     {
 								SPUSH(); 
 								//printf("entering function scope\n");
@@ -1837,7 +1838,7 @@ yyreduce:
   case 48:
 
 /* Line 1806 of yacc.c  */
-#line 217 "hw2.y"
+#line 218 "hw2.y"
     {
 								SPOP(); 
                                 //printf("leaving function scope\n");
@@ -1847,21 +1848,21 @@ yyreduce:
   case 49:
 
 /* Line 1806 of yacc.c  */
-#line 222 "hw2.y"
+#line 223 "hw2.y"
     {PRINTEXP((yyvsp[(1) - (2)]));}
     break;
 
   case 51:
 
 /* Line 1806 of yacc.c  */
-#line 224 "hw2.y"
+#line 225 "hw2.y"
     {PRINTEXP((yyvsp[(2) - (3)]));}
     break;
 
 
 
 /* Line 1806 of yacc.c  */
-#line 1865 "hw2.tab.c"
+#line 1866 "hw2.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2092,7 +2093,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 229 "hw2.y"
+#line 230 "hw2.y"
 
 /* Function definitions go here */
 int main()
@@ -2336,188 +2337,6 @@ int CHECK(YYSTYPE v)
         return 0;
     }
 	return 1;
-}
-
-/* SYMBOL TABLE */
-// I'll put the symtable functions in here for now...
-// silly hash function that just adds char values
-long h(char *key, long max)
-{
-    int l = strlen(key);
-    long sum = 0;
-    int i;
-    for (i=0; i<l; i++)
-    {
-        sum += key[i];
-    }
-    sum %= max;
-    return sum;
-}
-
-// initialize table
-void init_table(SYMTABLE *t, long c, SYMTABLE *parent)
-{
-	t->parent = parent;
-    t->occupied = 0;
-    t->capacity = c;
-    if ((t->cells = calloc(c, sizeof(TABLECELL*))) < 0)
-        fprintf(stderr, "failed to allocate table\n");
-    int i;
-    for (i=0; i<t->capacity; i++)
-    {
-        t->cells[i] = NULL;
-    }
-}
-
-void resize_table(SYMTABLE *t)
-{
-    //printf("RESIZE\n");
-    SYMTABLE *new_table = malloc(sizeof(SYMTABLE));
-    init_table(new_table, 2*t->capacity, t->parent);
-    int i;
-    TABLECELL *currcell;
-    // copy over all the cells and their contents
-    for (i=0; i<t->capacity; i++)
-    {
-        currcell = t->cells[i];
-        while (currcell != NULL)
-        {
-            ins_table(new_table, currcell->name, currcell->value);
-            currcell = currcell->nextCell;
-        }
-    }
-    // free the memory from the old table
-    free(t->cells);
-    t->capacity = new_table->capacity;
-    //printf("new capacity: %ld\n", t->capacity);
-    t->occupied = new_table->occupied;
-    t->cells = new_table->cells;
-}
-
-// insert into and delete from existing table
-// make sure ins does a deep copy of everything, and resizes if needed 
-void ins_table(SYMTABLE *t, char *key, YYSTYPE val)
-{
-    //printf("INSERTING %s\n", key);
-    t->occupied++;
-    // make a new cell that is home to our new node
-    TABLECELL *new_cell = malloc(sizeof(TABLECELL));
-    int l = strlen(key) + 1; // include null terminator! 
-    new_cell->name = malloc(sizeof(char)*l);
-    new_cell->nextCell = NULL;
-    new_cell->prevCell = NULL;
-    // copy over contents
-    memcpy(new_cell->name, key, sizeof(char)*l);
-    memcpy(&new_cell->value, &val, sizeof(YYSTYPE));
-    int index = h(key, t->capacity);
-    // find an empty slot to stick our new cell into
-    TABLECELL *currcell, *lastcell;
-    currcell = t->cells[index];
-    lastcell = NULL;
-    if (currcell == NULL)
-    {
-        t->cells[index] = new_cell;
-        return;
-    }
-    while (currcell != NULL)
-    {
-        lastcell = currcell;
-        currcell = currcell->nextCell;
-    }
-    // pointer updates!
-    currcell = new_cell;
-    lastcell->nextCell = currcell;
-    currcell->prevCell = lastcell;
-    currcell->nextCell = NULL;
-    if ((t->occupied*2) > t->capacity)
-    {
-        //write_table(t);
-        resize_table(t);
-    }
-    return;
-}
-
-void update_table(SYMTABLE *t, char *key, YYSTYPE val)
-{
-    TABLECELL *tc = in_table(t, key);
-    if (!tc)
-    {
-        fprintf(stderr, "Key %s does not exist!\n", key);
-        return;
-    }
-    memcpy(&(tc->value), &val, sizeof(YYSTYPE));
-}
-
-void del_table(SYMTABLE *t, char *key)
-{
-    TABLECELL *tc = in_table(t, key);
-    TABLECELL *prevc, *nextc;
-    prevc = tc->prevCell;
-    nextc = tc->nextCell;
-    if (prevc)
-    {
-        prevc->nextCell = nextc;
-        nextc->prevCell = prevc;
-        free(tc);
-        return;
-    }
-    // if this was the first node, "install" its neighbor in array
-    else if (nextc)
-    {
-        memcpy(tc, nextc, sizeof(TABLECELL));
-        free(nextc);
-        return;
-    }
-    else
-    {
-        free(tc);
-        tc = NULL;
-    }
-}
-
-// check membership and return data if found
-TABLECELL *in_table(SYMTABLE *t, char *key)
-{
-	SYMTABLE *ct;
-	ct = t;
-    TABLECELL *currcell;
-	while (ct)
-	{
-    	int index = h(key, ct->capacity);
-    	currcell = ct->cells[index];
-    	while (currcell != NULL)
-    	{
-        	if (!strcmp(key, currcell->name))
-        	{
-            	return currcell; // return pointer to cell found
-        	}
-    	}
-		// keep moving up in the stack
-		//printf("checking parent...\n");
-		ct = ct->parent;
-	}
-    return NULL;
-}
-
-
-void write_table(SYMTABLE *t)
-{
-    int i;
-    TABLECELL *tc;
-    printf("TABLE CONTENTS:\n");
-    for (i=0; i<t->capacity; i++)
-    {
-        tc = t->cells[i];
-        /*
-		if (!tc)
-            printf("\tnothing in slot %d!\n", i);
-        */
-		while (tc)
-        {
-            printf("\tslot %d: id %s, type %s\n", i, tc->name, tc->value.metadata.tokname);
-            tc = tc->nextCell;
-        }
-    }
 }
 
 

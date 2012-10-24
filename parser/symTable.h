@@ -10,6 +10,7 @@ ECE 466
 #define TABLEH
 #include "lexer.h"
 
+enum ident_types {VAR, FN, TD};
 
 /* STRUCTS */
 
@@ -18,6 +19,8 @@ typedef struct tableCell
 {
 	// use the IDENT name as the key
 	char *name; 
+	// keep track of what this ident is storing
+	int ident_type;
 	// separate chaining -> double linked list
 	struct tableCell *nextCell;
 	struct tableCell *prevCell;
@@ -30,6 +33,8 @@ typedef struct symbolTable
 {
 	// to implement a "stack", keep track of parent
 	struct symbolTable *parent;
+	// make sure we can find this scope if needed
+	int scope_id;	
 	// keep track of the capacity and how full it is
 	long occupied;
 	long capacity;
