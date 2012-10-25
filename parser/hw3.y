@@ -144,6 +144,8 @@ block:
 body:
 	statement
 |	body statement
+|	declaration
+| 	body declaration
 
 statement:
 	expression ';'
