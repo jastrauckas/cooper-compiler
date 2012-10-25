@@ -122,6 +122,32 @@
 %start translation-unit
 %%
 
+/* TOP LEVEL - EXTERNAL DEFINITIONS */
+
+translation-unit:
+	external-declaration
+|	translation-unit external-declaration
+
+external-declaration:
+	function-definition 	{fprintf(stdout, "function defined\n");}
+|	declaration				{fprintf(stdout, "declaration found\n");}
+
+declaration:
+	INT IDENT ';'
+
+function-definition:
+	IDENT '(' ')' block
+
+block:
+	'{' body '}'
+
+body:
+	statement
+|	body statement
+
+statement:
+	expression ';'
+
 primary-expression:
 	IDENT
 |	NUMBER
@@ -138,8 +164,10 @@ postfix-expression:
 |	postfix-expression INDSEL IDENT
 |	postfix-expression PLUSPLUS
 |	postfix-expression MINUSMINUS
+/*
 | 	'(' type-name ')' '{' initializer-list '}'
 | 	'(' type-name ')' '{' initializer-list ',' '}'
+*/
 
 argument-expression-list:
 	assignment-expression
@@ -159,6 +187,9 @@ unary-expression:
 cast-expression:
 	unary-expression
 |	'(' type-name ')' cast-expression
+
+type-name:
+	INT
 
 binary-expression:
 	cast-expression
@@ -202,203 +233,17 @@ expression:
 	assignment-expression
 |	expression ',' assignment-expression
 
-constant-expression:
-	conditional-expression
 
 
-/* DECLARATIONS */
-
-declaration:
-	declaration-specifiers ';'
-|	declaration-specifiers init-declarator-list ';'
-
-declaration-specifiers:
-	storage-class-specifier
-|	storage-class-specifier declaration-specifiers
-|	type-specifier
-|	type-specifier declaration-specifiers
-| 	type-qualifier
-| 	type-qualifier declaration-specifiers
-
-init-declarator-list:
-	init-declarator
-|	init-declarator-list ',' init-declarator
-
-init-declarator:
-	declarator
-|	declarator '=' initializer
-
-storage-class-specifier:
-	TYPEDEF
-|	EXTERN
-|	STATIC
-|	AUTO
-|	REGISTER
-
-type-specifier:
-	VOID
-|	CHAR
-|	SHORT
-|	INT
-|	LONG
-|	FLOAT
-|	DOUBLE
-|	SIGNED
-|	UNSIGNED
-|	struct-or-union-specifier
-|	typedef-name
-
-struct-or-union-specifier:
-	struct-or-union IDENT '{' struct-declaration-list '}'	
-|	struct-or-union '{' struct-declaration-list '}'	
-|	struct-or-union IDENT
-
-struct-or-union:
-	STRUCT
-|	UNION
-
-struct-declaration-list:
-	struct-declaration
-|	struct-declaration-list struct-declaration
-
-struct-declaration:
-	specifier-qualifier-list struct-declarator-list ';'
-
-specifier-qualifier-list:
-	type-specifier
-|	specifier-qualifier-list type-specifier
-
-struct-declarator-list:	
-	struct-declarator
-|	struct-declarator-list ',' struct-declarator
-
-struct-declarator:
-	declarator
-|	declarator ':' constant-expression
-|	':' constant-expression
-
-type-qualifier:
-	CONST
-	RESTRICT
-	VOLATILE
-
-declarator:
-	pointer direct-declarator
-|	direct-declarator
-
-direct-declarator:
-	IDENT
-	'(' declarator ')'
-	direct-declarator '(' parameter-type-list ')'
-	direct-declarator '(' identifier-list ')'
-	direct-declarator '(' ')'
-	
-pointer:
-	'*'
-|	'*' type-qualifier-list
-|	'*' pointer
-|	'*' type-qualifier-list pointer
-
-type-qualifier-list:
-	type-qualifier
-|	type-qualifier-list type-qualifier
-
-parameter-type-list:
-	parameter-list
-|	parameter-list ',' ELLIPSES
-
-parameter-list:
-	parameter-declaration
-|	parameter-list ',' parameter-declaration
-
-parameter-declaration:
-	declaration-specifiers declarator
-|	declaration-specifiers
-|	declaration-specifiers abstract-declarator
-
-identifier-list:
-	IDENT
-|	identifier-list ',' IDENT
-
-type-name:
-	specifier-qualifier-list
-|	specifier-qualifier-list abstract-declarator
-
-abstract-declarator:
-	pointer
-|	pointer direct-abstract-declarator
-|	direct-abstract-declarator
-
-direct-abstract-declarator:
-	'(' abstract-declarator ')'
-|	direct-abstract-declarator '[' ']'
-|	direct-abstract-declarator '[' assignment-expression ']'
-|	direct-abstract-declarator '(' parameter-type-list ')'
-
-typedef-name:
-	IDENT
-
-/* INITIALIZATION */
-
-initializer:
-	assignment-expression
-|	'{' initializer-list '}'
-|	'{' initializer-list ',' '}'
-
-initializer-list:
-	designator
-|	designator-list designator
-
-designation:
-	designator-list '='
-
-designator-list:
-	designator
-|	designator-list designator
-
-designator:
-	'[' constant-expression ']'
-|	'.' IDENT
 
 
-/* STATEMENTS */
 
-statement:
-	compound-statement
-|	expression-statement
 
-compound-statement:
-	'{' '}'
-|	'{' block-item-list '}'
 
-block-item-list:
-	block-item
-	block-item-list block-item
-	
-block-item:
-	declaration
-|	statement
 
-expression-statement:
-	expression
 
-/* FUNCTION DEFINITIONS */
-function-definition:
-	declaration-specifiers declarator compound-statement
-|	declaration-specifiers declarator declaration-list compound-statement
 
-declaration-list:
-	declaration
-|	declaration-list declaration
 
-/* EXTERNAL DEFINITIONS */
-translation-unit:
-	external-declaration
-|	translation-unit external-declaration
-
-external-declaration:
-	function-definition
-|	declaration
 
 
 // HW2 GRAMMAR
