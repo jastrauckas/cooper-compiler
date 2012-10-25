@@ -119,6 +119,7 @@
 %right '!' '~'
 %left INDSEL
 
+
 %start translation-unit
 %%
 
@@ -133,7 +134,12 @@ external-declaration:
 |	declaration				{fprintf(stdout, "declaration found\n");}
 
 declaration:
-	INT IDENT ';'
+	INT declarator ';'
+
+declarator:
+	IDENT
+|	'*' declarator
+| 	'&' declarator
 
 function-definition:
 	IDENT '(' ')' block
