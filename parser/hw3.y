@@ -134,7 +134,42 @@ external-declaration:
 |	declaration				{fprintf(stdout, "declaration found\n");}
 
 declaration:
-	INT declarator ';'
+	declaration-specifiers declarator ';'
+
+declaration-specifiers:
+	storage-class-specifier
+|	storage-class-specifier declaration-specifiers
+| 	type-specifier
+| 	type-specifier declaration-specifiers
+| 	type-qualifier
+| 	type-qualifier declaration-specifiers
+
+storage-class-specifier:
+	TYPEDEF
+|	EXTERN
+|	STATIC
+|	AUTO
+|	REGISTER
+
+type-specifier:
+	VOID
+|	CHAR
+|	SHORT
+|	INT
+|	LONG
+|	FLOAT
+|	DOUBLE
+|	SIGNED
+|	UNSIGNED 
+|	_BOOL
+|	_COMPLEX
+
+type-qualifier:
+	CONST
+|	RESTRICT
+|	VOLATILE
+
+
 
 declarator:
 	IDENT
