@@ -163,6 +163,14 @@ type-specifier:
 |	UNSIGNED 
 |	_BOOL
 |	_COMPLEX
+| 	struct-or-union-specifier
+
+struct-or-union-specifier:
+	struct-or-union IDENT
+
+struct-or-union:
+	STRUCT
+|	UNION	
 
 type-qualifier:
 	CONST
