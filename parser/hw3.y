@@ -165,17 +165,39 @@ type-specifier:
 |	_COMPLEX
 | 	struct-or-union-specifier
 
+type-qualifier:
+	CONST
+|	RESTRICT
+|	VOLATILE
+
 struct-or-union-specifier:
 	struct-or-union IDENT
+|	struct-or-union IDENT '{' struct-declaration-list '}'
+
+struct-declaration-list:
+	struct-declaration
+|	struct-declaration-list struct-declaration
+
+struct-declaration:
+	specifier-qualifier-list struct-declarator-list ';'
+
+specifier-qualifier-list:
+	type-specifier
+|	type-specifier specifier-qualifier-list
+|	type-qualifier
+|	type-qualifier specifier-qualifier-list
+
+struct-declarator-list:
+	struct-declarator
+|	struct-declarator-list ',' struct-declarator
+
+struct-declarator:
+	declarator
 
 struct-or-union:
 	STRUCT
 |	UNION	
 
-type-qualifier:
-	CONST
-|	RESTRICT
-|	VOLATILE
 
 
 
