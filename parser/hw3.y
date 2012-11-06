@@ -135,6 +135,7 @@ external-declaration:
 
 declaration:
 	declaration-specifiers declarator ';'
+|	declaration-specifiers ';'
 
 declaration-specifiers:
 	storage-class-specifier
@@ -197,8 +198,6 @@ struct-declarator:
 struct-or-union:
 	STRUCT
 |	UNION	
-
-
 
 
 declarator:
