@@ -9,11 +9,14 @@
 	#include "lexer.h"
 	#include "symTable.h"
 	#include "symTable.c"
+	#include "ast.h"
+	#include "ast.c"
 	
 	#define YYDEBUG 1
 	#define MAXLEN 512
 
 	SYMTABLE t;
+	SYMTABLE *new_members = NULL;
 	TABLECELL *tc; // store stuff here
 	SYMTABLE *curr_table; // points to the current scope's symbol table
 	char curr_file[MAXLEN+1];
@@ -131,7 +134,7 @@ translation-unit:
 
 external-declaration:
 	function-definition 	{fprintf(stdout, "function defined\n");}
-|	declaration				{fprintf(stdout, "declaration found\n");}
+|	declaration				{fprintf(stdout, "declaration on line %d\n", line);}
 
 declaration:
 	declaration-specifiers declarator ';'
@@ -173,7 +176,9 @@ type-qualifier:
 
 struct-or-union-specifier:
 	struct-or-union IDENT
-|	struct-or-union IDENT '{' struct-declaration-list '}'
+|	struct-or-union IDENT '{' struct-declaration-list '}'	{  //INSTALL(curr_table, $2);
+															   //printf("installed %s\n", $2.ident_val);
+															}
 
 struct-declaration-list:
 	struct-declaration
@@ -304,16 +309,6 @@ assignment-expression:
 expression:
 	assignment-expression
 |	expression ',' assignment-expression
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -458,6 +453,16 @@ void INSTALL(SYMTABLE *t, YYSTYPE val)
     }
 	val.has_val = 0;
    	ins_table(t, val.ident_val, val); // junk value 
+}
+
+// special for struct members
+void ADD_MEMBER(SYMTABLE *t, YYSTYPE member)
+{
+	if (!t)
+	{
+		init_table(t, 8, NULL);
+	}
+	INSTALL(t, member);
 }
 
 // make sure the number has an integer equivalent

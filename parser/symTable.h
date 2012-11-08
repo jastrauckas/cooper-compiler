@@ -14,16 +14,17 @@ enum ident_types {VAR, FN, TD};
 
 /* STRUCTS */
 
+
 // symbol table entries 
 typedef struct tableCell
 {
 	// use the IDENT name as the key
 	char *name; 
-	// keep track of what this ident is storing
-	int ident_type;
 	// separate chaining -> double linked list
 	struct tableCell *nextCell;
 	struct tableCell *prevCell;
+	// if struct or union, need a table of members
+	struct symTable *members;
 	// copy yylval in here so we have the info 
 	YYSTYPE value;
 } TABLECELL;
@@ -61,4 +62,6 @@ TABLECELL *in_table(SYMTABLE *t, char *key);
 
 // print contents
 void write_table(SYMTABLE *t);
+
+
 #endif
