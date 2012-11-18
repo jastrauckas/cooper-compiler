@@ -56,22 +56,17 @@ void print_tree(TNODE *t, int level)
 	{
 		printf("\t");
 	}
-	if (t->op == '*' && t->node_type == UNOP)
-	{
-		printf("pointer to\n");
-		print_tree(t->c1, level+1);
-	}	
-	else
-	{
-		print_node(t);
-	    if (t->c1) {print_tree(t->c1, level+1);}			
-	    if (t->c2) {print_tree(t->c2, level+1);}			
-	    if (t->c3) {print_tree(t->c3, level+1);}			
-	}
+	print_node(t);
+	if (t->c1) {print_tree(t->c1, level+1);}			
+	if (t->c2) {print_tree(t->c2, level+1);}			
+  	if (t->c3) {print_tree(t->c3, level+1);}			
 }
 
 
 void print_node(TNODE *t)
 {
-	printf("node type: %d\n", t->node_type);
+	if (t->node_type == VAR_NODE)
+	{
+		printf("Variable: %s\n", t->name);
+	}
 }

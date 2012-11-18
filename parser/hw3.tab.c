@@ -1740,7 +1740,7 @@ yyreduce:
 
 /* Line 1806 of yacc.c  */
 #line 212 "hw3.y"
-    {(yyval).ast = new_ident_node((yyvsp[(1) - (1)]).ident_val, VAR_NODE);}
+    {(yyval).ast = new_ident_node((yyvsp[(1) - (1)]).ident_val, VAR_NODE); print_tree((yyval).ast,0);}
     break;
 
 

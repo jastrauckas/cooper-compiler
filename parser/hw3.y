@@ -209,7 +209,7 @@ struct-or-union:
 
 
 declarator:
-	IDENT			{$$.ast = new_ident_node($1.ident_val, VAR_NODE);}
+	IDENT			{$$.ast = new_ident_node($1.ident_val, VAR_NODE); print_tree($$.ast,0);}
 | 	declarator '[' NUMBER ']'
 | 	declarator '[' ']'
 |	'*' declarator
