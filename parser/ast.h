@@ -41,6 +41,7 @@ typedef struct tnode
 } TNODE;
 
 TNODE *new_scalar_node(SCALAR value, int ntype);
+TNODE *new_node(int ntype);
 TNODE *new_ident_node(char *ident, int ntype);
 TNODE *new_var_node(SCALAR value, int ntype);
 TNODE *new_tree(int op, TNODE *c1, TNODE *c2, TNODE *c3);

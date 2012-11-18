@@ -562,14 +562,14 @@ static const yytype_uint16 yyrline[] =
      163,   164,   165,   166,   167,   168,   169,   170,   171,   172,
      173,   176,   177,   178,   181,   182,   187,   188,   191,   194,
      195,   196,   197,   200,   201,   204,   207,   208,   212,   213,
-     214,   215,   216,   219,   222,   225,   226,   227,   228,   231,
-     234,   235,   236,   237,   240,   241,   242,   243,   244,   245,
-     246,   247,   248,   255,   256,   259,   260,   261,   262,   263,
-     264,   265,   266,   267,   270,   271,   274,   277,   278,   279,
-     280,   281,   282,   283,   284,   285,   286,   287,   288,   289,
-     290,   291,   292,   293,   294,   297,   298,   301,   302,   303,
-     304,   305,   306,   307,   308,   309,   310,   311,   312,   315,
-     316
+     218,   219,   220,   223,   226,   229,   230,   231,   232,   235,
+     238,   239,   240,   241,   244,   245,   246,   247,   248,   249,
+     250,   251,   252,   259,   260,   263,   264,   265,   266,   267,
+     268,   269,   270,   271,   274,   275,   278,   281,   282,   283,
+     284,   285,   286,   287,   288,   289,   290,   291,   292,   293,
+     294,   295,   296,   297,   298,   301,   302,   305,   306,   307,
+     308,   309,   310,   311,   312,   313,   314,   315,   316,   319,
+     320
 };
 #endif
 
@@ -1727,6 +1727,13 @@ yyreduce:
     {fprintf(stdout, "declaration on line %d\n", line);}
     break;
 
+  case 6:
+
+/* Line 1806 of yacc.c  */
+#line 143 "hw3.y"
+    {(yyval) = (yyvsp[(2) - (3)]); print_tree((yyval).ast,0);}
+    break;
+
   case 35:
 
 /* Line 1806 of yacc.c  */
@@ -1743,10 +1750,21 @@ yyreduce:
     {(yyval).ast = new_ident_node((yyvsp[(1) - (1)]).ident_val, VAR_NODE); print_tree((yyval).ast,0);}
     break;
 
+  case 49:
+
+/* Line 1806 of yacc.c  */
+#line 213 "hw3.y"
+    {
+								(yyval).ast = new_node(ARRAY_NODE); 
+								(yyval).ast->size = (yyvsp[(3) - (4)]).int_val;
+								(yyval).ast->c1 = ((yyvsp[(1) - (4)]).ast);
+							  }
+    break;
+
 
 
 /* Line 1806 of yacc.c  */
-#line 1750 "hw3.tab.c"
+#line 1768 "hw3.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1977,7 +1995,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 427 "hw3.y"
+#line 431 "hw3.y"
 
 /* Function definitions go here */
 int main()

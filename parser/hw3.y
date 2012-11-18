@@ -140,11 +140,11 @@ external-declaration:
 |	declaration				{fprintf(stdout, "declaration on line %d\n", line);}
 
 declaration:
-	declaration-specifiers declarator ';'
-|	declaration-specifiers ';'
+	declaration-specifiers declarator ';' 	{$$ = $2; print_tree($$.ast,0);}
+|	declaration-specifiers ';'				
 
 declaration-specifiers:
-	storage-class-specifier
+	storage-class-specifier 
 |	storage-class-specifier declaration-specifiers
 | 	type-specifier
 | 	type-specifier declaration-specifiers
@@ -210,7 +210,11 @@ struct-or-union:
 
 declarator:
 	IDENT			{$$.ast = new_ident_node($1.ident_val, VAR_NODE); print_tree($$.ast,0);}
-| 	declarator '[' NUMBER ']'
+| 	declarator '[' NUMBER ']' {
+								$$.ast = new_node(ARRAY_NODE); 
+								$$.ast->size = $3.int_val;
+								$$.ast->c1 = ($1.ast);
+							  }
 | 	declarator '[' ']'
 |	'*' declarator
 | 	'&' declarator

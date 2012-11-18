@@ -48,6 +48,14 @@ TNODE *new_ident_node(char *ident, int ntype)
 	return node;
 }
 
+TNODE *new_node(int ntype)
+{
+	TNODE *node = malloc(sizeof(TNODE));
+	node->op = -1;
+	node->node_type = ntype;
+	return node;
+}
+
 void print_tree(TNODE *t, int level)
 {
 	int i;
@@ -65,8 +73,13 @@ void print_tree(TNODE *t, int level)
 
 void print_node(TNODE *t)
 {
-	if (t->node_type == VAR_NODE)
+	switch (t->node_type)
 	{
-		printf("Variable: %s\n", t->name);
+		case VAR_NODE:
+			printf("Variable: %s\n", t->name);
+			break;
+		case ARRAY_NODE:
+			printf("Array of size: %d\n", t->size);
+			break;
 	}
 }
