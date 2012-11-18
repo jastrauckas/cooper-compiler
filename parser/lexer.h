@@ -1,3 +1,4 @@
+#include "ast.h"
 # define YYSTYPE_IS_DECLARED 1
 
 #ifndef LEXER
@@ -32,6 +33,7 @@ typedef struct
 	float float_val;
 	long double double_val;
 	long long int int_val;
+	TNODE *ast;
 	MTYPE metadata; 
 } YYSTYPE;
 

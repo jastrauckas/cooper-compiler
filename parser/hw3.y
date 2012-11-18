@@ -21,8 +21,10 @@
 	SYMTABLE *curr_table; // points to the current scope's symbol table
 	char curr_file[MAXLEN+1];
 	int stat;
+	int node_type;
 
 	/* functions that will be defined */
+	SCALAR extract_value(YYSTYPE val);
 	void INSTALL(SYMTABLE *t, YYSTYPE val);
 	int UPDATE(SYMTABLE *t, char *key, YYSTYPE val);
 	YYSTYPE FIXNUM(YYSTYPE v);
@@ -118,6 +120,7 @@
 %left SHL SHR
 %left '+' '-'
 %left '*' '/' 
+%left '[' ']' 
 %left PLUSPLUS MINUSMINUS
 %right '!' '~'
 %left INDSEL
@@ -149,7 +152,7 @@ declaration-specifiers:
 | 	type-qualifier declaration-specifiers
 
 storage-class-specifier:
-	TYPEDEF
+	TYPEDEF	
 |	EXTERN
 |	STATIC
 |	AUTO
@@ -206,7 +209,9 @@ struct-or-union:
 
 
 declarator:
-	IDENT
+	IDENT			{$$.ast = new_ident_node($1.ident_val, VAR_NODE);}
+| 	declarator '[' NUMBER ']'
+| 	declarator '[' ']'
 |	'*' declarator
 | 	'&' declarator
 
@@ -435,6 +440,42 @@ void yyerror (char const *s)
 	fprintf(stderr, "%s\n", s);
 }
 
+// HW 3
+SCALAR extract_value(YYSTYPE val)
+{
+	char *int_type = "INT";
+	char *long_type = "LONG";
+	char *longlong_type = "LONGLONG";
+	char *float_type = "FLOAT";
+	char *double_type = "DOUBLE";
+	char *longdouble_type = "LONGDOUBLE";
+	SCALAR s;
+	char *num_type = val.metadata.num_type;
+	if (strcmp(num_type, int_type) || strcmp(num_type, long_type) || strcmp(num_type, longlong_type))
+	{
+		s.int_val = (long long) val.int_val;
+		node_type = INT_NODE;	
+	}
+	else if (strcmp(num_type, float_type))
+	{
+		s.ld_val = (long double) val.float_val;
+		node_type = REAL_NODE;
+	}
+	else if (strcmp(num_type, double_type) || strcmp(num_type, longdouble_type))
+	{
+		s.ld_val = (long double) val.double_val;
+		node_type = REAL_NODE;
+	}
+	else
+	{
+		fprintf(stderr, "No valid number found!\n");
+	}
+	
+	return s;
+}
+
+
+// HW 2
 void PRINTEXP(YYSTYPE v)
 {
 	printf("%s:%d: ", curr_file, line); 
