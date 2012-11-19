@@ -70,6 +70,21 @@ void print_tree(TNODE *t, int level)
   	if (t->c3) {print_tree(t->c3, level+1);}			
 }
 
+void print_tree_invert(TNODE *t, int level)
+{
+	int i;
+	char *name;
+	int d;
+	d  = get_depth(t, 0);
+	if (t->c1) {print_tree_invert(t->c1, level+1);}			
+	if (t->c2) {print_tree_invert(t->c2, level+1);}			
+  	if (t->c3) {print_tree_invert(t->c3, level+1);}			
+	for (i=0; i<d-1; i++)
+	{
+		printf("\t");
+	}
+	print_node(t);
+}
 
 void print_node(TNODE *t)
 {
@@ -81,5 +96,26 @@ void print_node(TNODE *t)
 		case ARRAY_NODE:
 			printf("Array of size: %d\n", t->size);
 			break;
+		case PTR_NODE:
+			printf("Pointer to\n", t->size);
+			break;
+		case SCALAR_NODE:
+			printf("Scalar Type\n", t->size);
+			break;
 	}
+}
+
+int get_depth(TNODE *t, int maxdepth)
+{
+	if (!t)
+		return maxdepth;
+	maxdepth++;
+	int d1, d2, d3;
+	d1 = get_depth(t->c1, maxdepth);
+	d2 = get_depth(t->c2, maxdepth);
+	d3 = get_depth(t->c3, maxdepth);
+	if (d1 > maxdepth) {maxdepth = d1;}
+	if (d2 > maxdepth) {maxdepth = d2;}
+	if (d3 > maxdepth) {maxdepth = d3;}
+	return maxdepth;
 }

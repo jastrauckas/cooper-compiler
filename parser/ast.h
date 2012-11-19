@@ -4,20 +4,28 @@
 enum 
 {
 	UNOP, BINOP, TERNOP, VAR_NODE, ARRAY_NODE, PTR_NODE, FN_NODE,	
-	REAL_NODE, INT_NODE, STR_NODE, CHAR_NODE,
+	SCALAR_NODE, TYPEDEF_NODE,
 	STRUCT_NODE, UNION_NODE
 } NODETYPE;
 
 
-#define IS_SIGNED 		000001
-#define IS_CONST		000002
-#define IS_VOLATILE		000004
-#define IS_RESTRICT		000010
-#define IS_INT			000020
-#define IS_FLOAT		000040
-#define IS_DOUBLE		000100
-#define IS_SHORT		000200
-#define IS_LONG			000400
+#define IS_SIGNED 		0000001
+#define IS_CONST		0000002
+#define IS_VOLATILE		0000004
+#define IS_RESTRICT		0000010
+#define IS_INT			0000020
+#define IS_FLOAT		0000040
+#define IS_DOUBLE		0000100
+#define IS_SHORT		0000200
+#define IS_LONG			0000400
+#define IS_VOID			0001000
+#define IS_CHAR			0002000
+#define IS_TYPEDEF		0004000
+#define IS_EXTERN		0010000
+#define IS_STATIC		0020000
+#define IS_AUTO			0040000
+#define IS_REGISTER		0100000
+#define IS_STRUCT		0100000
 
 typedef union scalar
 {
@@ -46,6 +54,7 @@ TNODE *new_ident_node(char *ident, int ntype);
 TNODE *new_var_node(SCALAR value, int ntype);
 TNODE *new_tree(int op, TNODE *c1, TNODE *c2, TNODE *c3);
 void print_tree(TNODE *t, int level);
+void print_tree_invert(TNODE *t, int level);
 void print_node(TNODE *t);
 
 #endif

@@ -16,12 +16,13 @@
 	#define MAXLEN 512
 
 	SYMTABLE t;
-	SYMTABLE *new_members = NULL;
+	SYMTABLE *new_members = NULL; // use this to create symtable for struct members
 	TABLECELL *tc; // store stuff here
 	SYMTABLE *curr_table; // points to the current scope's symbol table
 	char curr_file[MAXLEN+1];
 	int stat;
 	int node_type;
+	int TYPESPEC;
 
 	/* functions that will be defined */
 	SCALAR extract_value(YYSTYPE val);
@@ -39,74 +40,13 @@
 %}
 
 
-%token TOKEOF
-%token AUTO
-%token BREAK
-%token CASE
-%token CHAR
-%token CONST
-%token CONTINUE
-%token DEFAULT
-%token DO
-%token DOUBLE
-%token ELSE
-%token ENUM
-%token EXTERN
-%token FLOAT
-%token FOR
-%token GOTO
-%token IF
-%token INLINE
-%token INT
-%token LONG
-%token REGISTER
-%token RESTRICT
-%token RETURN
-%token SHORT
-%token SIGNED
-%token SIZEOF
-%token STATIC
-%token STRUCT
-%token SWITCH
-%token TYPEDEF
-%token UNION
-%token UNSIGNED
-%token VOID
-%token VOLATILE
-%token WHILE
-%token _BOOL
-%token _COMPLEX
-%token _IMAGINARY
-%token INDSEL
-%token PLUSPLUS
-%token MINUSMINUS
-%token SHL
-%token SHR
-%token LTEQ
-%token GTEQ
-%token EQEQ
-%token NOTEQ
-%token LOGAND
-%token LOGOR
-%token ELLIPSES
-%token TIMESEQ
-%token DIVEQ
-%token MODEQ
-%token PLUSEQ
-%token MINUSEQ
-%token SHLEQ
-%token SHREQ
-%token ANDEQ
-%token OREQ
-%token XOREQ
-%token IDENT
-%token CHARLIT
-%token STRING
-%token NUMBER
-%token ERRC
-%token ERRS
-%token NEWLINE
-%token FILEDIR
+%token TOKEOF AUTO BREAK CASE CHAR CONST CONTINUE DEFAULT DO DOUBLE ELSE ENUM
+%token EXTERN FLOAT FOR GOTO IF INLINE INT LONG REGISTER RESTRICT RETURN SHORT
+%token SIGNED SIZEOF STATIC STRUCT SWITCH TYPEDEF UNION UNSIGNED VOID VOLATILE
+%token WHILE _BOOL _COMPLEX _IMAGINARY INDSEL PLUSPLUS MINUSMINUS SHL SHR
+%token LTEQ GTEQ EQEQ NOTEQ LOGAND LOGOR ELLIPSES TIMESEQ DIVEQ MODEQ PLUSEQ
+%token MINUSEQ SHLEQ SHREQ ANDEQ OREQ XOREQ IDENT CHARLIT STRING NUMBER 
+%token ERRC ERRS NEWLINE FILEDIR
 
 %left ','
 %right '=' PLUSEQ MINUSEQ TIMESEQ DIVEQ MODEQ SHLEQ SHREQ ANDEQ OREQ XOREQ
@@ -140,48 +80,86 @@ external-declaration:
 |	declaration				{fprintf(stdout, "declaration on line %d\n", line);}
 
 declaration:
-	declaration-specifiers declarator ';' 	{$$ = $2; print_tree($$.ast,0);}
+	declaration-specifiers declarator ';' 	{
+										$$ = $1;
+										$$.ast->c1 = $2.ast; 
+										print_tree_invert($$.ast,0);
+									}
 |	declaration-specifiers ';'				
 
 declaration-specifiers:
-	storage-class-specifier 
-|	storage-class-specifier declaration-specifiers
-| 	type-specifier
-| 	type-specifier declaration-specifiers
-| 	type-qualifier
-| 	type-qualifier declaration-specifiers
+	storage-class-specifier {
+										$$.ast = new_node(SCALAR_NODE);
+										$$.ast->spec_bits = TYPESPEC;
+									}
+|	storage-class-specifier declaration-specifiers {
+										$$.ast = $2.ast; 
+									  	$$.ast->spec_bits = TYPESPEC | $$.ast->spec_bits;
+									}
+| 	type-specifier	{
+										if (TYPESPEC == IS_STRUCT)
+											{$$ = $1;}
+										else
+										{
+											$$.ast = new_node(SCALAR_NODE);
+											$$.ast->spec_bits = TYPESPEC;
+										} 
+										
+									}
+| 	type-specifier declaration-specifiers {
+										if ($1.ast->node_type == STRUCT_NODE) 
+											{$$=$1;} // throw away everything else
+									   	else
+										{
+											$$.ast = $2.ast; 
+									  		$$.ast->spec_bits = TYPESPEC | $$.ast->spec_bits;
+										}
+									}
+| 	type-qualifier	{
+										$$.ast = new_node(SCALAR_NODE);
+										$$.ast->spec_bits = TYPESPEC;
+									}
+| 	type-qualifier declaration-specifiers {
+										$$.ast = $2.ast; 
+									  	$$.ast->spec_bits = TYPESPEC | $$.ast->spec_bits;
+									}
+
 
 storage-class-specifier:
-	TYPEDEF	
-|	EXTERN
-|	STATIC
-|	AUTO
-|	REGISTER
+	EXTERN		{TYPESPEC = IS_EXTERN;}
+|	STATIC		{TYPESPEC = IS_STATIC;}
+|	AUTO		{TYPESPEC = IS_AUTO;}
+|	REGISTER	{TYPESPEC = IS_REGISTER;}
+/*|	TYPEDEF*/ 	
 
 type-specifier:
-	VOID
-|	CHAR
-|	SHORT
-|	INT
-|	LONG
-|	FLOAT
-|	DOUBLE
-|	SIGNED
-|	UNSIGNED 
-|	_BOOL
-|	_COMPLEX
-| 	struct-or-union-specifier
+	VOID	{TYPESPEC = IS_VOID;}
+|	CHAR	{TYPESPEC = IS_CHAR;}
+|	SHORT	{TYPESPEC = IS_SHORT;}
+|	INT		{TYPESPEC = IS_INT;}
+|	LONG	{TYPESPEC = IS_LONG;}
+|	FLOAT	{TYPESPEC = IS_FLOAT;}
+|	DOUBLE	{TYPESPEC = IS_DOUBLE;}
+|	SIGNED	{TYPESPEC = IS_SIGNED;}
+|	UNSIGNED 	{TYPESPEC = 0;}
+|	_BOOL		{TYPESPEC = 0;}
+|	_COMPLEX	{TYPESPEC = 0;}
+| 	struct-or-union-specifier	{$$=$1; $$.ast->spec_bits = 0; TYPESPEC = IS_STRUCT;}
 
 type-qualifier:
-	CONST
-|	RESTRICT
-|	VOLATILE
+	CONST		{TYPESPEC = IS_CONST;}
+|	RESTRICT	{TYPESPEC = IS_RESTRICT;}
+|	VOLATILE	{TYPESPEC = IS_RESTRICT;}
 
 struct-or-union-specifier:
-	struct-or-union IDENT
-|	struct-or-union IDENT '{' struct-declaration-list '}'	{  //INSTALL(curr_table, $2);
-															   //printf("installed %s\n", $2.ident_val);
-															}
+	struct-or-union IDENT {
+									$$.ast = new_ident_node($2.ident_val, STRUCT_NODE);
+								}
+|	struct-or-union IDENT '{' struct-declaration-list '}'	{  
+									//INSTALL(curr_table, $2);
+									//printf("installed %s\n", $2.ident_val);
+									$$.ast = new_ident_node($2.ident_val, STRUCT_NODE);
+								}
 
 struct-declaration-list:
 	struct-declaration
@@ -191,7 +169,7 @@ struct-declaration:
 	specifier-qualifier-list struct-declarator-list ';'
 
 specifier-qualifier-list:
-	type-specifier
+	type-specifier {$$.ast = new_node(SCALAR_NODE); $$.ast->spec_bits = TYPESPEC;}
 |	type-specifier specifier-qualifier-list
 |	type-qualifier
 |	type-qualifier specifier-qualifier-list
@@ -201,26 +179,40 @@ struct-declarator-list:
 |	struct-declarator-list ',' struct-declarator
 
 struct-declarator:
-	declarator
+	declarator	{$$ = $1;}
 
 struct-or-union:
-	STRUCT
-|	UNION	
+	STRUCT	{$$.ast = new_node(STRUCT_NODE);}
+|	UNION	{$$.ast = new_node(UNION_NODE);}	
 
 
 declarator:
-	IDENT			{$$.ast = new_ident_node($1.ident_val, VAR_NODE); print_tree($$.ast,0);}
+	IDENT			{
+								$$.ast = new_ident_node($1.ident_val, VAR_NODE);
+							}
 | 	declarator '[' NUMBER ']' {
+								//$$ = $1;
+								//$$.ast->c1 = new_node(ARRAY_NODE);
+								//$$.ast->c1->size = $3.int_val;
 								$$.ast = new_node(ARRAY_NODE); 
 								$$.ast->size = $3.int_val;
-								$$.ast->c1 = ($1.ast);
-							  }
-| 	declarator '[' ']'
-|	'*' declarator
-| 	'&' declarator
+								$$.ast->c1 = $1.ast;
+							}
+| 	declarator '[' ']'	{
+								//$$ = $1;
+								//$$.ast->c1 = new_node(PTR_NODE);
+						  		$$.ast = new_node(PTR_NODE);
+						  		$$.ast->c1 = $1.ast;
+							}
+|	'*' declarator		{
+								//$$ = $2;
+						  		//$$.ast->c1 = new_node(PTR_NODE);
+						  		$$.ast = new_node(PTR_NODE);
+						  		$$.ast->c1 = $2.ast;
+						}
 
 function-definition:
-	IDENT '(' ')' block
+	IDENT '(' ')' block	{$$.ast = new_ident_node($1.ident_val, FN_NODE);}
 
 block:
 	'{' body '}'
@@ -455,20 +447,18 @@ SCALAR extract_value(YYSTYPE val)
 	char *longdouble_type = "LONGDOUBLE";
 	SCALAR s;
 	char *num_type = val.metadata.num_type;
+	node_type = SCALAR_NODE;
 	if (strcmp(num_type, int_type) || strcmp(num_type, long_type) || strcmp(num_type, longlong_type))
 	{
 		s.int_val = (long long) val.int_val;
-		node_type = INT_NODE;	
 	}
 	else if (strcmp(num_type, float_type))
 	{
 		s.ld_val = (long double) val.float_val;
-		node_type = REAL_NODE;
 	}
 	else if (strcmp(num_type, double_type) || strcmp(num_type, longdouble_type))
 	{
 		s.ld_val = (long double) val.double_val;
-		node_type = REAL_NODE;
 	}
 	else
 	{
