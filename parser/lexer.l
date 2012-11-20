@@ -329,7 +329,7 @@ _Imaginary 	{yylval.metadata.tokname="_IMAGINARY"; return(_IMAGINARY);}
 			}
 {filedir} 	{
 				sscanf(yytext, "# %d \"%[^\"]", &line, minibuf);
-				line = 0; //printf("RESET\n");
+				line = 1; //printf("RESET\n");
 				yylval.ident_val = malloc(sizeof(char)*(strlen(yytext)+1));
 				strcpy(yylval.ident_val, minibuf);
 				return FILEDIR;

@@ -1,0 +1,63 @@
+declaration at <stdin> line 2
+variable: f
+	struct foo defined at line 0 with members: 
+==========================
+variable: a
+	int 
+==========================
+
+declaration at <stdin> line 3
+variable: fp
+	pointer to
+		struct foo defined at line 0 with members: 
+==========================
+variable: a
+	int 
+==========================
+
+declaration at <stdin> line 4
+variable: bp
+	pointer to
+		struct bar (incomplete)
+
+declaration at <stdin> line 6
+variable: i
+	int 
+
+declaration at <stdin> line 7
+variable: dd
+	long double 
+
+declaration at <stdin> line 9
+variable: l
+	long 
+function defined at <stdin> 10
+
+declaration at <stdin> line 11
+variable: l
+	int 
+
+declaration at <stdin> line 12
+stdin:12: Error: redeclaration of l
+variable: l
+	char 
+
+declaration at <stdin> line 18
+variable: s
+	struct s defined at line 14 with members: 
+==========================
+variable: i
+	array of size 50 of type:
+		int 
+variable: j
+	invalid type: int double 
+variable: k
+	pointer to
+		invalid type: int double char 
+==========================
+
+declaration at <stdin> line 20
+variable: intarray
+	pointer to
+		array of size 10 of type:
+			int 
