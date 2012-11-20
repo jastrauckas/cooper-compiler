@@ -86,6 +86,7 @@
 	TABLECELL *tc; // store stuff here
 	SYMTABLE *curr_table; // points to the current scope's symbol table
 	char curr_file[MAXLEN+1];
+	char *current_ident;
 	int stat;
 	int node_type;
 	int TYPESPEC;
@@ -106,7 +107,7 @@
 
 
 /* Line 268 of yacc.c  */
-#line 110 "hw3.tab.c"
+#line 111 "hw3.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -218,7 +219,7 @@ typedef int YYSTYPE;
 
 
 /* Line 343 of yacc.c  */
-#line 222 "hw3.tab.c"
+#line 223 "hw3.tab.c"
 
 #ifdef short
 # undef short
@@ -557,18 +558,18 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    75,    75,    76,    79,    80,    83,    88,    91,    95,
-      99,   109,   118,   122,   129,   130,   131,   132,   136,   137,
-     138,   139,   140,   141,   142,   143,   144,   145,   146,   147,
-     150,   151,   152,   155,   158,   165,   166,   169,   172,   173,
-     174,   175,   178,   179,   182,   185,   186,   190,   193,   201,
-     207,   215,   218,   221,   222,   223,   224,   227,   230,   231,
-     232,   233,   236,   237,   238,   239,   240,   241,   242,   243,
-     244,   251,   252,   255,   256,   257,   258,   259,   260,   261,
-     262,   263,   266,   267,   270,   273,   274,   275,   276,   277,
-     278,   279,   280,   281,   282,   283,   284,   285,   286,   287,
-     288,   289,   290,   293,   294,   297,   298,   299,   300,   301,
-     302,   303,   304,   305,   306,   307,   308,   311,   312
+       0,    76,    76,    77,    80,    81,    84,    89,    92,    96,
+     100,   110,   119,   123,   130,   131,   132,   133,   137,   138,
+     139,   140,   141,   142,   143,   144,   145,   146,   147,   148,
+     151,   152,   153,   156,   159,   166,   167,   170,   173,   174,
+     175,   176,   179,   180,   183,   186,   187,   191,   195,   200,
+     204,   210,   213,   216,   217,   218,   219,   222,   225,   226,
+     227,   228,   231,   232,   233,   234,   235,   236,   237,   238,
+     239,   246,   247,   250,   251,   252,   253,   254,   255,   256,
+     257,   258,   261,   262,   265,   268,   269,   270,   271,   272,
+     273,   274,   275,   276,   277,   278,   279,   280,   281,   282,
+     283,   284,   285,   288,   289,   292,   293,   294,   295,   296,
+     297,   298,   299,   300,   301,   302,   303,   306,   307
 };
 #endif
 
@@ -1706,21 +1707,21 @@ yyreduce:
         case 4:
 
 /* Line 1806 of yacc.c  */
-#line 79 "hw3.y"
+#line 80 "hw3.y"
     {fprintf(stdout, "function defined\n");}
     break;
 
   case 5:
 
 /* Line 1806 of yacc.c  */
-#line 80 "hw3.y"
+#line 81 "hw3.y"
     {fprintf(stdout, "declaration on line %d\n", line);}
     break;
 
   case 6:
 
 /* Line 1806 of yacc.c  */
-#line 83 "hw3.y"
+#line 84 "hw3.y"
     {
 										(yyval) = (yyvsp[(1) - (3)]);
 										(yyval).ast->c1 = (yyvsp[(2) - (3)]).ast; 
@@ -1731,7 +1732,7 @@ yyreduce:
   case 8:
 
 /* Line 1806 of yacc.c  */
-#line 91 "hw3.y"
+#line 92 "hw3.y"
     {
 										(yyval).ast = new_node(SCALAR_NODE);
 										(yyval).ast->spec_bits = TYPESPEC;
@@ -1741,7 +1742,7 @@ yyreduce:
   case 9:
 
 /* Line 1806 of yacc.c  */
-#line 95 "hw3.y"
+#line 96 "hw3.y"
     {
 										(yyval).ast = (yyvsp[(2) - (2)]).ast; 
 									  	(yyval).ast->spec_bits = TYPESPEC | (yyval).ast->spec_bits;
@@ -1751,7 +1752,7 @@ yyreduce:
   case 10:
 
 /* Line 1806 of yacc.c  */
-#line 99 "hw3.y"
+#line 100 "hw3.y"
     {
 										if (TYPESPEC == IS_STRUCT)
 											{(yyval) = (yyvsp[(1) - (1)]);}
@@ -1767,7 +1768,7 @@ yyreduce:
   case 11:
 
 /* Line 1806 of yacc.c  */
-#line 109 "hw3.y"
+#line 110 "hw3.y"
     {
 										if ((yyvsp[(1) - (2)]).ast->node_type == STRUCT_NODE) 
 											{(yyval)=(yyvsp[(1) - (2)]);} // throw away everything else
@@ -1782,7 +1783,7 @@ yyreduce:
   case 12:
 
 /* Line 1806 of yacc.c  */
-#line 118 "hw3.y"
+#line 119 "hw3.y"
     {
 										(yyval).ast = new_node(SCALAR_NODE);
 										(yyval).ast->spec_bits = TYPESPEC;
@@ -1792,7 +1793,7 @@ yyreduce:
   case 13:
 
 /* Line 1806 of yacc.c  */
-#line 122 "hw3.y"
+#line 123 "hw3.y"
     {
 										(yyval).ast = (yyvsp[(2) - (2)]).ast; 
 									  	(yyval).ast->spec_bits = TYPESPEC | (yyval).ast->spec_bits;
@@ -1802,140 +1803,140 @@ yyreduce:
   case 14:
 
 /* Line 1806 of yacc.c  */
-#line 129 "hw3.y"
+#line 130 "hw3.y"
     {TYPESPEC = IS_EXTERN;}
     break;
 
   case 15:
 
 /* Line 1806 of yacc.c  */
-#line 130 "hw3.y"
+#line 131 "hw3.y"
     {TYPESPEC = IS_STATIC;}
     break;
 
   case 16:
 
 /* Line 1806 of yacc.c  */
-#line 131 "hw3.y"
+#line 132 "hw3.y"
     {TYPESPEC = IS_AUTO;}
     break;
 
   case 17:
 
 /* Line 1806 of yacc.c  */
-#line 132 "hw3.y"
+#line 133 "hw3.y"
     {TYPESPEC = IS_REGISTER;}
     break;
 
   case 18:
 
 /* Line 1806 of yacc.c  */
-#line 136 "hw3.y"
+#line 137 "hw3.y"
     {TYPESPEC = IS_VOID;}
     break;
 
   case 19:
 
 /* Line 1806 of yacc.c  */
-#line 137 "hw3.y"
+#line 138 "hw3.y"
     {TYPESPEC = IS_CHAR;}
     break;
 
   case 20:
 
 /* Line 1806 of yacc.c  */
-#line 138 "hw3.y"
+#line 139 "hw3.y"
     {TYPESPEC = IS_SHORT;}
     break;
 
   case 21:
 
 /* Line 1806 of yacc.c  */
-#line 139 "hw3.y"
+#line 140 "hw3.y"
     {TYPESPEC = IS_INT;}
     break;
 
   case 22:
 
 /* Line 1806 of yacc.c  */
-#line 140 "hw3.y"
+#line 141 "hw3.y"
     {TYPESPEC = IS_LONG;}
     break;
 
   case 23:
 
 /* Line 1806 of yacc.c  */
-#line 141 "hw3.y"
+#line 142 "hw3.y"
     {TYPESPEC = IS_FLOAT;}
     break;
 
   case 24:
 
 /* Line 1806 of yacc.c  */
-#line 142 "hw3.y"
+#line 143 "hw3.y"
     {TYPESPEC = IS_DOUBLE;}
     break;
 
   case 25:
 
 /* Line 1806 of yacc.c  */
-#line 143 "hw3.y"
+#line 144 "hw3.y"
     {TYPESPEC = IS_SIGNED;}
     break;
 
   case 26:
 
 /* Line 1806 of yacc.c  */
-#line 144 "hw3.y"
+#line 145 "hw3.y"
     {TYPESPEC = 0;}
     break;
 
   case 27:
 
 /* Line 1806 of yacc.c  */
-#line 145 "hw3.y"
+#line 146 "hw3.y"
     {TYPESPEC = 0;}
     break;
 
   case 28:
 
 /* Line 1806 of yacc.c  */
-#line 146 "hw3.y"
+#line 147 "hw3.y"
     {TYPESPEC = 0;}
     break;
 
   case 29:
 
 /* Line 1806 of yacc.c  */
-#line 147 "hw3.y"
+#line 148 "hw3.y"
     {(yyval)=(yyvsp[(1) - (1)]); (yyval).ast->spec_bits = 0; TYPESPEC = IS_STRUCT;}
     break;
 
   case 30:
 
 /* Line 1806 of yacc.c  */
-#line 150 "hw3.y"
+#line 151 "hw3.y"
     {TYPESPEC = IS_CONST;}
     break;
 
   case 31:
 
 /* Line 1806 of yacc.c  */
-#line 151 "hw3.y"
+#line 152 "hw3.y"
     {TYPESPEC = IS_RESTRICT;}
     break;
 
   case 32:
 
 /* Line 1806 of yacc.c  */
-#line 152 "hw3.y"
+#line 153 "hw3.y"
     {TYPESPEC = IS_RESTRICT;}
     break;
 
   case 33:
 
 /* Line 1806 of yacc.c  */
-#line 155 "hw3.y"
+#line 156 "hw3.y"
     {
 									(yyval).ast = new_ident_node((yyvsp[(2) - (2)]).ident_val, STRUCT_NODE);
 								}
@@ -1944,7 +1945,7 @@ yyreduce:
   case 34:
 
 /* Line 1806 of yacc.c  */
-#line 158 "hw3.y"
+#line 159 "hw3.y"
     {  
 									//INSTALL(curr_table, $2);
 									//printf("installed %s\n", $2.ident_val);
@@ -1955,48 +1956,46 @@ yyreduce:
   case 38:
 
 /* Line 1806 of yacc.c  */
-#line 172 "hw3.y"
+#line 173 "hw3.y"
     {(yyval).ast = new_node(SCALAR_NODE); (yyval).ast->spec_bits = TYPESPEC;}
     break;
 
   case 44:
 
 /* Line 1806 of yacc.c  */
-#line 182 "hw3.y"
+#line 183 "hw3.y"
     {(yyval) = (yyvsp[(1) - (1)]);}
     break;
 
   case 45:
 
 /* Line 1806 of yacc.c  */
-#line 185 "hw3.y"
+#line 186 "hw3.y"
     {(yyval).ast = new_node(STRUCT_NODE);}
     break;
 
   case 46:
 
 /* Line 1806 of yacc.c  */
-#line 186 "hw3.y"
+#line 187 "hw3.y"
     {(yyval).ast = new_node(UNION_NODE);}
     break;
 
   case 47:
 
 /* Line 1806 of yacc.c  */
-#line 190 "hw3.y"
+#line 191 "hw3.y"
     {
 								(yyval).ast = new_ident_node((yyvsp[(1) - (1)]).ident_val, VAR_NODE);
+								current_ident = (yyvsp[(1) - (1)]).ident_val;
 							}
     break;
 
   case 48:
 
 /* Line 1806 of yacc.c  */
-#line 193 "hw3.y"
+#line 195 "hw3.y"
     {
-								//$$ = $1;
-								//$$.ast->c1 = new_node(ARRAY_NODE);
-								//$$.ast->c1->size = $3.int_val;
 								(yyval).ast = new_node(ARRAY_NODE); 
 								(yyval).ast->size = (yyvsp[(3) - (4)]).int_val;
 								(yyval).ast->c1 = (yyvsp[(1) - (4)]).ast;
@@ -2006,10 +2005,8 @@ yyreduce:
   case 49:
 
 /* Line 1806 of yacc.c  */
-#line 201 "hw3.y"
+#line 200 "hw3.y"
     {
-								//$$ = $1;
-								//$$.ast->c1 = new_node(PTR_NODE);
 						  		(yyval).ast = new_node(PTR_NODE);
 						  		(yyval).ast->c1 = (yyvsp[(1) - (3)]).ast;
 							}
@@ -2018,10 +2015,8 @@ yyreduce:
   case 50:
 
 /* Line 1806 of yacc.c  */
-#line 207 "hw3.y"
+#line 204 "hw3.y"
     {
-								//$$ = $2;
-						  		//$$.ast->c1 = new_node(PTR_NODE);
 						  		(yyval).ast = new_node(PTR_NODE);
 						  		(yyval).ast->c1 = (yyvsp[(2) - (2)]).ast;
 						}
@@ -2030,14 +2025,14 @@ yyreduce:
   case 51:
 
 /* Line 1806 of yacc.c  */
-#line 215 "hw3.y"
+#line 210 "hw3.y"
     {(yyval).ast = new_ident_node((yyvsp[(1) - (4)]).ident_val, FN_NODE);}
     break;
 
 
 
 /* Line 1806 of yacc.c  */
-#line 2041 "hw3.tab.c"
+#line 2036 "hw3.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2268,7 +2263,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 423 "hw3.y"
+#line 311 "hw3.y"
 
 /* Function definitions go here */
 int main()

@@ -20,6 +20,7 @@
 	TABLECELL *tc; // store stuff here
 	SYMTABLE *curr_table; // points to the current scope's symbol table
 	char curr_file[MAXLEN+1];
+	char *current_ident;
 	int stat;
 	int node_type;
 	int TYPESPEC;
@@ -189,24 +190,18 @@ struct-or-union:
 declarator:
 	IDENT			{
 								$$.ast = new_ident_node($1.ident_val, VAR_NODE);
+								current_ident = $1.ident_val;
 							}
 | 	declarator '[' NUMBER ']'  {
-								//$$ = $1;
-								//$$.ast->c1 = new_node(ARRAY_NODE);
-								//$$.ast->c1->size = $3.int_val;
 								$$.ast = new_node(ARRAY_NODE); 
 								$$.ast->size = $3.int_val;
 								$$.ast->c1 = $1.ast;
 							}
 | 	declarator '[' ']'	{
-								//$$ = $1;
-								//$$.ast->c1 = new_node(PTR_NODE);
 						  		$$.ast = new_node(PTR_NODE);
 						  		$$.ast->c1 = $1.ast;
 							}
 |	'*' declarator		{
-								//$$ = $2;
-						  		//$$.ast->c1 = new_node(PTR_NODE);
 						  		$$.ast = new_node(PTR_NODE);
 						  		$$.ast->c1 = $2.ast;
 						}
@@ -312,113 +307,6 @@ expression:
 |	expression ',' assignment-expression
 
 
-
-
-// HW2 GRAMMAR
-/*
-run: 
-	expression run 
-|	expression    			
-
-expression:
-	declaration 
-|	value ';'				{PRINTEXP($1);}
-|	function 
-| 	FILEDIR					{strncpy(curr_file, $1.ident_val, MAXLEN);}
-
-value: 
-	math					{$$ = $1;}
-|	IDENT '=' value			{
-								stat = UPDATE(curr_table, $1.ident_val, $3);
-								$$ = $3;
-								//if (stat) {$$.int_val=0;}
-							}
-|	IDENT TIMESEQ value		{$$ = OPASSIGN($1, $3, TIMESEQ);}
-|	IDENT DIVEQ value		{$$ = OPASSIGN($1, $3, DIVEQ);}
-|	IDENT MODEQ value		{$$ = OPASSIGN($1, $3, MODEQ);}
-|	IDENT PLUSEQ value		{$$ = OPASSIGN($1, $3, PLUSEQ);}
-|	IDENT MINUSEQ value		{$$ = OPASSIGN($1, $3, MINUSEQ);}
-|	IDENT SHLEQ value		{$$ = OPASSIGN($1, $3, SHLEQ);}
-|	IDENT SHREQ value		{$$ = OPASSIGN($1, $3, SHREQ);}
-|	IDENT ANDEQ value		{$$ = OPASSIGN($1, $3, ANDEQ);}
-|	IDENT OREQ value			{$$ = OPASSIGN($1, $3, OREQ);}
-|	IDENT XOREQ value		{$$ = OPASSIGN($1, $3, XOREQ);}
-| 	value ',' value			{$$ = $3;}
-| 	value '?' value ':' value	{$$ = TERNARY($1, $2, $3);}
-|	IDENT '[' value ']'		{
-								$$ = $3;
-								$$.has_val = 0;
-								$$.int_val = 0;
-								printf("%s:%d: ", curr_file, line); 
-								printf("Error: array not implemented\n");
-							}
-|	IDENT INDSEL IDENT		{
-								$$ = $3;
-								$$.has_val = 0;
-								$$.int_val = 0;
-								printf("%s:%d: ", curr_file, line); 
-								printf("Error: struct/union not implemented\n");
-							}
-
-declaration: 
-	INT list	';'			
-
-list: 
-	IDENT					{
-								$$=$1; INSTALL(curr_table, $1);
-							}
-| 	list ',' IDENT          {
-								$$=$3; INSTALL(curr_table, $3);
-							}
-
-
-math:
-	IDENT					{$$ = RETRIEVE(curr_table, $1.ident_val);}
-|	NUMBER                 	{$$ = FIXNUM($1);}
-| 	'(' math ')'			{$$ = $2;} 
-| 	math '+' math         	{$$ = BINARY($1, $3, '+');}
-| 	math '-' math          	{$$ = BINARY($1, $3, '-');}        	
-| 	math '*' math          	{$$ = BINARY($1, $3, '*');}        	
-| 	math '/' math          	{$$ = BINARY($1, $3, '/');}
-| 	math SHL math          	{$$ = BINARY($1, $3, SHL);}
-| 	math SHR math          	{$$ = BINARY($1, $3, SHR);}
-| 	unaryexp
-
-unaryexp:        	
-	math PLUSPLUS          	{$$ = UNARY($1, PLUSPLUS);}  
-| 	math MINUSMINUS        	{$$ = UNARY($1, MINUSMINUS);}        	
-| 	PLUSPLUS math        	{$$ = UNARY($2, PLUSPLUS);}        	
-| 	MINUSMINUS math        	{$$ = UNARY($2, MINUSMINUS);}        	
-| 	'+' math        		{$$ = UNARY($2, '+');}        	
-| 	'-' math        		{$$ = UNARY($2, '-');}        	
-
-function:
-	IDENT '(' ')' block 
-|	IDENT '(' ')' '\n' block
-|	block	
-
-block:
-	scopepush body scopepop	{}
-
-scopepush:
-	'{'						{
-								SPUSH(); 
-								//printf("entering function scope\n");
-							}
-
-scopepop:
-	'}'						{
-								SPOP(); 
-                                //printf("leaving function scope\n");
-							}
-body: 
-	value ';'				{PRINTEXP($1);}
-|	declaration
-|	body value ';'			{PRINTEXP($2);}
-|	body declaration
-| 	block
-| 	body block
-*/
 
 %%
 /* Function definitions go here */
