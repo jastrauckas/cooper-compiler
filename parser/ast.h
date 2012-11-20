@@ -25,7 +25,7 @@ enum
 #define IS_STATIC		0020000
 #define IS_AUTO			0040000
 #define IS_REGISTER		0100000
-#define IS_STRUCT		0100000
+#define IS_STRUCT		0200000
 
 typedef union scalar
 {

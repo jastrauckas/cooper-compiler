@@ -27,7 +27,9 @@ typedef struct tableCell
 	// if struct or union, need a table of members
 	struct symTable *members;
 	// copy yylval in here so we have the info 
-	YYSTYPE value;
+	YYSTYPE value;	
+	// metadata (line where definition began)
+	int def_line;
 } TABLECELL;
 
 // symbol table

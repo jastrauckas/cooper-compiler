@@ -110,7 +110,7 @@ void print_node(TNODE *t)
 		 	TABLECELL *tcell = in_table(struct_table, t->name);
 			if (tcell && tcell->members)
 			{
-				printf("with members: \n");
+				printf("defined at line %d with members: \n", tcell->def_line);
 				write_table((SYMTABLE *)tcell->members);
 			}		
 			else
@@ -123,7 +123,7 @@ void print_node(TNODE *t)
 		 	tcell = in_table(struct_table, t->name);
 			if (tcell && tcell->members)
 			{
-				printf("with members: \n");
+				printf("defined at line %d with members: \n", tcell->def_line);
 				write_table((SYMTABLE *)tcell->members);
 			}		
 			else
@@ -139,21 +139,60 @@ void print_node(TNODE *t)
 void print_scalar(TNODE *t)
 {
 	int base_type = 0;
-		int bits = t->spec_bits;
+	int short_type = 0;
+	int long_type = 0;
+	int invalid = 0;
+	char type_str[1024];
+	char *pos = &type_str[0];
+	int bits = t->spec_bits;
 	if ((bits & IS_LONG) == IS_LONG)
-		{printf("long\n"); base_type = 1;}
+	{
+		strncpy(pos, "long ", 5);
+		pos += 5;
+		long_type = 1;
+	}
 	if ((bits & IS_SHORT) == IS_SHORT)
-		{printf("short\n"); base_type = 1;}
+	{
+		strncpy(pos, "short ", 6);
+		pos += 6;
+		short_type++;
+		if (long_type)
+		{
+			invalid = 1;
+		}
+	}
 	if ((bits & IS_INT) == IS_INT)
-		{printf("int\n"); base_type = 1;}
+	{
+		strncpy(pos, "int ", 4);
+		pos += 4;
+		base_type++;
+	}
 	if ((bits & IS_FLOAT) == IS_FLOAT)
-		{printf("float\n"); base_type = 1;}
+	{
+		strncpy(pos, "float ", 6);
+		pos += 6;
+		base_type++;
+	}
 	if ((bits & IS_DOUBLE) == IS_DOUBLE)
-		{printf("double\n"); base_type = 1;}
+	{
+		strncpy(pos, "double ", 7);
+		pos += 7;
+		base_type++;
+	}
 	if ((bits & IS_CHAR) == IS_CHAR)
-		{printf("char\n"); base_type = 1;}
-	if (!base_type) 
+	{
+		strncpy(pos, "char ", 5);
+		pos += 5;
+		base_type++;
+	}
+	*pos = '\0';
+	if (!base_type && !short_type && !long_type) 
 		printf("unknown scalar\n");
+	else if (base_type > 1)
+		printf("invalid type: %s\n", type_str);
+	else
+		printf("%s\n", type_str);
+
 }	
 
 int get_depth(TNODE *t, int maxdepth)

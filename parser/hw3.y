@@ -29,6 +29,7 @@
 	char *current_ident;
 	int curr_scope = GLOBAL_SCOPE;
 	int stat;
+	int ts;
 	int node_type;
 	int dec_start_line;
 	int TYPESPEC;
@@ -86,10 +87,14 @@ translation-unit:
 
 external-declaration:
 	function-definition 	{fprintf(stdout, "function defined\n");}
-|	declaration				{fprintf(stdout, "declaration at <%s> line %d\n", curr_file, line);}
+|	declaration				
 
 declaration:
-	declaration-specifiers declarator ';' 	{
+	declaration-specifiers declarator {
+										TYPESPEC = 0;
+										fprintf(stdout, "\ndeclaration at <%s> line %d\n", curr_file, line);
+									}
+		';' 	{
 										$$ = $1;
 										$$.ast->c1 = $2.ast;
 										INSTALL(curr_table, current_ident, $$); 
@@ -104,7 +109,7 @@ declaration-specifiers:
 									}
 |	storage-class-specifier declaration-specifiers {
 										$$.ast = $2.ast; 
-									  	$$.ast->spec_bits = TYPESPEC | $$.ast->spec_bits;
+									  	$$.ast->spec_bits = (TYPESPEC | $$.ast->spec_bits);
 									}
 | 	type-specifier	{
 										if (TYPESPEC == IS_STRUCT)
@@ -117,12 +122,12 @@ declaration-specifiers:
 										
 									}
 | 	type-specifier declaration-specifiers {
-										if ($1.ast->node_type == STRUCT_NODE) 
+										if (TYPESPEC == IS_STRUCT) 
 											{$$=$1;} // throw away everything else
 									   	else
 										{
 											$$.ast = $2.ast; 
-									  		$$.ast->spec_bits = TYPESPEC | $$.ast->spec_bits;
+									  		$$.ast->spec_bits = TYPESPEC;
 										}
 									}
 | 	type-qualifier	{
@@ -131,35 +136,35 @@ declaration-specifiers:
 									}
 | 	type-qualifier declaration-specifiers {
 										$$.ast = $2.ast; 
-									  	$$.ast->spec_bits = TYPESPEC | $$.ast->spec_bits;
+									  	$$.ast->spec_bits = TYPESPEC;
 									}
 
 
 storage-class-specifier:
-	EXTERN		{TYPESPEC = IS_EXTERN;}
-|	STATIC		{TYPESPEC = IS_STATIC;}
-|	AUTO		{TYPESPEC = IS_AUTO;}
-|	REGISTER	{TYPESPEC = IS_REGISTER;}
+	EXTERN		{TYPESPEC = TYPESPEC | IS_EXTERN;}
+|	STATIC		{TYPESPEC = TYPESPEC | IS_STATIC;}
+|	AUTO		{TYPESPEC = TYPESPEC | IS_AUTO;}
+|	REGISTER	{TYPESPEC = TYPESPEC | IS_REGISTER;}
 /*|	TYPEDEF*/ 	
 
 type-specifier:
-	VOID	{TYPESPEC = IS_VOID;}
-|	CHAR	{TYPESPEC = IS_CHAR;}
-|	SHORT	{TYPESPEC = IS_SHORT;}
-|	INT		{TYPESPEC = IS_INT;}
-|	LONG	{TYPESPEC = IS_LONG;}
-|	FLOAT	{TYPESPEC = IS_FLOAT;}
-|	DOUBLE	{TYPESPEC = IS_DOUBLE;}
-|	SIGNED	{TYPESPEC = IS_SIGNED;}
-|	UNSIGNED 	{TYPESPEC = 0;}
-|	_BOOL		{TYPESPEC = 0;}
-|	_COMPLEX	{TYPESPEC = 0;}
+	VOID	{TYPESPEC = TYPESPEC | IS_VOID;}
+|	CHAR	{TYPESPEC = TYPESPEC | IS_CHAR;}
+|	SHORT	{TYPESPEC = TYPESPEC | IS_SHORT;}
+|	INT		{TYPESPEC = TYPESPEC | IS_INT;}
+|	LONG	{TYPESPEC = TYPESPEC | IS_LONG;}
+|	FLOAT	{TYPESPEC = TYPESPEC | IS_FLOAT;}
+|	DOUBLE	{TYPESPEC = TYPESPEC | IS_DOUBLE;}
+|	SIGNED	{TYPESPEC = TYPESPEC | IS_SIGNED;}
+|	UNSIGNED 	
+|	_BOOL	
+|	_COMPLEX	
 | 	struct-or-union-specifier	{$$=$1; $$.ast->spec_bits = 0; TYPESPEC = IS_STRUCT;}
 
 type-qualifier:
-	CONST		{TYPESPEC = IS_CONST;}
-|	RESTRICT	{TYPESPEC = IS_RESTRICT;}
-|	VOLATILE	{TYPESPEC = IS_RESTRICT;}
+	CONST		{TYPESPEC = TYPESPEC | IS_CONST;}
+|	RESTRICT	{TYPESPEC = TYPESPEC | IS_RESTRICT;}
+|	VOLATILE	{TYPESPEC = TYPESPEC | IS_RESTRICT;}
 
 struct-or-union-specifier:
 	struct-or-union IDENT {
@@ -173,6 +178,7 @@ struct-or-union-specifier:
 									init_table(&members, 512, NULL);
 									current_table_entry = in_table(struct_table, $2.ident_val);
 									current_table_entry->members = (struct symTable *) &members;
+									current_table_entry->def_line = line;
 								} 
 	'{' struct-declaration-list '}'	{  
 									strncpy($$.ast->name, $2.ident_val, 255);
@@ -194,7 +200,7 @@ struct-declaration:
 
 specifier-qualifier-list:
 	type-specifier {$$.ast = new_node(SCALAR_NODE); $$.ast->spec_bits = TYPESPEC;}
-|	type-specifier specifier-qualifier-list {$$.ast->spec_bits = TYPESPEC | $$.ast->spec_bits;}
+|	type-specifier specifier-qualifier-list {$$ = $2; $$.ast->spec_bits = TYPESPEC | $$.ast->spec_bits;}
 |	type-qualifier {$$.ast = new_node(SCALAR_NODE); $$.ast->spec_bits = TYPESPEC;}
 |	type-qualifier specifier-qualifier-list {$$.ast->spec_bits = TYPESPEC | $$.ast->spec_bits;}
 
