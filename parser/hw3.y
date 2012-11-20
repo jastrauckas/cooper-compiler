@@ -19,8 +19,10 @@
 	SYMTABLE st;
 	SYMTABLE *new_members = NULL; // use this to create symtable for struct members
 	TABLECELL *tc; // store stuff here
+	TABLECELL *current_table_entry;
 	SYMTABLE *curr_table; // points to the current scope's symbol table
 	SYMTABLE *struct_table; // points to the struct scope's symbol table
+	SYMTABLE *curr_member_table; // points to the struct scope's symbol table
 	char curr_file[MAXLEN+1];
 	char *current_ident;
 	int stat;
@@ -165,30 +167,36 @@ struct-or-union-specifier:
 									INSTALL(struct_table, $2.ident_val, $2);
 									SYMTABLE members;
 									init_table(&members, 512, NULL);
-									TABLECELL *table_entry = in_table(struct_table, $2.ident_val);
-									table_entry->members = (struct symTable *) &members;
+									current_table_entry = in_table(struct_table, $2.ident_val);
+									current_table_entry->members = (struct symTable *) &members;
 								} 
 	'{' struct-declaration-list '}'	{  
-									//INSTALL(curr_table, $2);
 									strncpy($$.ast->name, $2.ident_val, 255);
 								}
 
 struct-declaration-list:
-	struct-declaration
+	struct-declaration 
 |	struct-declaration-list struct-declaration
 
 struct-declaration:
-	specifier-qualifier-list struct-declarator-list ';'
+	specifier-qualifier-list struct-declarator-list ';' {
+										$$ = $1;
+										$$.ast->c1 = $2.ast;
+										INSTALL((SYMTABLE*)current_table_entry->members, current_ident, $$); 
+										printf("MEMBER INSTALLED: \n");
+										print_tree_invert($$.ast,0);
+									}
+
 
 specifier-qualifier-list:
 	type-specifier {$$.ast = new_node(SCALAR_NODE); $$.ast->spec_bits = TYPESPEC;}
-|	type-specifier specifier-qualifier-list
-|	type-qualifier
-|	type-qualifier specifier-qualifier-list
+|	type-specifier specifier-qualifier-list {$$.ast->spec_bits = TYPESPEC | $$.ast->spec_bits;}
+|	type-qualifier {$$.ast = new_node(SCALAR_NODE); $$.ast->spec_bits = TYPESPEC;}
+|	type-qualifier specifier-qualifier-list {$$.ast->spec_bits = TYPESPEC | $$.ast->spec_bits;}
 
 struct-declarator-list:
-	struct-declarator
-|	struct-declarator-list ',' struct-declarator
+	struct-declarator {$$ = $1;}
+|	struct-declarator-list ',' struct-declarator {$$ = $3;}
 
 struct-declarator:
 	declarator	{$$ = $1;}
