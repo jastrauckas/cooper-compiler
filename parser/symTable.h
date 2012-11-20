@@ -9,6 +9,7 @@ ECE 466
 #ifndef TABLEH
 #define TABLEH
 #include "lexer.h"
+#include "ast.h"
 
 enum ident_types {VAR, FN, TD};
 

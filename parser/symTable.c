@@ -176,14 +176,11 @@ void write_table(SYMTABLE *t)
     for (i=0; i<t->capacity; i++)
     {
         tc = t->cells[i];
-        /*
-        if (!tc)
-            printf("\tnothing in slot %d!\n", i);
-        */
         while (tc)
         {
             //printf("\tslot %d: id %s, type %s\n", i, tc->name, tc->value.metadata.tokname);
-            printf("name %s, type %s\n", tc->name, tc->value.metadata.tokname);
+            //printf("name %s, type:\n", tc->name);
+			print_tree_invert(tc->value.ast, 0);
             tc = tc->nextCell;
         }
     }
