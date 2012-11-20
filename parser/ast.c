@@ -94,13 +94,13 @@ void print_node(TNODE *t)
 			printf("Variable: %s\n", t->name);
 			break;
 		case ARRAY_NODE:
-			printf("Array of size: %d\n", t->size);
+			printf("Array of size %d of type:\n", t->size);
 			break;
 		case PTR_NODE:
 			printf("Pointer to\n", t->size);
 			break;
 		case SCALAR_NODE:
-			printf("Scalar Type\n", t->size);
+			print_scalar(t);
 			break;
 		case STRUCT_NODE:
 			printf("Struct %s\n", t->name);
@@ -109,6 +109,26 @@ void print_node(TNODE *t)
 			printf("Unhandled Node Type %d\n", t->node_type);
 	}
 }
+
+void print_scalar(TNODE *t)
+{
+	int base_type = 0;
+	int bits = t->spec_bits;
+	if ((bits & IS_LONG) == IS_LONG)
+		{printf("long\n"); base_type = 1;}
+	if ((bits & IS_SHORT) == IS_SHORT)
+		{printf("short\n"); base_type = 1;}
+	if ((bits & IS_INT) == IS_INT)
+		{printf("int\n"); base_type = 1;}
+	if ((bits & IS_FLOAT) == IS_FLOAT)
+		{printf("float\n"); base_type = 1;}
+	if ((bits & IS_DOUBLE) == IS_DOUBLE)
+		{printf("double\n"); base_type = 1;}
+	if ((bits & IS_CHAR) == IS_CHAR)
+		{printf("char\n"); base_type = 1;}
+	if (!base_type) 
+		printf("unknown scalar\n");
+}	
 
 int get_depth(TNODE *t, int maxdepth)
 {

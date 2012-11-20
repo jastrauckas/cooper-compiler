@@ -56,5 +56,6 @@ TNODE *new_tree(int op, TNODE *c1, TNODE *c2, TNODE *c3);
 void print_tree(TNODE *t, int level);
 void print_tree_invert(TNODE *t, int level);
 void print_node(TNODE *t);
+void print_scalar(TNODE *t);
 
 #endif

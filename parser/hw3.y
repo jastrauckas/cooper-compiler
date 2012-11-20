@@ -16,9 +16,11 @@
 	#define MAXLEN 512
 
 	SYMTABLE t;
+	SYMTABLE st;
 	SYMTABLE *new_members = NULL; // use this to create symtable for struct members
 	TABLECELL *tc; // store stuff here
 	SYMTABLE *curr_table; // points to the current scope's symbol table
+	SYMTABLE *struct_table; // points to the struct scope's symbol table
 	char curr_file[MAXLEN+1];
 	char *current_ident;
 	int stat;
@@ -155,14 +157,19 @@ type-qualifier:
 
 struct-or-union-specifier:
 	struct-or-union IDENT {
-									//$$.ast = new_ident_node($2.ident_val, STRUCT_NODE);
 									$$ = $1;
 									strncpy($$.ast->name, $2.ident_val, 255);
 								}
-|	struct-or-union IDENT '{' struct-declaration-list '}'	{  
-									//INSTALL(curr_table, $2);
-									//printf("installed %s\n", $2.ident_val);
+|	struct-or-union IDENT {
 									$$.ast = new_ident_node($2.ident_val, STRUCT_NODE);
+									INSTALL(struct_table, $2.ident_val, $2);
+									SYMTABLE members;
+									init_table(&members, 512, NULL);
+									TABLECELL *table_entry = in_table(struct_table, $2.ident_val);
+									table_entry->members = (struct symTable *) &members;
+								} 
+	'{' struct-declaration-list '}'	{  
+									//INSTALL(curr_table, $2);
 									strncpy($$.ast->name, $2.ident_val, 255);
 								}
 
@@ -317,7 +324,9 @@ expression:
 int main()
 {
 	init_table(&t, 512, NULL);
+	init_table(&st, 512, NULL);
 	curr_table = &t; // initialize scope to global scope
+	struct_table = &st;
 	strcpy(curr_file, "stdin");
 	yyparse();
 	return 0;
