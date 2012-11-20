@@ -14,6 +14,8 @@
 	
 	#define YYDEBUG 1
 	#define MAXLEN 512
+	
+	enum {GLOBAL_SCOPE, PROTO_SCOPE, FN_SCOPE};
 
 	SYMTABLE t;
 	SYMTABLE st;
@@ -25,8 +27,10 @@
 	SYMTABLE *curr_member_table; // points to the struct scope's symbol table
 	char curr_file[MAXLEN+1];
 	char *current_ident;
+	int curr_scope = GLOBAL_SCOPE;
 	int stat;
 	int node_type;
+	int dec_start_line;
 	int TYPESPEC;
 
 	/* functions that will be defined */
@@ -82,7 +86,7 @@ translation-unit:
 
 external-declaration:
 	function-definition 	{fprintf(stdout, "function defined\n");}
-|	declaration				{fprintf(stdout, "declaration on line %d\n", line);}
+|	declaration				{fprintf(stdout, "declaration at <%s> line %d\n", curr_file, line);}
 
 declaration:
 	declaration-specifiers declarator ';' 	{
