@@ -183,8 +183,8 @@ struct-declaration:
 										$$ = $1;
 										$$.ast->c1 = $2.ast;
 										INSTALL((SYMTABLE*)current_table_entry->members, current_ident, $$); 
-										printf("MEMBER INSTALLED: \n");
-										print_tree_invert($$.ast,0);
+										//printf("MEMBER INSTALLED: \n");
+										//print_tree_invert($$.ast,0);
 									}
 
 

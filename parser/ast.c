@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "ast.h"
+#include "symTable.h"
+
+extern SYMTABLE *struct_table;
 
 // don't care if children are null
 TNODE *new_tree(int op, TNODE *c1, TNODE *c2, TNODE *c3)
@@ -103,7 +106,17 @@ void print_node(TNODE *t)
 			print_scalar(t);
 			break;
 		case STRUCT_NODE:
-			printf("Struct %s\n", t->name);
+			printf("Struct %s ", t->name);
+		 	TABLECELL *tcell = in_table(struct_table, t->name);
+			if (tcell && tcell->members)
+			{
+				printf("with members: \n");
+				write_table((SYMTABLE *)tcell->members);
+			}		
+			else
+			{
+				printf("(incomplete)\n");
+			}
 			break;
 		default:
 			printf("Unhandled Node Type %d\n", t->node_type);
@@ -113,7 +126,7 @@ void print_node(TNODE *t)
 void print_scalar(TNODE *t)
 {
 	int base_type = 0;
-	int bits = t->spec_bits;
+		int bits = t->spec_bits;
 	if ((bits & IS_LONG) == IS_LONG)
 		{printf("long\n"); base_type = 1;}
 	if ((bits & IS_SHORT) == IS_SHORT)

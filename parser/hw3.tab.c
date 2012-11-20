@@ -1991,8 +1991,8 @@ yyreduce:
 										(yyval) = (yyvsp[(1) - (3)]);
 										(yyval).ast->c1 = (yyvsp[(2) - (3)]).ast;
 										INSTALL((SYMTABLE*)current_table_entry->members, current_ident, (yyval)); 
-										printf("MEMBER INSTALLED: \n");
-										print_tree_invert((yyval).ast,0);
+										//printf("MEMBER INSTALLED: \n");
+										//print_tree_invert($$.ast,0);
 									}
     break;
 

@@ -172,7 +172,7 @@ void write_table(SYMTABLE *t)
 {
     int i;
     TABLECELL *tc;
-    printf("TABLE CONTENTS:\n");
+	printf("==========================\n");
     for (i=0; i<t->capacity; i++)
     {
         tc = t->cells[i];
@@ -182,9 +182,11 @@ void write_table(SYMTABLE *t)
         */
         while (tc)
         {
-            printf("\tslot %d: id %s, type %s\n", i, tc->name, tc->value.metadata.tokname);
+            //printf("\tslot %d: id %s, type %s\n", i, tc->name, tc->value.metadata.tokname);
+            printf("name %s, type %s\n", tc->name, tc->value.metadata.tokname);
             tc = tc->nextCell;
         }
     }
+	printf("==========================\n");
 }
 
