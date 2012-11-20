@@ -27,7 +27,7 @@
 
 	/* functions that will be defined */
 	SCALAR extract_value(YYSTYPE val);
-	void INSTALL(SYMTABLE *t, YYSTYPE val);
+	void INSTALL(SYMTABLE *t, char *name, YYSTYPE val);
 	int UPDATE(SYMTABLE *t, char *key, YYSTYPE val);
 	YYSTYPE FIXNUM(YYSTYPE v);
 	YYSTYPE RETRIEVE(SYMTABLE *t, char *key);
@@ -83,7 +83,8 @@ external-declaration:
 declaration:
 	declaration-specifiers declarator ';' 	{
 										$$ = $1;
-										$$.ast->c1 = $2.ast; 
+										$$.ast->c1 = $2.ast;
+										INSTALL(curr_table, current_ident, $$); 
 										print_tree_invert($$.ast,0);
 									}
 |	declaration-specifiers ';'				
@@ -366,26 +367,26 @@ void PRINTEXP(YYSTYPE v)
 
 
 // add a new identifier to the current symbol table
-void INSTALL(SYMTABLE *t, YYSTYPE val)
+void INSTALL(SYMTABLE *t, char *name, YYSTYPE val)
 {
-	if (in_table(t, val.ident_val))
+	if (in_table(t, name))
 	{
 		fprintf(stderr, "%s:%d: ", curr_file, line); 
-    	fprintf(stderr, "Error: redeclaration of %s\n", val.ident_val);
+    	fprintf(stderr, "Error: redeclaration of %s\n", name);
 		return;
     }
 	val.has_val = 0;
-   	ins_table(t, val.ident_val, val); // junk value 
+   	ins_table(t, name, val); // junk value 
 }
 
 // special for struct members
-void ADD_MEMBER(SYMTABLE *t, YYSTYPE member)
+void ADD_MEMBER(SYMTABLE *t, char *name, YYSTYPE member)
 {
 	if (!t)
 	{
 		init_table(t, 8, NULL);
 	}
-	INSTALL(t, member);
+	INSTALL(t, name, member);
 }
 
 // make sure the number has an integer equivalent
