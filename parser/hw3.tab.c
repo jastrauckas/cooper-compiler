@@ -574,14 +574,14 @@ static const yytype_uint16 yyrline[] =
      152,   153,   154,   155,   156,   157,   158,   159,   160,   161,
      162,   165,   166,   167,   170,   174,   174,   188,   189,   192,
      202,   203,   204,   205,   208,   209,   212,   215,   216,   220,
-     224,   229,   233,   239,   239,   243,   243,   253,   254,   255,
-     256,   259,   262,   263,   264,   265,   268,   269,   270,   271,
-     272,   273,   274,   275,   276,   283,   284,   287,   288,   289,
-     290,   291,   292,   293,   294,   295,   298,   299,   302,   305,
-     306,   307,   308,   309,   310,   311,   312,   313,   314,   315,
-     316,   317,   318,   319,   320,   321,   322,   325,   326,   329,
-     330,   331,   332,   333,   334,   335,   336,   337,   338,   339,
-     340,   343,   344
+     224,   229,   233,   239,   239,   252,   252,   262,   263,   264,
+     265,   268,   271,   272,   273,   274,   277,   278,   279,   280,
+     281,   282,   283,   284,   285,   292,   293,   296,   297,   298,
+     299,   300,   301,   302,   303,   304,   307,   308,   311,   314,
+     315,   316,   317,   318,   319,   320,   321,   322,   323,   324,
+     325,   326,   327,   328,   329,   330,   331,   334,   335,   338,
+     339,   340,   341,   342,   343,   344,   345,   346,   347,   348,
+     349,   352,   353
 };
 #endif
 
@@ -608,7 +608,7 @@ static const char *const yytname[] =
   "struct-declaration-list", "struct-declaration",
   "specifier-qualifier-list", "struct-declarator-list",
   "struct-declarator", "struct-or-union", "declarator",
-  "function-definition", "$@3", "block", "$@4", "body", "statement",
+  "function-definition", "@3", "block", "$@4", "body", "statement",
   "primary-expression", "postfix-expression", "argument-expression-list",
   "unary-expression", "cast-expression", "type-name", "binary-expression",
   "conditional-expression", "assignment-expression", "expression", 0
@@ -1738,7 +1738,7 @@ yyreduce:
 
 /* Line 1806 of yacc.c  */
 #line 89 "hw3.y"
-    {fprintf(stdout, "function defined\n");}
+    {fprintf(stdout, "function defined at <%s> %d\n", curr_file, line);}
     break;
 
   case 6:
@@ -2101,20 +2101,29 @@ yyreduce:
 
 /* Line 1806 of yacc.c  */
 #line 239 "hw3.y"
-    {curr_scope = FN_SCOPE;}
+    {
+				(yyval)=(yyvsp[(1) - (3)]);
+				(yyval).ast = new_node(FN_NODE);
+				strncpy((yyval).ast->name, (yyval).ident_val, 256);
+				curr_scope = FN_SCOPE; 
+				INSTALL(curr_table, (yyval).ident_val, (yyval)); 
+			}
     break;
 
   case 54:
 
 /* Line 1806 of yacc.c  */
-#line 240 "hw3.y"
-    {(yyval).ast = new_ident_node((yyvsp[(1) - (5)]).ident_val, FN_NODE); curr_scope = GLOBAL_SCOPE;}
+#line 246 "hw3.y"
+    {
+				(yyval).ast = new_ident_node((yyvsp[(1) - (5)]).ident_val, FN_NODE); 
+				curr_scope = GLOBAL_SCOPE;	
+			}
     break;
 
   case 55:
 
 /* Line 1806 of yacc.c  */
-#line 243 "hw3.y"
+#line 252 "hw3.y"
     {
 				curr_table = SPUSH(curr_table);
 				struct_table = SPUSH(struct_table);
@@ -2124,7 +2133,7 @@ yyreduce:
   case 56:
 
 /* Line 1806 of yacc.c  */
-#line 247 "hw3.y"
+#line 256 "hw3.y"
     {
 				curr_table = SPOP(curr_table);
 				struct_table = SPOP(struct_table);
@@ -2134,7 +2143,7 @@ yyreduce:
 
 
 /* Line 1806 of yacc.c  */
-#line 2138 "hw3.tab.c"
+#line 2147 "hw3.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2365,7 +2374,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 348 "hw3.y"
+#line 357 "hw3.y"
 
 /* Function definitions go here */
 int main()

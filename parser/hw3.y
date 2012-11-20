@@ -86,7 +86,7 @@ translation-unit:
 |	translation-unit external-declaration
 
 external-declaration:
-	function-definition 	{fprintf(stdout, "function defined\n");}
+	function-definition 	{fprintf(stdout, "function defined at <%s> %d\n", curr_file, line);}
 |	declaration				
 
 declaration:
@@ -236,8 +236,17 @@ declarator:
 						}
 
 function-definition:
-	IDENT '(' ')' {curr_scope = FN_SCOPE;} 
-		block	{$$.ast = new_ident_node($1.ident_val, FN_NODE); curr_scope = GLOBAL_SCOPE;}
+	IDENT '(' ')' {
+				$$=$1;
+				$$.ast = new_node(FN_NODE);
+				strncpy($$.ast->name, $$.ident_val, 256);
+				curr_scope = FN_SCOPE; 
+				INSTALL(curr_table, $$.ident_val, $$); 
+			}
+		block	{
+				$$.ast = new_ident_node($1.ident_val, FN_NODE); 
+				curr_scope = GLOBAL_SCOPE;	
+			}
 
 block:
 	'{' {

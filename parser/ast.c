@@ -96,6 +96,9 @@ void print_node(TNODE *t)
 		case VAR_NODE:
 			printf("variable: %s\n", t->name);
 			break;
+		case FN_NODE:
+			printf("function: %s\n", t->name);
+			break;
 		case ARRAY_NODE:
 			printf("array of size %d of type:\n", t->size);
 			break;
