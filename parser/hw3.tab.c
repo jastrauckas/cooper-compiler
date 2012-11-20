@@ -561,15 +561,15 @@ static const yytype_uint16 yyrline[] =
        0,    76,    76,    77,    80,    81,    84,    90,    93,    97,
      101,   111,   120,   124,   131,   132,   133,   134,   138,   139,
      140,   141,   142,   143,   144,   145,   146,   147,   148,   149,
-     152,   153,   154,   157,   160,   167,   168,   171,   174,   175,
-     176,   177,   180,   181,   184,   187,   188,   192,   196,   201,
-     205,   211,   214,   217,   218,   219,   220,   223,   226,   227,
-     228,   229,   232,   233,   234,   235,   236,   237,   238,   239,
-     240,   247,   248,   251,   252,   253,   254,   255,   256,   257,
-     258,   259,   262,   263,   266,   269,   270,   271,   272,   273,
-     274,   275,   276,   277,   278,   279,   280,   281,   282,   283,
-     284,   285,   286,   289,   290,   293,   294,   295,   296,   297,
-     298,   299,   300,   301,   302,   303,   304,   307,   308
+     152,   153,   154,   157,   162,   170,   171,   174,   177,   178,
+     179,   180,   183,   184,   187,   190,   191,   195,   199,   204,
+     208,   214,   217,   220,   221,   222,   223,   226,   229,   230,
+     231,   232,   235,   236,   237,   238,   239,   240,   241,   242,
+     243,   250,   251,   254,   255,   256,   257,   258,   259,   260,
+     261,   262,   265,   266,   269,   272,   273,   274,   275,   276,
+     277,   278,   279,   280,   281,   282,   283,   284,   285,   286,
+     287,   288,   289,   292,   293,   296,   297,   298,   299,   300,
+     301,   302,   303,   304,   305,   306,   307,   310,   311
 };
 #endif
 
@@ -1939,53 +1939,56 @@ yyreduce:
 /* Line 1806 of yacc.c  */
 #line 157 "hw3.y"
     {
-									(yyval).ast = new_ident_node((yyvsp[(2) - (2)]).ident_val, STRUCT_NODE);
+									//$$.ast = new_ident_node($2.ident_val, STRUCT_NODE);
+									(yyval) = (yyvsp[(1) - (2)]);
+									strncpy((yyval).ast->name, (yyvsp[(2) - (2)]).ident_val, 255);
 								}
     break;
 
   case 34:
 
 /* Line 1806 of yacc.c  */
-#line 160 "hw3.y"
+#line 162 "hw3.y"
     {  
 									//INSTALL(curr_table, $2);
 									//printf("installed %s\n", $2.ident_val);
 									(yyval).ast = new_ident_node((yyvsp[(2) - (5)]).ident_val, STRUCT_NODE);
+									strncpy((yyval).ast->name, (yyvsp[(2) - (5)]).ident_val, 255);
 								}
     break;
 
   case 38:
 
 /* Line 1806 of yacc.c  */
-#line 174 "hw3.y"
+#line 177 "hw3.y"
     {(yyval).ast = new_node(SCALAR_NODE); (yyval).ast->spec_bits = TYPESPEC;}
     break;
 
   case 44:
 
 /* Line 1806 of yacc.c  */
-#line 184 "hw3.y"
+#line 187 "hw3.y"
     {(yyval) = (yyvsp[(1) - (1)]);}
     break;
 
   case 45:
 
 /* Line 1806 of yacc.c  */
-#line 187 "hw3.y"
+#line 190 "hw3.y"
     {(yyval).ast = new_node(STRUCT_NODE);}
     break;
 
   case 46:
 
 /* Line 1806 of yacc.c  */
-#line 188 "hw3.y"
+#line 191 "hw3.y"
     {(yyval).ast = new_node(UNION_NODE);}
     break;
 
   case 47:
 
 /* Line 1806 of yacc.c  */
-#line 192 "hw3.y"
+#line 195 "hw3.y"
     {
 								(yyval).ast = new_ident_node((yyvsp[(1) - (1)]).ident_val, VAR_NODE);
 								current_ident = (yyvsp[(1) - (1)]).ident_val;
@@ -1995,7 +1998,7 @@ yyreduce:
   case 48:
 
 /* Line 1806 of yacc.c  */
-#line 196 "hw3.y"
+#line 199 "hw3.y"
     {
 								(yyval).ast = new_node(ARRAY_NODE); 
 								(yyval).ast->size = (yyvsp[(3) - (4)]).int_val;
@@ -2006,7 +2009,7 @@ yyreduce:
   case 49:
 
 /* Line 1806 of yacc.c  */
-#line 201 "hw3.y"
+#line 204 "hw3.y"
     {
 						  		(yyval).ast = new_node(PTR_NODE);
 						  		(yyval).ast->c1 = (yyvsp[(1) - (3)]).ast;
@@ -2016,7 +2019,7 @@ yyreduce:
   case 50:
 
 /* Line 1806 of yacc.c  */
-#line 205 "hw3.y"
+#line 208 "hw3.y"
     {
 						  		(yyval).ast = new_node(PTR_NODE);
 						  		(yyval).ast->c1 = (yyvsp[(2) - (2)]).ast;
@@ -2026,14 +2029,14 @@ yyreduce:
   case 51:
 
 /* Line 1806 of yacc.c  */
-#line 211 "hw3.y"
+#line 214 "hw3.y"
     {(yyval).ast = new_ident_node((yyvsp[(1) - (4)]).ident_val, FN_NODE);}
     break;
 
 
 
 /* Line 1806 of yacc.c  */
-#line 2037 "hw3.tab.c"
+#line 2040 "hw3.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2264,7 +2267,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 312 "hw3.y"
+#line 315 "hw3.y"
 
 /* Function definitions go here */
 int main()

@@ -155,12 +155,15 @@ type-qualifier:
 
 struct-or-union-specifier:
 	struct-or-union IDENT {
-									$$.ast = new_ident_node($2.ident_val, STRUCT_NODE);
+									//$$.ast = new_ident_node($2.ident_val, STRUCT_NODE);
+									$$ = $1;
+									strncpy($$.ast->name, $2.ident_val, 255);
 								}
 |	struct-or-union IDENT '{' struct-declaration-list '}'	{  
 									//INSTALL(curr_table, $2);
 									//printf("installed %s\n", $2.ident_val);
 									$$.ast = new_ident_node($2.ident_val, STRUCT_NODE);
+									strncpy($$.ast->name, $2.ident_val, 255);
 								}
 
 struct-declaration-list:

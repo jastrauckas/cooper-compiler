@@ -102,6 +102,11 @@ void print_node(TNODE *t)
 		case SCALAR_NODE:
 			printf("Scalar Type\n", t->size);
 			break;
+		case STRUCT_NODE:
+			printf("Struct %s\n", t->name);
+			break;
+		default:
+			printf("Unhandled Node Type %d\n", t->node_type);
 	}
 }
 
