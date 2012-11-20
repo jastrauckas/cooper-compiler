@@ -94,19 +94,19 @@ void print_node(TNODE *t)
 	switch (t->node_type)
 	{
 		case VAR_NODE:
-			printf("Variable: %s\n", t->name);
+			printf("variable: %s\n", t->name);
 			break;
 		case ARRAY_NODE:
-			printf("Array of size %d of type:\n", t->size);
+			printf("array of size %d of type:\n", t->size);
 			break;
 		case PTR_NODE:
-			printf("Pointer to\n", t->size);
+			printf("pointer to\n", t->size);
 			break;
 		case SCALAR_NODE:
 			print_scalar(t);
 			break;
 		case STRUCT_NODE:
-			printf("Struct %s ", t->name);
+			printf("struct %s ", t->name);
 		 	TABLECELL *tcell = in_table(struct_table, t->name);
 			if (tcell && tcell->members)
 			{
@@ -118,8 +118,21 @@ void print_node(TNODE *t)
 				printf("(incomplete)\n");
 			}
 			break;
+		case UNION_NODE:
+			printf("union %s ", t->name);
+		 	tcell = in_table(struct_table, t->name);
+			if (tcell && tcell->members)
+			{
+				printf("with members: \n");
+				write_table((SYMTABLE *)tcell->members);
+			}		
+			else
+			{
+				printf("(incomplete)\n");
+			}
+			break;
 		default:
-			printf("Unhandled Node Type %d\n", t->node_type);
+			printf("unhandled Node Type %d\n", t->node_type);
 	}
 }
 

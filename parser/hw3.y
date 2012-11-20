@@ -43,8 +43,8 @@
 	YYSTYPE BINARY(YYSTYPE v1, YYSTYPE v2, int op);
 	YYSTYPE OPASSIGN(YYSTYPE v1, YYSTYPE v2, int op);
 	YYSTYPE TERNARY(YYSTYPE v1, YYSTYPE v2, YYSTYPE v3);
-	void SPOP();
-	void SPUSH();
+	SYMTABLE *SPOP(SYMTABLE *t);
+	SYMTABLE *SPUSH(SYMTABLE *t);
 	void PRINTEXP(YYSTYPE v);
 %}
 
@@ -230,10 +230,18 @@ declarator:
 						}
 
 function-definition:
-	IDENT '(' ')' block	{$$.ast = new_ident_node($1.ident_val, FN_NODE);}
+	IDENT '(' ')' {curr_scope = FN_SCOPE;} 
+		block	{$$.ast = new_ident_node($1.ident_val, FN_NODE); curr_scope = GLOBAL_SCOPE;}
 
 block:
-	'{' body '}'
+	'{' {
+				curr_table = SPUSH(curr_table);
+				struct_table = SPUSH(struct_table);
+			}
+		body '}' {
+				curr_table = SPOP(curr_table);
+				struct_table = SPOP(struct_table);
+			}
 
 body:
 	statement
@@ -477,19 +485,21 @@ YYSTYPE RETRIEVE(SYMTABLE *t, char *key)
 }
 
 /* SCOPE */
-void SPOP()
+SYMTABLE *SPOP(SYMTABLE *t)
 {
-	SYMTABLE *temp = curr_table;
-	curr_table = curr_table->parent;
+	SYMTABLE *temp = t;
+	t = t->parent;
 	free(temp->cells);
 	free(temp);
+	return t;
 }
 
-void SPUSH()
+SYMTABLE *SPUSH(SYMTABLE *t)
 {
 	SYMTABLE *temp = malloc(sizeof(SYMTABLE));
-	init_table(temp, 256, curr_table);
-	curr_table = temp;
+	init_table(temp, 256, t);
+	t = temp;
+	return t;
 }
 
 /* ARITHMETIC */
