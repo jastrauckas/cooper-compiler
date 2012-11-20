@@ -58,9 +58,9 @@
 %left EQEQ NOTEQ
 %left '>' '<' LTEQ GTEQ
 %left SHL SHR
+%left '[' ']' 
 %left '+' '-'
 %left '*' '/' 
-%left '[' ']' 
 %left PLUSPLUS MINUSMINUS
 %right '!' '~'
 %left INDSEL
@@ -190,7 +190,7 @@ declarator:
 	IDENT			{
 								$$.ast = new_ident_node($1.ident_val, VAR_NODE);
 							}
-| 	declarator '[' NUMBER ']' {
+| 	declarator '[' NUMBER ']'  {
 								//$$ = $1;
 								//$$.ast->c1 = new_node(ARRAY_NODE);
 								//$$.ast->c1->size = $3.int_val;
