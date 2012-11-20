@@ -9,6 +9,12 @@ long double dd;
 fn() {
 	long l;
 }
+
+fn2() {
+	struct s s;
+	int s;
+}
+
 int l;
 char l;
 

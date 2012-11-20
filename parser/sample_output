@@ -33,18 +33,28 @@ variable: l
 	long 
 function defined at <stdin> 10
 
-declaration at <stdin> line 11
+declaration at <stdin> line 13
+variable: s
+	struct s (incomplete)
+
+declaration at <stdin> line 14
+stdin:14: Error: redeclaration of s
+variable: s
+	int 
+function defined at <stdin> 15
+
+declaration at <stdin> line 17
 variable: l
 	int 
 
-declaration at <stdin> line 12
-stdin:12: Error: redeclaration of l
+declaration at <stdin> line 18
+stdin:18: Error: redeclaration of l
 variable: l
 	char 
 
-declaration at <stdin> line 18
+declaration at <stdin> line 24
 variable: s
-	struct s defined at line 14 with members: 
+	struct s defined at line 20 with members: 
 ==========================
 variable: i
 	array of size 50 of type:
@@ -56,7 +66,7 @@ variable: k
 		invalid type: int double char 
 ==========================
 
-declaration at <stdin> line 20
+declaration at <stdin> line 26
 variable: intarray
 	pointer to
 		array of size 10 of type:
