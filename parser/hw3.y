@@ -241,10 +241,11 @@ declarator:
 
 function-definition:
 	declaration-specifiers declarator '(' declaration-list ')' {
+				TYPESPEC = 0;
 				curr_scope = FN_SCOPE;
 				$$ = $1;
 				$$.ast->c1 = new_node(FN_NODE);
-				strncpy($$.ast->c1->name, $2.ident_val, 256);
+				strncpy($$.ast->c1->name, $2.ident_val, 255);
                 INSTALL(curr_table, $2.ident_val, $$);	
 			} block {
                 curr_scope = GLOBAL_SCOPE; 

@@ -578,15 +578,15 @@ static const yytype_uint16 yyrline[] =
      155,   156,   157,   158,   159,   160,   161,   162,   163,   164,
      165,   168,   169,   170,   173,   177,   177,   191,   192,   195,
      205,   206,   207,   208,   211,   212,   215,   218,   219,   223,
-     228,   233,   237,   243,   243,   253,   253,   263,   263,   276,
-     279,   280,   283,   287,   287,   297,   298,   299,   300,   303,
-     306,   307,   308,   309,   312,   313,   314,   315,   316,   317,
-     318,   319,   320,   327,   328,   331,   332,   333,   334,   335,
-     336,   337,   338,   339,   342,   343,   346,   349,   350,   351,
-     352,   353,   354,   355,   356,   357,   358,   359,   360,   361,
-     362,   363,   364,   365,   366,   369,   370,   373,   374,   375,
-     376,   377,   378,   379,   380,   381,   382,   383,   384,   387,
-     388
+     228,   233,   237,   243,   243,   254,   254,   264,   264,   277,
+     280,   281,   284,   288,   288,   298,   299,   300,   301,   304,
+     307,   308,   309,   310,   313,   314,   315,   316,   317,   318,
+     319,   320,   321,   328,   329,   332,   333,   334,   335,   336,
+     337,   338,   339,   340,   343,   344,   347,   350,   351,   352,
+     353,   354,   355,   356,   357,   358,   359,   360,   361,   362,
+     363,   364,   365,   366,   367,   370,   371,   374,   375,   376,
+     377,   378,   379,   380,   381,   382,   383,   384,   385,   388,
+     389
 };
 #endif
 
@@ -2146,10 +2146,11 @@ yyreduce:
 /* Line 1806 of yacc.c  */
 #line 243 "hw3.y"
     {
+				TYPESPEC = 0;
 				curr_scope = FN_SCOPE;
 				(yyval) = (yyvsp[(1) - (5)]);
 				(yyval).ast->c1 = new_node(FN_NODE);
-				strncpy((yyval).ast->c1->name, (yyvsp[(2) - (5)]).ident_val, 256);
+				strncpy((yyval).ast->c1->name, (yyvsp[(2) - (5)]).ident_val, 255);
                 INSTALL(curr_table, (yyvsp[(2) - (5)]).ident_val, (yyval));	
 			}
     break;
@@ -2157,7 +2158,7 @@ yyreduce:
   case 54:
 
 /* Line 1806 of yacc.c  */
-#line 249 "hw3.y"
+#line 250 "hw3.y"
     {
                 curr_scope = GLOBAL_SCOPE; 
 			}
@@ -2166,7 +2167,7 @@ yyreduce:
   case 55:
 
 /* Line 1806 of yacc.c  */
-#line 253 "hw3.y"
+#line 254 "hw3.y"
     {
 				curr_scope = FN_SCOPE;
 				(yyval) = (yyvsp[(1) - (4)]);
@@ -2179,7 +2180,7 @@ yyreduce:
   case 56:
 
 /* Line 1806 of yacc.c  */
-#line 259 "hw3.y"
+#line 260 "hw3.y"
     {
                 curr_scope = GLOBAL_SCOPE; 
 			}
@@ -2188,7 +2189,7 @@ yyreduce:
   case 57:
 
 /* Line 1806 of yacc.c  */
-#line 263 "hw3.y"
+#line 264 "hw3.y"
     {
 				curr_scope = FN_SCOPE;
 				(yyval) = (yyvsp[(1) - (4)]);
@@ -2203,7 +2204,7 @@ yyreduce:
   case 58:
 
 /* Line 1806 of yacc.c  */
-#line 271 "hw3.y"
+#line 272 "hw3.y"
     {
 				(yyval) = (yyvsp[(1) - (6)]);
                 curr_scope = GLOBAL_SCOPE; 
@@ -2213,7 +2214,7 @@ yyreduce:
   case 63:
 
 /* Line 1806 of yacc.c  */
-#line 287 "hw3.y"
+#line 288 "hw3.y"
     {
 				curr_table = SPUSH(curr_table);
 				struct_table = SPUSH(struct_table);
@@ -2223,7 +2224,7 @@ yyreduce:
   case 64:
 
 /* Line 1806 of yacc.c  */
-#line 291 "hw3.y"
+#line 292 "hw3.y"
     {
 				curr_table = SPOP(curr_table);
 				struct_table = SPOP(struct_table);
@@ -2233,7 +2234,7 @@ yyreduce:
 
 
 /* Line 1806 of yacc.c  */
-#line 2237 "hw3.tab.c"
+#line 2238 "hw3.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2464,7 +2465,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 392 "hw3.y"
+#line 393 "hw3.y"
 
 /* Function definitions go here */
 int main()
