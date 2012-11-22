@@ -2137,7 +2137,7 @@ YY_RULE_SETUP
 #line 330 "lexer.l"
 {
 				sscanf(yytext, "# %d \"%[^\"]", &line, minibuf);
-				line = 0; //printf("RESET\n");
+				line = 1; //printf("RESET\n");
 				yylval.ident_val = malloc(sizeof(char)*(strlen(yytext)+1));
 				strcpy(yylval.ident_val, minibuf);
 				return FILEDIR;

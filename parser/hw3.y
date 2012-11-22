@@ -236,6 +236,7 @@ declarator:
 						}
 
 function-definition:
+/*
 	IDENT '(' ')' {
 				$$=$1;
 				$$.ast = new_node(FN_NODE);
@@ -247,6 +248,15 @@ function-definition:
 				$$.ast = new_ident_node($1.ident_val, FN_NODE); 
 				curr_scope = GLOBAL_SCOPE;	
 			}
+*/
+	declaration-specifiers declarator '(' declaration-list ')' block
+| 	declaration-specifiers declarator '(' ')' block
+| 	declarator '(' declaration-list ')' block
+| 	declarator '(' ')' block
+
+declaration-list:
+	declaration
+| 	declaration-list declaration
 
 block:
 	'{' {
