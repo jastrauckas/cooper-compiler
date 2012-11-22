@@ -97,10 +97,10 @@ void print_node(TNODE *t)
 			printf("variable: %s\n", t->name);
 			break;
 		case FN_NODE:
-			printf("function: %s\n", t->name);
+			printf("function: %s returns \n", t->name);
 			break;
 		case ARRAY_NODE:
-			printf("array of size %d of type:\n", t->size);
+			printf("array of size %d of type\n", t->size);
 			break;
 		case PTR_NODE:
 			printf("pointer to\n", t->size);
@@ -148,6 +148,14 @@ void print_scalar(TNODE *t)
 	char type_str[1024];
 	char *pos = &type_str[0];
 	int bits = t->spec_bits;
+	if ((bits & IS_VOID) == IS_VOID)
+	{
+		if ((bits | IS_VOID) != IS_VOID)
+			invalid = 1;
+		strncpy(pos, "void ", 5);
+		pos += 5;
+		base_type++;
+	}
 	if ((bits & IS_LONG) == IS_LONG)
 	{
 		strncpy(pos, "long ", 5);
