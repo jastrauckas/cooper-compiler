@@ -218,6 +218,7 @@ struct-or-union:
 
 declarator:
 	IDENT			{
+								$$ = $1;
 								$$.ast = new_ident_node($1.ident_val, VAR_NODE);
 								current_ident = $1.ident_val;
 							}
@@ -249,13 +250,15 @@ function-definition:
 				curr_scope = GLOBAL_SCOPE;	
 			}
 */
-	declaration-specifiers declarator '(' declaration-list ')' block {
-				$$ = $2;
-				$$.ast = new_node(FN_NODE);
-				$$.ast->c1 = $1.ast;
-				strncpy($$.ast->name, $$.ident_val, 256);
-                curr_scope = FN_SCOPE; 
-                INSTALL(curr_table, $$.ident_val, $$);	
+	declaration-specifiers declarator '(' declaration-list ')' {
+				curr_scope = FN_SCOPE;
+				$$ = $1;
+				$$.ast->c1 = new_node(FN_NODE);
+				strncpy($$.ast->c1->name, $2.ident_val, 256);
+                INSTALL(curr_table, $2.ident_val, $$);	
+			} block {
+                curr_scope = GLOBAL_SCOPE; 
+				print_tree_invert($$.ast,0);
 			}
 
 | 	declaration-specifiers declarator '(' ')' block
