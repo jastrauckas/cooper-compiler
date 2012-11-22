@@ -249,14 +249,26 @@ function-definition:
 				curr_scope = GLOBAL_SCOPE;	
 			}
 */
-	declaration-specifiers declarator '(' declaration-list ')' block
+	declaration-specifiers declarator '(' declaration-list ')' block {
+				$$ = $2;
+				$$.ast = new_node(FN_NODE);
+				$$.ast->c1 = $1.ast;
+				strncpy($$.ast->name, $$.ident_val, 256);
+                curr_scope = FN_SCOPE; 
+                INSTALL(curr_table, $$.ident_val, $$);	
+			}
+
 | 	declaration-specifiers declarator '(' ')' block
 | 	declarator '(' declaration-list ')' block
 | 	declarator '(' ')' block
 
 declaration-list:
-	declaration
-| 	declaration-list declaration
+	function-argument
+| 	declaration-list function-argument
+
+function-argument:
+	declaration-specifiers declarator
+	
 
 block:
 	'{' {
