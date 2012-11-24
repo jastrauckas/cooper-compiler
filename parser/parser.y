@@ -337,14 +337,14 @@ argument-expression-list:
 
 unary-expression:
 	postfix-expression {$$ = $1;}
-|	PLUSPLUS unary-expression
-|	MINUSMINUS unary-expression
-| 	'&' cast-expression
-| 	'*' cast-expression
-| 	'+' cast-expression
-| 	'-' cast-expression
-| 	'~' cast-expression
-| 	'!' cast-expression
+|	PLUSPLUS unary-expression	{$$ = UNARY($2, PLUSPLUS);}
+|	MINUSMINUS unary-expression	{$$ = UNARY($2, MINUSMINUS);}
+| 	'&' cast-expression	{$$ = UNARY($2, '&');}
+| 	'*' cast-expression	{$$ = UNARY($2, '*');}
+| 	'+' cast-expression	{$$ = UNARY($2, '+');}
+| 	'-' cast-expression	{$$ = UNARY($2, '-');}
+| 	'~' cast-expression	{$$ = UNARY($2, '~');}
+| 	'!' cast-expression	{$$ = UNARY($2, '!');}
 
 cast-expression:
 	unary-expression	{$$ = $1;}
@@ -355,10 +355,10 @@ type-name:
 
 binary-expression:
 	cast-expression
-|	binary-expression '*' cast-expression %prec '*' {$$ = BINARY($1, $3, '*');}
-|	binary-expression '/' cast-expression %prec '/'  {$$ = BINARY($1, $3, '/');}
-|	binary-expression '+' cast-expression %prec '+'  {$$ = BINARY($1, $3, '+');}
-|	binary-expression '-' cast-expression %prec '-'  {$$ = BINARY($1, $3, '-');}
+|	binary-expression '*' cast-expression {$$ = BINARY($1, $3, '*');}
+|	binary-expression '/' cast-expression {$$ = BINARY($1, $3, '/');}
+|	binary-expression '+' cast-expression {$$ = BINARY($1, $3, '+');}
+|	binary-expression '-' cast-expression {$$ = BINARY($1, $3, '-');}
 |	binary-expression SHL cast-expression {$$ = BINARY($1, $3, SHL);}
 |	binary-expression SHR cast-expression {$$ = BINARY($1, $3, SHR);}
 |	binary-expression '<' cast-expression {$$ = BINARY($1, $3, '<');}
@@ -567,8 +567,8 @@ SYMTABLE *SPUSH(SYMTABLE *t)
 YYSTYPE UNARY(YYSTYPE v, int op)
 {
     YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
-	res->ast->op = op;
 	res->ast = new_node(UNOP);
+	res->ast->op = op;
 	res->ast->c1 = v.ast;
 	return *res;
 }
