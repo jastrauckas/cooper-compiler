@@ -4,7 +4,7 @@
 enum 
 {
 	UNOP, BINOP, TERNOP, VAR_NODE, ARRAY_NODE, PTR_NODE, FN_NODE,	
-	SCALAR_NODE, TYPEDEF_NODE,
+	SCALAR_NODE, TYPEDEF_NODE, CONST_NODE,
 	STRUCT_NODE, UNION_NODE
 } NODETYPE;
 
@@ -57,5 +57,6 @@ void print_tree(TNODE *t, int level);
 void print_tree_invert(TNODE *t, int level);
 void print_node(TNODE *t);
 void print_scalar(TNODE *t);
+void print_binop(TNODE *t);
 
 #endif

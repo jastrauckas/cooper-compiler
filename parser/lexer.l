@@ -7,7 +7,7 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include "lexer.h"
-	#include "hw3.tab.h"
+	#include "parser.tab.h"
 	extern YYSTYPE yylval;
 	int buf[2048]; 
 	char minibuf[128];

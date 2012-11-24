@@ -91,7 +91,9 @@ external-declaration:
 										print_tree_invert($$.ast,0);
 									}
 |	declaration
-|	statement
+|	statement				{
+										print_tree_invert($$.ast, 0);
+									}
 
 declaration:
 	declaration-specifiers declarator {
@@ -307,12 +309,15 @@ statement:
 
 primary-expression:
 	IDENT
-|	NUMBER
+|	NUMBER	{
+				$$=$1; 
+				$$.ast = new_node(CONST_NODE);
+			}
 |	STRING
 | 	'(' expression ')'
 
 postfix-expression:
-	primary-expression
+	primary-expression {$$ = $1;}
 |	postfix-expression '[' ']'
 |	postfix-expression '[' NUMBER ']'
 |	postfix-expression '(' ')'
@@ -331,7 +336,7 @@ argument-expression-list:
 |	argument-expression-list ',' assignment-expression
 
 unary-expression:
-	postfix-expression
+	postfix-expression {$$ = $1;}
 |	PLUSPLUS unary-expression
 |	MINUSMINUS unary-expression
 | 	'&' cast-expression
@@ -342,7 +347,7 @@ unary-expression:
 | 	'!' cast-expression
 
 cast-expression:
-	unary-expression
+	unary-expression	{$$ = $1;}
 |	'(' type-name ')' cast-expression
 
 type-name:
@@ -350,25 +355,23 @@ type-name:
 
 binary-expression:
 	cast-expression
-|	binary-expression '*' cast-expression
-|	binary-expression '/' cast-expression
-|	binary-expression '+' cast-expression {
-					$$ = BINARY($1, $3, '+');
-				}
-|	binary-expression '-' cast-expression
-|	binary-expression SHL cast-expression
-|	binary-expression SHR cast-expression
-|	binary-expression '<' cast-expression
-|	binary-expression '>' cast-expression
-|	binary-expression LTEQ cast-expression
-|	binary-expression GTEQ cast-expression
-|	binary-expression EQEQ cast-expression
-|	binary-expression NOTEQ cast-expression
-|	binary-expression '&' cast-expression
-|	binary-expression '|' cast-expression
-|	binary-expression '^' cast-expression
-|	binary-expression LOGAND cast-expression
-|	binary-expression LOGOR cast-expression
+|	binary-expression '*' cast-expression {$$ = BINARY($1, $3, '+');}
+|	binary-expression '/' cast-expression {$$ = BINARY($1, $3, '+');}
+|	binary-expression '+' cast-expression {$$ = BINARY($1, $3, '+');}
+|	binary-expression '-' cast-expression {$$ = BINARY($1, $3, '+');}
+|	binary-expression SHL cast-expression {$$ = BINARY($1, $3, '+');}
+|	binary-expression SHR cast-expression {$$ = BINARY($1, $3, '+');}
+|	binary-expression '<' cast-expression {$$ = BINARY($1, $3, '+');}
+|	binary-expression '>' cast-expression {$$ = BINARY($1, $3, '+');}
+|	binary-expression LTEQ cast-expression {$$ = BINARY($1, $3, '+');}
+|	binary-expression GTEQ cast-expression {$$ = BINARY($1, $3, '+');}
+|	binary-expression EQEQ cast-expression {$$ = BINARY($1, $3, '+');}
+|	binary-expression NOTEQ cast-expression {$$ = BINARY($1, $3, '+');}
+|	binary-expression '&' cast-expression {$$ = BINARY($1, $3, '+');}
+|	binary-expression '|' cast-expression {$$ = BINARY($1, $3, '+');}
+|	binary-expression '^' cast-expression {$$ = BINARY($1, $3, '+');}
+|	binary-expression LOGAND cast-expression {$$ = BINARY($1, $3, '+');}
+|	binary-expression LOGOR cast-expression {$$ = BINARY($1, $3, '+');}
 
 conditional-expression:
 	binary-expression

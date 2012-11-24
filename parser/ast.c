@@ -79,14 +79,31 @@ void print_tree_invert(TNODE *t, int level)
 	char *name;
 	int d;
 	d  = get_depth(t, 0);
-	if (t->c1) {print_tree_invert(t->c1, level+1);}			
-	if (t->c2) {print_tree_invert(t->c2, level+1);}			
-  	if (t->c3) {print_tree_invert(t->c3, level+1);}			
-	for (i=0; i<d-1; i++)
+	switch(t->node_type)
 	{
-		printf("\t");
+		case UNOP:
+		case BINOP:
+		case TERNOP:
+			for (i=0; i<level; i++)
+            {
+                printf("\t");
+            }
+            print_node(t);
+			if (t->c1) {print_tree(t->c1, level+1);}			
+			if (t->c2) {print_tree(t->c2, level+1);}			
+  			if (t->c3) {print_tree(t->c3, level+1);}			
+			break;
+		
+		default:
+			if (t->c1) {print_tree_invert(t->c1, level+1);}			
+			if (t->c2) {print_tree_invert(t->c2, level+1);}			
+  			if (t->c3) {print_tree_invert(t->c3, level+1);}			
+			for (i=0; i<d-1; i++)
+			{
+				printf("\t");
+			}
+			print_node(t);
 	}
-	print_node(t);
 }
 
 void print_node(TNODE *t)
@@ -107,6 +124,9 @@ void print_node(TNODE *t)
 			break;
 		case SCALAR_NODE:
 			print_scalar(t);
+			break;
+		case CONST_NODE:
+			printf("constant\n");
 			break;
 		case STRUCT_NODE:
 			printf("struct %s ", t->name);
@@ -134,8 +154,22 @@ void print_node(TNODE *t)
 				printf("(incomplete)\n");
 			}
 			break;
+		case BINOP:
+			print_binop(t);
+			break;
 		default:
 			printf("unhandled Node Type %d\n", t->node_type);
+	}
+}
+
+void print_binop(TNODE *t)
+{
+	int op = t->op;
+	switch(op)
+	{
+		default:
+			printf("binary operation with operands\n");
+		
 	}
 }
 
