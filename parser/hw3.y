@@ -90,7 +90,8 @@ external-declaration:
 										fprintf(stdout, "function defined at <%s> %d\n", curr_file, line);
 										print_tree_invert($$.ast,0);
 									}
-|	declaration				
+|	declaration
+|	statement
 
 declaration:
 	declaration-specifiers declarator {
@@ -260,7 +261,7 @@ function-definition:
 			} block {
                 curr_scope = GLOBAL_SCOPE; 
 			}
-
+/*
 | 	declarator '(' declaration-list ')' {
 				curr_scope = FN_SCOPE;
 				$$ = $1;
@@ -275,10 +276,11 @@ function-definition:
 			}
 
 | 	declarator '(' ')' block
+*/
 
 declaration-list:
 	function-argument
-| 	declaration-list function-argument
+| 	declaration-list ',' function-argument
 
 function-argument:
 	declaration-specifiers declarator
@@ -348,9 +350,11 @@ type-name:
 
 binary-expression:
 	cast-expression
-|	binary-expression '*' cast-expression	%prec '*'
-|	binary-expression '/' cast-expression	%prec '/'
-|	binary-expression '+' cast-expression	%prec '+'
+|	binary-expression '*' cast-expression
+|	binary-expression '/' cast-expression
+|	binary-expression '+' cast-expression {
+					$$ = BINARY($1, $3, '+');
+				}
 |	binary-expression '-' cast-expression
 |	binary-expression SHL cast-expression
 |	binary-expression SHR cast-expression
@@ -584,23 +588,9 @@ YYSTYPE UNARY(YYSTYPE v, int op)
 YYSTYPE BINARY(YYSTYPE v1, YYSTYPE v2, int op)
 {
     YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
-	res->metadata.tokname = "NUMBER";
-	res->has_val = 1;
-	switch (op)
-	{
-		case '/':
-			res->int_val = v1.int_val / v2.int_val; break;
-		case '*':
-			res->int_val = v1.int_val * v2.int_val; break;
-		case '+':
-			res->int_val = v1.int_val + v2.int_val; break;
-		case '-':
-			res->int_val = v1.int_val - v2.int_val; break;
-		case SHL:
-			res->int_val = v1.int_val << v2.int_val; break;
-		case SHR:
-			res->int_val = v1.int_val >> v2.int_val; break;
-	}
+	res->ast = new_node(BINOP);
+	res->ast->c1 = v1.ast;
+	res->ast->c2 = v2.ast;
 	return *res;
 }
 
