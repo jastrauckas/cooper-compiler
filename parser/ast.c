@@ -65,7 +65,7 @@ void print_tree(TNODE *t, int level)
 	char *name;
 	for (i=0; i<level; i++)
 	{
-		printf("\t");
+		printf("  ");
 	}
 	print_node(t);
 	if (t->c1) {print_tree(t->c1, level+1);}			
@@ -86,7 +86,7 @@ void print_tree_invert(TNODE *t, int level)
 		case TERNOP:
 			for (i=0; i<level; i++)
             {
-                printf("\t");
+                printf("  ");
             }
             print_node(t);
 			if (t->c1) {print_tree(t->c1, level+1);}			
@@ -100,7 +100,7 @@ void print_tree_invert(TNODE *t, int level)
   			if (t->c3) {print_tree_invert(t->c3, level+1);}			
 			for (i=0; i<d-1; i++)
 			{
-				printf("\t");
+				printf("  ");
 			}
 			print_node(t);
 	}
@@ -126,7 +126,10 @@ void print_node(TNODE *t)
 			print_scalar(t);
 			break;
 		case CONST_NODE:
-			printf("constant\n");
+			if (t->field == REAL_FIELD)
+				printf("real: %Lf\n", t->value.ld_val);
+			else if (t->field == INT_FIELD)
+				printf("int: %lld\n", t->value.int_val);
 			break;
 		case STRUCT_NODE:
 			printf("struct %s ", t->name);
@@ -167,6 +170,18 @@ void print_binop(TNODE *t)
 	int op = t->op;
 	switch(op)
 	{
+		case '+':
+			printf("+\n");
+			break;
+		case '-':
+			printf("-\n");
+			break;
+		case '*':
+			printf("*\n");
+			break;
+		case '/':
+			printf("/\n");
+			break;
 		default:
 			printf("binary operation with operands\n");
 		

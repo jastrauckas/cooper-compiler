@@ -35,7 +35,7 @@
 	int TYPESPEC;
 
 	/* functions that will be defined */
-	SCALAR extract_value(YYSTYPE val);
+	TNODE *extract_value(YYSTYPE val);
 	void INSTALL(SYMTABLE *t, char *name, YYSTYPE val);
 	int UPDATE(SYMTABLE *t, char *key, YYSTYPE val);
 	YYSTYPE FIXNUM(YYSTYPE v);
@@ -311,7 +311,7 @@ primary-expression:
 	IDENT
 |	NUMBER	{
 				$$=$1; 
-				$$.ast = new_node(CONST_NODE);
+				$$.ast = extract_value($$);
 			}
 |	STRING
 | 	'(' expression ')'
@@ -355,18 +355,18 @@ type-name:
 
 binary-expression:
 	cast-expression
-|	binary-expression '*' cast-expression {$$ = BINARY($1, $3, '+');}
-|	binary-expression '/' cast-expression {$$ = BINARY($1, $3, '+');}
-|	binary-expression '+' cast-expression {$$ = BINARY($1, $3, '+');}
-|	binary-expression '-' cast-expression {$$ = BINARY($1, $3, '+');}
-|	binary-expression SHL cast-expression {$$ = BINARY($1, $3, '+');}
-|	binary-expression SHR cast-expression {$$ = BINARY($1, $3, '+');}
-|	binary-expression '<' cast-expression {$$ = BINARY($1, $3, '+');}
-|	binary-expression '>' cast-expression {$$ = BINARY($1, $3, '+');}
-|	binary-expression LTEQ cast-expression {$$ = BINARY($1, $3, '+');}
-|	binary-expression GTEQ cast-expression {$$ = BINARY($1, $3, '+');}
-|	binary-expression EQEQ cast-expression {$$ = BINARY($1, $3, '+');}
-|	binary-expression NOTEQ cast-expression {$$ = BINARY($1, $3, '+');}
+|	binary-expression '*' cast-expression %prec '*' {$$ = BINARY($1, $3, '*');}
+|	binary-expression '/' cast-expression %prec '/'  {$$ = BINARY($1, $3, '/');}
+|	binary-expression '+' cast-expression %prec '+'  {$$ = BINARY($1, $3, '+');}
+|	binary-expression '-' cast-expression %prec '-'  {$$ = BINARY($1, $3, '-');}
+|	binary-expression SHL cast-expression {$$ = BINARY($1, $3, SHL);}
+|	binary-expression SHR cast-expression {$$ = BINARY($1, $3, SHR);}
+|	binary-expression '<' cast-expression {$$ = BINARY($1, $3, '<');}
+|	binary-expression '>' cast-expression {$$ = BINARY($1, $3, '>');}
+|	binary-expression LTEQ cast-expression {$$ = BINARY($1, $3, LTEQ);}
+|	binary-expression GTEQ cast-expression {$$ = BINARY($1, $3, GTEQ);}
+|	binary-expression EQEQ cast-expression {$$ = BINARY($1, $3, EQEQ);}
+|	binary-expression NOTEQ cast-expression {$$ = BINARY($1, $3, NOTEQ);}
 |	binary-expression '&' cast-expression {$$ = BINARY($1, $3, '+');}
 |	binary-expression '|' cast-expression {$$ = BINARY($1, $3, '+');}
 |	binary-expression '^' cast-expression {$$ = BINARY($1, $3, '+');}
@@ -416,7 +416,7 @@ void yyerror (char const *s)
 }
 
 // HW 3
-SCALAR extract_value(YYSTYPE val)
+TNODE *extract_value(YYSTYPE val)
 {
 	char *int_type = "INT";
 	char *long_type = "LONG";
@@ -424,27 +424,28 @@ SCALAR extract_value(YYSTYPE val)
 	char *float_type = "FLOAT";
 	char *double_type = "DOUBLE";
 	char *longdouble_type = "LONGDOUBLE";
-	SCALAR s;
+	TNODE *t = new_node(CONST_NODE);
 	char *num_type = val.metadata.num_type;
-	node_type = SCALAR_NODE;
 	if (strcmp(num_type, int_type) || strcmp(num_type, long_type) || strcmp(num_type, longlong_type))
 	{
-		s.int_val = (long long) val.int_val;
+		t->value.int_val = (long long) val.int_val;
+		t->field = INT_FIELD;
 	}
 	else if (strcmp(num_type, float_type))
 	{
-		s.ld_val = (long double) val.float_val;
+		t->value.ld_val = (long double) val.float_val;
+		t->field = REAL_FIELD;
 	}
 	else if (strcmp(num_type, double_type) || strcmp(num_type, longdouble_type))
 	{
-		s.ld_val = (long double) val.double_val;
+		t->value.ld_val = (long double) val.double_val;
+		t->field = REAL_FIELD;
 	}
 	else
 	{
 		fprintf(stderr, "No valid number found!\n");
 	}
-	
-	return s;
+	return t;
 }
 
 
@@ -565,26 +566,11 @@ SYMTABLE *SPUSH(SYMTABLE *t)
 
 YYSTYPE UNARY(YYSTYPE v, int op)
 {
-	switch (op)
-	{
-		case PLUSPLUS:
-			v.int_val = v.int_val + 1;
-			break;
-		case MINUSMINUS:
-			v.int_val = v.int_val -1;
-			break;
-		case '+':
-			v.int_val = ((v.int_val > 0) ? v.int_val : (-1*v.int_val));
-			break;
-		case '-':
-			v.int_val = ((v.int_val < 0) ? v.int_val : (-1*v.int_val));
-			break;
-	}
-	if (v.ident_val && in_table(curr_table, v.ident_val))
-	{
-		UPDATE(curr_table, v.ident_val, v);
-	}
-	return v;
+    YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
+	res->ast->op = op;
+	res->ast = new_node(UNOP);
+	res->ast->c1 = v.ast;
+	return *res;
 }
 
 
@@ -592,6 +578,7 @@ YYSTYPE BINARY(YYSTYPE v1, YYSTYPE v2, int op)
 {
     YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
 	res->ast = new_node(BINOP);
+	res->ast->op = op;
 	res->ast->c1 = v1.ast;
 	res->ast->c2 = v2.ast;
 	return *res;

@@ -8,6 +8,10 @@ enum
 	STRUCT_NODE, UNION_NODE
 } NODETYPE;
 
+enum
+{
+ 	INT_FIELD, REAL_FIELD, CHAR_FIELD, STR_FIELD
+} FIELDTYPE;
 
 #define IS_SIGNED 		0000001
 #define IS_CONST		0000002
@@ -40,6 +44,7 @@ typedef struct tnode
 	int node_type;
 	int op; 		// token codes should be fine
 	int spec_bits;  // use bitmasks for storage and type specifiers
+	int field;
 	SCALAR value;  	// if scalar, put value here
 	int size;		// for arrays
 	char name[256];	// if an identifier
