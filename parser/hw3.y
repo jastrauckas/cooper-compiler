@@ -1,4 +1,4 @@
-/* The parser for Compilers assignment 2 */
+/* The parser for Compilers assignment 4 */
 /* Julia Astrauckas */
 
 %{
