@@ -348,7 +348,7 @@ unary-expression:
 
 cast-expression:
 	unary-expression	{$$ = $1;}
-|	'(' type-name ')' cast-expression
+|	'(' type-name ')' cast-expression	{$$ = $2;}
 
 type-name:
 	INT
