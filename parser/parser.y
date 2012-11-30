@@ -353,29 +353,58 @@ cast-expression:
 type-name:
 	INT
 
-binary-expression:
-	cast-expression
-|	binary-expression '*' cast-expression {$$ = BINARY($1, $3, '*');}
-|	binary-expression '/' cast-expression {$$ = BINARY($1, $3, '/');}
-|	binary-expression '+' cast-expression {$$ = BINARY($1, $3, '+');}
-|	binary-expression '-' cast-expression {$$ = BINARY($1, $3, '-');}
-|	binary-expression SHL cast-expression {$$ = BINARY($1, $3, SHL);}
-|	binary-expression SHR cast-expression {$$ = BINARY($1, $3, SHR);}
-|	binary-expression '<' cast-expression {$$ = BINARY($1, $3, '<');}
-|	binary-expression '>' cast-expression {$$ = BINARY($1, $3, '>');}
-|	binary-expression LTEQ cast-expression {$$ = BINARY($1, $3, LTEQ);}
-|	binary-expression GTEQ cast-expression {$$ = BINARY($1, $3, GTEQ);}
-|	binary-expression EQEQ cast-expression {$$ = BINARY($1, $3, EQEQ);}
-|	binary-expression NOTEQ cast-expression {$$ = BINARY($1, $3, NOTEQ);}
-|	binary-expression '&' cast-expression {$$ = BINARY($1, $3, '+');}
-|	binary-expression '|' cast-expression {$$ = BINARY($1, $3, '+');}
-|	binary-expression '^' cast-expression {$$ = BINARY($1, $3, '+');}
-|	binary-expression LOGAND cast-expression {$$ = BINARY($1, $3, '+');}
-|	binary-expression LOGOR cast-expression {$$ = BINARY($1, $3, '+');}
+multiplicative-expression:
+	cast-expression	{$$ = $1;}
+|	multiplicative-expression '*' cast-expression {$$ = BINARY($1, $3, '*');}
+|	multiplicative-expression '/' cast-expression {$$ = BINARY($1, $3, '/');}
+|	multiplicative-expression '%' cast-expression {$$ = BINARY($1, $3, '%');}
+
+additive-expression:
+	multiplicative-expression {$$ = $1;}
+|	additive-expression '+' multiplicative-expression {$$ = BINARY($1, $3, '+');}
+|	additive-expression '-' multiplicative-expression {$$ = BINARY($1, $3, '-');}
+
+
+shift-expression:
+	additive-expression {$$ = $1;}
+|	shift-expression SHL additive-expression {$$ = BINARY($1, $3, SHL);}
+|	shift-expression SHR additive-expression {$$ = BINARY($1, $3, SHR);}
+
+relational-expression:
+	shift-expression {$$ = $1;}
+|	relational-expression '<' shift-expression {$$ = BINARY($1, $3, '<');}
+|	relational-expression '>' shift-expression {$$ = BINARY($1, $3, '>');}
+|	relational-expression LTEQ shift-expression {$$ = BINARY($1, $3, LTEQ);}
+|	relational-expression GTEQ shift-expression {$$ = BINARY($1, $3, GTEQ);}
+
+equality-expression:
+	relational-expression {$$ = $1;}
+|	equality-expression EQEQ relational-expression {$$ = BINARY($1, $3, EQEQ);}
+|	equality-expression NOTEQ relational-expression {$$ = BINARY($1, $3, NOTEQ);}
+
+and-expression:
+	equality-expression {$$ = $1;}
+|	and-expression '&' equality-expression {$$ = BINARY($1, $3, '&');}
+
+exor-expression:
+	and-expression {$$ = $1;}
+|	exor-expression '^' and-expression {$$ = BINARY($1, $3, '+');}
+
+or-expression:
+	exor-expression {$$ = $1;}
+|	or-expression '|' exor-expression {$$ = BINARY($1, $3, '+');}
+
+logand-expression:
+	or-expression {$$ = $1;}
+|	logand-expression LOGAND or-expression {$$ = BINARY($1, $3, '+');}
+
+logor-expression:
+logand-expression {$$ = $1;}
+|	logor-expression LOGOR logand-expression {$$ = BINARY($1, $3, '+');}
 
 conditional-expression:
-	binary-expression
-|	binary-expression '?' expression ':' conditional-expression
+	logor-expression {$$ = $1;}
+|	logor-expression '?' expression ':' conditional-expression
 
 assignment-expression:
 	conditional-expression
