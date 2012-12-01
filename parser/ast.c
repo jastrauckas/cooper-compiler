@@ -93,6 +93,11 @@ void print_tree(TNODE *t, int level)
 
 void print_tree_invert(TNODE *t, int level)
 {
+	if (!t)
+	{
+		fprintf(stderr, "No ast associated with yylval node\n");
+		return;
+	}
 	int i;
 	char *name;
 	int d;

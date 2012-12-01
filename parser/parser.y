@@ -58,6 +58,8 @@
 %token MINUSEQ SHLEQ SHREQ ANDEQ OREQ XOREQ IDENT CHARLIT STRING NUMBER 
 %token ERRC ERRS NEWLINE FILEDIR
 
+%left IF
+%left ELSE
 %left ','
 %right '=' PLUSEQ MINUSEQ TIMESEQ DIVEQ MODEQ SHLEQ SHREQ ANDEQ OREQ XOREQ
 %left '?' ':'
@@ -307,10 +309,22 @@ body:
 statement:
 	expression-statement  	{$$ = $1;}
 |	compound-statement		{$$ = $1;}
+| 	selection-statement
+|	iteration-statement
 
 expression-statement:
 	';'
 |	expression ';'
+
+selection-statement:
+	IF '(' expression ')' statement %prec IF
+|	IF '(' expression ')' statement ELSE statement %prec ELSE
+
+iteration-statement:
+	WHILE '(' expression ')' statement
+|	FOR '(' expression-statement expression-statement ')' statement
+|	FOR '(' expression-statement expression-statement expression ')' statement
+| 	DO statement WHILE '(' expression ')' ';'
 
 primary-expression:
 	IDENT	{
