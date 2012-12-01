@@ -98,7 +98,7 @@ external-declaration:
 declaration:
 	declaration-specifiers declarator {
 										TYPESPEC = 0;
-										fprintf(stdout, "\ndeclaration at <%s> line %d\n", curr_file, line);
+										fprintf(stdout, "declaration at <%s> line %d\n", curr_file, line);
 									}
 		';' 	{
 										$$ = $1;
@@ -250,7 +250,7 @@ function-definition:
 				$$.ast->c1 = new_node(FN_NODE);
 				strncpy($$.ast->c1->name, $2.ident_val, 255);
                 INSTALL(curr_table, $2.ident_val, $$);	
-			} block {
+			} compound-statement {
                 curr_scope = GLOBAL_SCOPE; 
 			}
 
@@ -260,7 +260,7 @@ function-definition:
 				$$.ast->c1 = new_node(FN_NODE);
 				strncpy($$.ast->c1->name, $2.ident_val, 256);
                 INSTALL(curr_table, $2.ident_val, $$);	
-			} block {
+			} compound-statement {
                 curr_scope = GLOBAL_SCOPE; 
 			}
 /*
@@ -272,12 +272,12 @@ function-definition:
 				$$.ast->c1 = new_node(FN_NODE);
 				strncpy($$.ast->c1->name, $1.ident_val, 256);
                 INSTALL(curr_table, $1.ident_val, $$);	
-			} block {
+			} compound-statement {
 				$$ = $1;
                 curr_scope = GLOBAL_SCOPE; 
 			}
 
-| 	declarator '(' ')' block
+| 	declarator '(' ')' compound-statement
 */
 
 declaration-list:
@@ -288,7 +288,7 @@ function-argument:
 	declaration-specifiers declarator
 	
 
-block:
+compound-statement:
 	'{' {
 				curr_table = SPUSH(curr_table);
 				struct_table = SPUSH(struct_table);
@@ -305,10 +305,18 @@ body:
 | 	body declaration
 
 statement:
-	expression ';'
+	expression-statement  	{$$ = $1;}
+|	compound-statement		{$$ = $1;}
+
+expression-statement:
+	';'
+|	expression ';'
 
 primary-expression:
-	IDENT
+	IDENT	{
+				// go get its symbol table expression!
+				$$ = RETRIEVE(curr_table, $1.ident_val);
+			}
 |	NUMBER	{
 				$$=$1; 
 				$$.ast = extract_value($$);
@@ -386,13 +394,13 @@ and-expression:
 	equality-expression {$$ = $1;}
 |	and-expression '&' equality-expression {$$ = BINARY($1, $3, '&');}
 
-exor-expression:
+xor-expression:
 	and-expression {$$ = $1;}
-|	exor-expression '^' and-expression {$$ = BINARY($1, $3, '+');}
+|	xor-expression '^' and-expression {$$ = BINARY($1, $3, '+');}
 
 or-expression:
-	exor-expression {$$ = $1;}
-|	or-expression '|' exor-expression {$$ = BINARY($1, $3, '+');}
+	xor-expression {$$ = $1;}
+|	or-expression '|' xor-expression {$$ = BINARY($1, $3, '+');}
 
 logand-expression:
 	or-expression {$$ = $1;}
@@ -404,21 +412,21 @@ logand-expression {$$ = $1;}
 
 conditional-expression:
 	logor-expression {$$ = $1;}
-|	logor-expression '?' expression ':' conditional-expression
+|	logor-expression '?' expression ':' conditional-expression {$$ = TERNARY($1, $3, $5);}
 
 assignment-expression:
-	conditional-expression
-|	unary-expression '=' assignment-expression
-|	unary-expression TIMESEQ assignment-expression
-|	unary-expression DIVEQ assignment-expression
-|	unary-expression MODEQ assignment-expression
-|	unary-expression PLUSEQ assignment-expression
-|	unary-expression MINUSEQ assignment-expression
-|	unary-expression SHLEQ assignment-expression
-|	unary-expression SHREQ assignment-expression
-|	unary-expression ANDEQ assignment-expression
-|	unary-expression OREQ assignment-expression
-|	unary-expression XOREQ assignment-expression
+	conditional-expression {$$ = $1;}
+|	unary-expression '=' assignment-expression			{$$ = OPASSIGN($1, $3, '=');}
+|	unary-expression TIMESEQ assignment-expression		{$$ = OPASSIGN($1, $3, TIMESEQ);}
+|	unary-expression DIVEQ assignment-expression		{$$ = OPASSIGN($1, $3, DIVEQ);}
+|	unary-expression MODEQ assignment-expression		{$$ = OPASSIGN($1, $3, MODEQ);}
+|	unary-expression PLUSEQ assignment-expression		{$$ = OPASSIGN($1, $3, PLUSEQ);}
+|	unary-expression MINUSEQ assignment-expression		{$$ = OPASSIGN($1, $3, MINUSEQ);}
+|	unary-expression SHLEQ assignment-expression		{$$ = OPASSIGN($1, $3, SHLEQ);}
+|	unary-expression SHREQ assignment-expression		{$$ = OPASSIGN($1, $3, SHREQ);}
+|	unary-expression ANDEQ assignment-expression		{$$ = OPASSIGN($1, $3, ANDEQ);}
+|	unary-expression OREQ assignment-expression			{$$ = OPASSIGN($1, $3, OREQ);}
+|	unary-expression XOREQ assignment-expression		{$$ = OPASSIGN($1, $3, XOREQ);}
 
 expression:
 	assignment-expression
@@ -444,7 +452,6 @@ void yyerror (char const *s)
 	fprintf(stderr, "%s\n", s);
 }
 
-// HW 3
 TNODE *extract_value(YYSTYPE val)
 {
 	char *int_type = "INT";
@@ -478,7 +485,6 @@ TNODE *extract_value(YYSTYPE val)
 }
 
 
-// HW 2
 void PRINTEXP(YYSTYPE v)
 {
 	printf("%s:%d: ", curr_file, line); 
@@ -563,12 +569,6 @@ YYSTYPE RETRIEVE(SYMTABLE *t, char *key)
 		return *res;	
 	}
 	*res = tc->value;
-    if (!res->has_val)
-	{
-        fprintf(stderr, "%s:%d: ", curr_file, line);
-        fprintf(stderr, "Error: identifier %s undefined\n", key);
-        res->int_val=0;
-	}	
 	return *res;
 }
 
@@ -590,9 +590,7 @@ SYMTABLE *SPUSH(SYMTABLE *t)
 	return t;
 }
 
-/* ARITHMETIC */
-// for now it is only defined for integers
-
+/* EXPRESSIONS */
 YYSTYPE UNARY(YYSTYPE v, int op)
 {
     YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
@@ -601,7 +599,6 @@ YYSTYPE UNARY(YYSTYPE v, int op)
 	res->ast->c1 = v.ast;
 	return *res;
 }
-
 
 YYSTYPE BINARY(YYSTYPE v1, YYSTYPE v2, int op)
 {
@@ -613,7 +610,27 @@ YYSTYPE BINARY(YYSTYPE v1, YYSTYPE v2, int op)
 	return *res;
 }
 
+YYSTYPE OPASSIGN(YYSTYPE v1, YYSTYPE v2, int op)
+{
+    YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
+	res->ast = new_node(BINOP);
+	res->ast->op = op;
+	res->ast->c1 = v1.ast;
+	res->ast->c2 = v2.ast;
+	return *res;
+}
 
+YYSTYPE TERNARY(YYSTYPE v1, YYSTYPE v2, YYSTYPE v3)
+{
+	YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
+	res->ast = new_node(TERNOP);
+	res->ast->c1 = v1.ast;
+	res->ast->c2 = v2.ast;
+	res->ast->c3 = v3.ast;
+	return *res;
+}
+
+/*
 YYSTYPE OPASSIGN(YYSTYPE v1, YYSTYPE v2, int op)
 {
 	// v1 is not actually a value, it is the YYSTYPE of an ident!
@@ -666,19 +683,7 @@ YYSTYPE OPASSIGN(YYSTYPE v1, YYSTYPE v2, int op)
 	UPDATE(curr_table, v1.ident_val, *res);
 	return *res;
 }
-
-YYSTYPE TERNARY(YYSTYPE v1, YYSTYPE v2, YYSTYPE v3)
-{
-	YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
-	if (v1.int_val)
-	{
-		return v2;
-	}
-	else
-	{
-		return v3;
-	}
-}
+*/
 
 
 int CHECK(YYSTYPE v)

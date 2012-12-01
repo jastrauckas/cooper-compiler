@@ -63,14 +63,32 @@ void print_tree(TNODE *t, int level)
 {
 	int i;
 	char *name;
-	for (i=0; i<level; i++)
+	int d;
+	d  = get_depth(t, 0);
+	
+	switch(t->node_type)
 	{
-		printf("  ");
+		case VAR:
+			if (t->c1) {print_tree_invert(t->c1, level+1);}			
+			if (t->c2) {print_tree_invert(t->c2, level+1);}			
+			if (t->c3) {print_tree_invert(t->c3, level+1);}			
+			for (i=0; i<level; i++)
+			{
+				printf("  ");
+			}
+			print_node(t);
+			break;
+
+		default:
+			for (i=0; i<level; i++)
+            {
+                printf("  ");
+            }
+            print_node(t);
+			if (t->c1) {print_tree(t->c1, level+1);}			
+			if (t->c2) {print_tree(t->c2, level+1);}			
+  			if (t->c3) {print_tree(t->c3, level+1);}			
 	}
-	print_node(t);
-	if (t->c1) {print_tree(t->c1, level+1);}			
-	if (t->c2) {print_tree(t->c2, level+1);}			
-  	if (t->c3) {print_tree(t->c3, level+1);}			
 }
 
 void print_tree_invert(TNODE *t, int level)
@@ -181,6 +199,9 @@ void print_binop(TNODE *t)
 			break;
 		case '/':
 			printf("/\n");
+			break;
+		case '=':
+			printf("=\n");
 			break;
 		default:
 			printf("binary operation with operands\n");
