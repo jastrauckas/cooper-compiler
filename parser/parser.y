@@ -314,7 +314,7 @@ statement:
 
 expression-statement:
 	';'
-|	expression ';'
+|	expression ';'	{$$ = $1;}
 
 selection-statement:
 	IF '(' expression ')' statement %prec IF

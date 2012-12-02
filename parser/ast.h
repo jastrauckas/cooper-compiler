@@ -53,6 +53,33 @@ typedef struct tnode
 	struct tnode *p;	// parent
 } TNODE;
 
+typedef struct list_node
+{
+	struct list_node *prev;
+	struct list_node *next;
+	TNODE *ast;	
+} LISTNODE;
+
+typedef struct branch
+{
+	int branch_type;
+	TNODE *init;		// only for for loops
+	TNODE *condition;	// for loops and condtionals
+	TNODE *increment;	// only for for loops
+	// blocks refer to evaluation of condition expression
+	struct basic_block *block;		 
+	struct basic_block *else_block;
+} BRANCH;
+
+typedef struct basic_block
+{
+	int id;	// should be unique within program
+	LISTNODE *contents;
+	BRANCH *exit;
+} BASICBLOCK;
+
+LISTNODE *init_list_node(LISTNODE *prev, LISTNODE *next, TNODE *ast);
+BRANCH *init_branch(int type);
 TNODE *new_scalar_node(SCALAR value, int ntype);
 TNODE *new_node(int ntype);
 TNODE *new_ident_node(char *ident, int ntype);

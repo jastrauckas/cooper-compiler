@@ -295,3 +295,19 @@ int get_depth(TNODE *t, int maxdepth)
 	if (d3 > maxdepth) {maxdepth = d3;}
 	return maxdepth;
 }
+
+
+LISTNODE *init_list_node(LISTNODE *prev, LISTNODE *next, TNODE *ast)
+{
+	LISTNODE *ln = malloc(sizeof(LISTNODE));
+	ln->prev = prev;
+	ln->next = next;
+	ln->ast = ast;
+	return ln;
+}
+
+BRANCH *init_branch(int type)
+{
+	BRANCH *b = malloc(sizeof(BRANCH));
+	b->branch_type = type; 
+}
