@@ -4,6 +4,7 @@
 #include "symTable.h"
 
 extern SYMTABLE *struct_table;
+int block_id = 0;
 
 // don't care if children are null
 TNODE *new_tree(int op, TNODE *c1, TNODE *c2, TNODE *c3)
@@ -297,17 +298,66 @@ int get_depth(TNODE *t, int maxdepth)
 }
 
 
-LISTNODE *init_list_node(LISTNODE *prev, LISTNODE *next, TNODE *ast)
+LISTNODE *add_list_node(LISTNODE *prev, LISTNODE *next, TNODE *ast)
 {
 	LISTNODE *ln = malloc(sizeof(LISTNODE));
 	ln->prev = prev;
 	ln->next = next;
 	ln->ast = ast;
+	if (next)
+		next->prev = ln;
+	if (prev)
+		prev->next = ln;
 	return ln;
+}
+
+LISTNODE *push_list_node(LISTNODE *head, TNODE *ast)
+{
+	LISTNODE *tail = head;
+	while(tail->next)
+	{
+		tail = tail->next;
+	}
+	LISTNODE *new = add_list_node(tail, NULL, ast);
+	return new;
+}
+
+void program_dump(LISTNODE *head)
+{
+	int s = 0;
+	head = head->next; // sort of a sentinel node
+	while (head)
+	{
+		printf("Statement %d:\n", ++s);
+		print_tree_invert(head->ast, 0);
+		head = head->next;
+	}
 }
 
 BRANCH *init_branch(int type)
 {
 	BRANCH *b = malloc(sizeof(BRANCH));
 	b->branch_type = type; 
+}
+
+BASICBLOCK *new_block(LISTNODE *contents)
+{
+	BASICBLOCK *b = malloc(sizeof(BASICBLOCK));
+	b->id = block_id;
+	block_id++;
+	b->contents = contents;
+	return b;
+}
+
+BASICBLOCK *push_block(BASICBLOCK *head, LISTNODE *contents)
+{
+	BASICBLOCK *tail;
+	while (head->next);
+	{
+		tail = head->next;
+	}	
+	tail->next = malloc(sizeof(BASICBLOCK));
+	tail = tail->next;
+	tail->contents = contents;
+	return tail;
 }

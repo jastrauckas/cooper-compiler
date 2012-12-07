@@ -13,6 +13,12 @@ enum
  	INT_FIELD, REAL_FIELD, CHAR_FIELD, STR_FIELD
 } FIELDTYPE;
 
+enum
+{
+	IF_BRANCH, IFELSE_BRANCH, WHILE_BRANCH, FOR_BRANCH,
+	DO_BRANCH, FN_BRANCH
+} BRANCHTYPE;
+
 #define IS_SIGNED 		0000001
 #define IS_CONST		0000002
 #define IS_VOLATILE		0000004
@@ -63,6 +69,7 @@ typedef struct list_node
 typedef struct branch
 {
 	int branch_type;
+	int start_line;
 	TNODE *init;		// only for for loops
 	TNODE *condition;	// for loops and condtionals
 	TNODE *increment;	// only for for loops
@@ -74,11 +81,16 @@ typedef struct branch
 typedef struct basic_block
 {
 	int id;	// should be unique within program
+	int start_line;
 	LISTNODE *contents;
 	BRANCH *exit;
+	struct basic_block *next;	// for linked-list capabilities 
 } BASICBLOCK;
 
-LISTNODE *init_list_node(LISTNODE *prev, LISTNODE *next, TNODE *ast);
+BASICBLOCK *new_block(LISTNODE *contents);
+BASICBLOCK *push_block(BASICBLOCK *head, LISTNODE *contents);
+LISTNODE *add_list_node(LISTNODE *prev, LISTNODE *next, TNODE *ast);
+LISTNODE *push_list_node(LISTNODE *head, TNODE *ast);
 BRANCH *init_branch(int type);
 TNODE *new_scalar_node(SCALAR value, int ntype);
 TNODE *new_node(int ntype);
@@ -90,5 +102,5 @@ void print_tree_invert(TNODE *t, int level);
 void print_node(TNODE *t);
 void print_scalar(TNODE *t);
 void print_binop(TNODE *t);
-
+void program_dump(LISTNODE *head);
 #endif

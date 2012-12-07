@@ -33,6 +33,9 @@
 	int node_type;
 	int dec_start_line;
 	int TYPESPEC;
+	extern int block_id;
+	LISTNODE *global_asts;
+	BASICBLOCK *global_block;
 
 	/* functions that will be defined */
 	TNODE *extract_value(YYSTYPE val);
@@ -84,7 +87,7 @@
 /* TOP LEVEL - EXTERNAL DEFINITIONS */
 
 translation-unit:
-	external-declaration
+	external-declaration	
 |	translation-unit external-declaration
 
 external-declaration:
@@ -94,6 +97,8 @@ external-declaration:
 									}
 |	declaration
 |	statement				{
+										$$ = $1;
+										push_list_node(global_asts, $$.ast);
 										print_tree_invert($$.ast, 0);
 									}
 
@@ -309,8 +314,8 @@ body:
 statement:
 	expression-statement  	{$$ = $1;}
 |	compound-statement		{$$ = $1;}
-| 	selection-statement
-|	iteration-statement
+| 	selection-statement		{$$ = $1;}		
+|	iteration-statement		{$$ = $1;}
 
 expression-statement:
 	';'
@@ -452,12 +457,15 @@ expression:
 /* Function definitions go here */
 int main()
 {
+	global_asts = add_list_node(NULL,NULL,NULL);
+	global_block = new_block(global_asts);
 	init_table(&t, 512, NULL);
 	init_table(&st, 512, NULL);
 	curr_table = &t; // initialize scope to global scope
 	struct_table = &st;
 	strcpy(curr_file, "stdin");
 	yyparse();
+	program_dump(global_asts);
 	return 0;
 }
 
