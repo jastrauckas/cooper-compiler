@@ -90,6 +90,7 @@ typedef struct basic_block
 
 BASICBLOCK *new_block(LISTNODE *contents);
 BASICBLOCK *push_block(BASICBLOCK *head, LISTNODE *contents);
+BASICBLOCK *push_ast_to_block(BASICBLOCK *head, TNODE *ast);
 LISTNODE *add_list_node(LISTNODE *prev, LISTNODE *next, TNODE *ast);
 LISTNODE *push_list_node(LISTNODE *head, TNODE *ast);
 BRANCH *init_branch(int type);
@@ -103,5 +104,5 @@ void print_tree_invert(TNODE *t, int level);
 void print_node(TNODE *t);
 void print_scalar(TNODE *t);
 void print_binop(TNODE *t);
-void program_dump(LISTNODE *head);
+void program_dump(BASICBLOCK *head);
 #endif

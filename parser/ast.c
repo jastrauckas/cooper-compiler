@@ -319,18 +319,26 @@ LISTNODE *push_list_node(LISTNODE *head, TNODE *ast)
 		tail = tail->next;
 	}
 	LISTNODE *new = add_list_node(tail, NULL, ast);
+	tail->next = new;
+	new->prev = tail;
 	return new;
 }
 
-void program_dump(LISTNODE *head)
+void program_dump(BASICBLOCK *head)
 {
 	int s = 0;
-	head = head->next; // sort of a sentinel node
-	while (head)
+	printf("PROGRAM DUMP: \n");
+	BASICBLOCK *cur_b = head;
+	while (cur_b)
 	{
-		printf("Statement %d:\n", ++s);
-		print_tree_invert(head->ast, 0);
-		head = head->next;
+		LISTNODE *stmt = cur_b->contents;
+		while (stmt)
+		{
+			printf("Statement %d:\n", ++s);
+			print_tree_invert(stmt->ast, 0);
+			stmt = stmt->next;
+		}
+		cur_b = cur_b->next;
 	}
 }
 
@@ -351,13 +359,19 @@ BASICBLOCK *new_block(LISTNODE *contents)
 
 BASICBLOCK *push_block(BASICBLOCK *head, LISTNODE *contents)
 {
-	BASICBLOCK *tail;
+	BASICBLOCK *tail = head;
 	while (head->next);
 	{
-		tail = head->next;
+		tail = tail->next;
 	}	
 	tail->next = malloc(sizeof(BASICBLOCK));
 	tail = tail->next;
 	tail->contents = contents;
 	return tail;
+}
+
+BASICBLOCK *push_ast_to_block(BASICBLOCK *head, TNODE *ast)
+{
+	push_list_node(head->contents, ast);
+	return head;
 }

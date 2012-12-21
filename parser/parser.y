@@ -15,7 +15,7 @@
 	#define YYDEBUG 1
 	#define MAXLEN 512
 	
-	enum {GLOBAL_SCOPE, PROTO_SCOPE, FN_SCOPE};
+	enum {GLOBAL_SCOPE, FN_SCOPE, BLOCK_SCOPE};
 
 	SYMTABLE t;
 	SYMTABLE st;
@@ -34,8 +34,6 @@
 	int dec_start_line;
 	int TYPESPEC;
 	extern int block_id;
-	LISTNODE *global_asts;
-	LISTNODE *global_asts_head;	// never move this!
 	BASICBLOCK *global_block;
 	BASICBLOCK *current_block;
 
@@ -94,14 +92,14 @@ translation-unit:
 
 external-declaration:
 	function-definition 	{
-										fprintf(stdout, "function defined at <%s> %d\n", curr_file, line);
-										print_tree_invert($$.ast,0);
+										//fprintf(stdout, "function defined at <%s> %d\n", curr_file, line);
+										//print_tree_invert($$.ast,0);
 									}
 |	declaration
 |	statement				{
 										$$ = $1;
-										push_list_node(global_asts, $$.ast);
-										print_tree_invert($$.ast, 0);
+										//push_list_node(global_asts, $$.ast);
+										//print_tree_invert($$.ast, 0);
 									}
 
 declaration:
@@ -300,7 +298,7 @@ body:
 | 	body declaration
 
 statement:
-	expression-statement  	{$$ = $1;}
+	expression-statement  	{$$ = $1; push_ast_to_block(current_block, $$.ast);}
 |	compound-statement		{$$ = $1;}
 | 	selection-statement		{$$ = $1;}		
 |	iteration-statement		{$$ = $1;}
@@ -445,16 +443,15 @@ expression:
 /* Function definitions go here */
 int main()
 {
-	global_asts = add_list_node(NULL,NULL,NULL);
-	global_asts_head = global_asts;
-	global_block = new_block(global_asts);
+	global_block = new_block(add_list_node(NULL,NULL,NULL));
+	current_block = global_block;
 	init_table(&t, 512, NULL);
 	init_table(&st, 512, NULL);
 	curr_table = &t; // initialize scope to global scope
 	struct_table = &st;
 	strcpy(curr_file, "stdin");
 	yyparse();
-	program_dump(global_asts);
+	program_dump(global_block);
 	return 0;
 }
 
@@ -588,8 +585,10 @@ SYMTABLE *SPOP(SYMTABLE *t)
 {
 	SYMTABLE *temp = t;
 	t = t->parent;
-	free(temp->cells);
-	free(temp);
+	// don't clean up memory 
+	// want pointers in basic blocks to still point to valid memory
+	//free(temp->cells);
+	//free(temp);
 	return t;
 }
 
