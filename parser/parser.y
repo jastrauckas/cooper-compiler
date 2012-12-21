@@ -35,7 +35,9 @@
 	int TYPESPEC;
 	extern int block_id;
 	LISTNODE *global_asts;
+	LISTNODE *global_asts_head;	// never move this!
 	BASICBLOCK *global_block;
+	BASICBLOCK *current_block;
 
 	/* functions that will be defined */
 	TNODE *extract_value(YYSTYPE val);
@@ -257,8 +259,10 @@ function-definition:
 				$$.ast->c1 = new_node(FN_NODE);
 				strncpy($$.ast->c1->name, $2.ident_val, 255);
                 INSTALL(curr_table, $2.ident_val, $$);	
+				curr_table = SPUSH(curr_table);
 			} compound-statement {
                 curr_scope = GLOBAL_SCOPE; 
+				curr_table = SPOP(curr_table);
 			}
 
 | 	declaration-specifiers declarator '(' ')' {
@@ -270,22 +274,6 @@ function-definition:
 			} compound-statement {
                 curr_scope = GLOBAL_SCOPE; 
 			}
-/*
-| 	declarator '(' declaration-list ')' {
-				curr_scope = FN_SCOPE;
-				$$ = $1;
-				$$.ast->node_type = SCALAR_NODE;
-				$$.ast->spec_bits = IS_VOID;
-				$$.ast->c1 = new_node(FN_NODE);
-				strncpy($$.ast->c1->name, $1.ident_val, 256);
-                INSTALL(curr_table, $1.ident_val, $$);	
-			} compound-statement {
-				$$ = $1;
-                curr_scope = GLOBAL_SCOPE; 
-			}
-
-| 	declarator '(' ')' compound-statement
-*/
 
 declaration-list:
 	function-argument
@@ -341,7 +329,7 @@ primary-expression:
 				$$.ast = extract_value($$);
 			}
 |	STRING
-| 	'(' expression ')'
+| 	'(' expression ')'	{$$ = $2;}
 
 postfix-expression:
 	primary-expression {$$ = $1;}
@@ -458,6 +446,7 @@ expression:
 int main()
 {
 	global_asts = add_list_node(NULL,NULL,NULL);
+	global_asts_head = global_asts;
 	global_block = new_block(global_asts);
 	init_table(&t, 512, NULL);
 	init_table(&st, 512, NULL);

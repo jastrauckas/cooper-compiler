@@ -1,7 +1,9 @@
 int g1;
-int g2,g3,g4;
+int g2;
+int g3;
+int g4;
 
-f()
+int f()
 {
 	int f1;
 	f1 = 3;

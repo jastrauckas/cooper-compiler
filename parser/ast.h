@@ -85,6 +85,7 @@ typedef struct basic_block
 	LISTNODE *contents;
 	BRANCH *exit;
 	struct basic_block *next;	// for linked-list capabilities 
+	struct basic_block *prev;	// for linked-list capabilities 
 } BASICBLOCK;
 
 BASICBLOCK *new_block(LISTNODE *contents);
