@@ -34,7 +34,7 @@
 	int dec_start_line;
 	int TYPESPEC;
 	extern int block_id;
-	BASICBLOCK *global_block;
+	BLOCKLIST *block_list;
 	BASICBLOCK *current_block;
 
 	/* functions that will be defined */
@@ -111,7 +111,7 @@ declaration:
 										$$ = $1;
 										$$.ast->c1 = $2.ast;
 										INSTALL(curr_table, current_ident, $$); 
-										print_tree_invert($$.ast,0);
+										//print_tree_invert($$.ast,0);
 									}
 |	declaration-specifiers ';'				
 
@@ -252,13 +252,14 @@ declarator:
 function-definition:
 	declaration-specifiers declarator '(' declaration-list ')' {
 				TYPESPEC = 0;
-				curr_scope = FN_SCOPE;
 				$$ = $1;
 				$$.ast->c1 = new_node(FN_NODE);
 				strncpy($$.ast->c1->name, $2.ident_val, 255);
-                INSTALL(curr_table, $2.ident_val, $$);	
-				curr_table = SPUSH(curr_table);
+				// already in function scope, function ident goes up one level
+                INSTALL(curr_table->parent, $2.ident_val, $$);	
 			} compound-statement {
+				printf("Function parameters:\n");
+				write_table(curr_table);
                 curr_scope = GLOBAL_SCOPE; 
 				curr_table = SPOP(curr_table);
 			}
@@ -268,27 +269,45 @@ function-definition:
 				$$ = $1;
 				$$.ast->c1 = new_node(FN_NODE);
 				strncpy($$.ast->c1->name, $2.ident_val, 256);
-                INSTALL(curr_table, $2.ident_val, $$);	
+				// already in function scope, function ident goes up one level
+                INSTALL(curr_table->parent, $2.ident_val, $$);	
 			} compound-statement {
                 curr_scope = GLOBAL_SCOPE; 
 			}
 
 declaration-list:
-	function-argument
-| 	declaration-list ',' function-argument
+	function-argument {
+				curr_table = SPUSH(curr_table);	
+				curr_scope = FN_SCOPE;
+				$$ = $1;
+				INSTALL(curr_table, current_ident, $$); 
+			}
+| 	declaration-list ',' function-argument {
+				$$ = $3;
+				INSTALL(curr_table, current_ident, $$); 
+			}
 
 function-argument:
-	declaration-specifiers declarator
+	declaration-specifiers declarator {
+				$$ = $1;
+				$$.ast->c1 = $2.ast;
+			}
 	
 
 compound-statement:
 	'{' {
-				curr_table = SPUSH(curr_table);
-				struct_table = SPUSH(struct_table);
+				if (curr_scope != FN_SCOPE) 
+				{
+					curr_table = SPUSH(curr_table);
+					struct_table = SPUSH(struct_table);
+				}
 			}
 		body '}' {
-				curr_table = SPOP(curr_table);
-				struct_table = SPOP(struct_table);
+				if (curr_scope != FN_SCOPE) 
+				{
+					curr_table = SPOP(curr_table);
+					struct_table = SPOP(struct_table);
+				}
 			}
 
 body:
@@ -308,7 +327,7 @@ expression-statement:
 |	expression ';'	{$$ = $1;}
 
 selection-statement:
-	IF '(' expression ')' statement %prec IF
+	IF '(' expression ')' statement %prec IF 
 |	IF '(' expression ')' statement ELSE statement %prec ELSE
 
 iteration-statement:
@@ -443,15 +462,16 @@ expression:
 /* Function definitions go here */
 int main()
 {
-	global_block = new_block(add_list_node(NULL,NULL,NULL));
-	current_block = global_block;
+	block_id = 0;
+	block_list = init_block_list(NULL);
+	current_block = block_list->head;
 	init_table(&t, 512, NULL);
 	init_table(&st, 512, NULL);
 	curr_table = &t; // initialize scope to global scope
 	struct_table = &st;
 	strcpy(curr_file, "stdin");
 	yyparse();
-	program_dump(global_block);
+	program_dump(block_list);
 	return 0;
 }
 

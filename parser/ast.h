@@ -66,34 +66,37 @@ typedef struct list_node
 	TNODE *ast;	
 } LISTNODE;
 
-typedef struct branch
-{
-	int branch_type;
-	int start_line;
-	TNODE *init;		// only for for loops
-	TNODE *condition;	// for loops and condtionals
-	TNODE *increment;	// only for for loops
-	// blocks refer to evaluation of condition expression
-	struct basic_block *block;		 
-	struct basic_block *else_block;
-} BRANCH;
 
-typedef struct basic_block
+typedef struct basic_block_node
 {
 	int id;	// should be unique within program
 	int start_line;
 	LISTNODE *contents;
-	BRANCH *exit;
-	struct basic_block *next;	// for linked-list capabilities 
-	struct basic_block *prev;	// for linked-list capabilities 
+	// keep track of the block id (bid) of each block that can 
+	// be reached from this one
+	int init_bid; // for for loops
+	int iter_bid; 
+	int condition_bid;
+	int true_bid;
+	int false_bid;
+	// for linked list capabilities
+	struct basic_block_node *prev;
+	struct basic_block_node *next;
 } BASICBLOCK;
 
-BASICBLOCK *new_block(LISTNODE *contents);
-BASICBLOCK *push_block(BASICBLOCK *head, LISTNODE *contents);
-BASICBLOCK *push_ast_to_block(BASICBLOCK *head, TNODE *ast);
+
+typedef struct block_list 
+{
+	BASICBLOCK *head;
+	BASICBLOCK *tail;
+} BLOCKLIST;
+
+
+BLOCKLIST *init_block_list(LISTNODE *contents);
+BASICBLOCK *push_block(BLOCKLIST *list, LISTNODE *contents);
+BASICBLOCK *push_ast_to_block(BASICBLOCK *block, TNODE *ast);
 LISTNODE *add_list_node(LISTNODE *prev, LISTNODE *next, TNODE *ast);
 LISTNODE *push_list_node(LISTNODE *head, TNODE *ast);
-BRANCH *init_branch(int type);
 TNODE *new_scalar_node(SCALAR value, int ntype);
 TNODE *new_node(int ntype);
 TNODE *new_ident_node(char *ident, int ntype);
@@ -104,5 +107,5 @@ void print_tree_invert(TNODE *t, int level);
 void print_node(TNODE *t);
 void print_scalar(TNODE *t);
 void print_binop(TNODE *t);
-void program_dump(BASICBLOCK *head);
+void program_dump(BLOCKLIST *list);
 #endif

@@ -324,13 +324,14 @@ LISTNODE *push_list_node(LISTNODE *head, TNODE *ast)
 	return new;
 }
 
-void program_dump(BASICBLOCK *head)
+void program_dump(BLOCKLIST *list)
 {
 	int s = 0;
 	printf("PROGRAM DUMP: \n");
-	BASICBLOCK *cur_b = head;
+	BASICBLOCK *cur_b = list->head;
 	while (cur_b)
 	{
+		printf("BASIC BLOCK %d\n", cur_b->id); 
 		LISTNODE *stmt = cur_b->contents;
 		while (stmt)
 		{
@@ -342,36 +343,34 @@ void program_dump(BASICBLOCK *head)
 	}
 }
 
-BRANCH *init_branch(int type)
-{
-	BRANCH *b = malloc(sizeof(BRANCH));
-	b->branch_type = type; 
-}
-
 BASICBLOCK *new_block(LISTNODE *contents)
 {
-	BASICBLOCK *b = malloc(sizeof(BASICBLOCK));
-	b->id = block_id;
-	block_id++;
+ 	BASICBLOCK *b = malloc(sizeof(BASICBLOCK));
 	b->contents = contents;
+}
+
+BLOCKLIST *init_block_list(LISTNODE *contents)
+{
+	BLOCKLIST *l = malloc(sizeof(BLOCKLIST));
+	l->head = new_block(contents);
+	l->tail = l->head;
+	return l;
+}
+
+BASICBLOCK *push_block(BLOCKLIST *list, LISTNODE *contents)
+{
+	BASICBLOCK *b = new_block(contents);
+	list->tail->next = b;
+	b->prev = list->tail;
+	list->tail = b;
 	return b;
 }
 
-BASICBLOCK *push_block(BASICBLOCK *head, LISTNODE *contents)
-{
-	BASICBLOCK *tail = head;
-	while (head->next);
-	{
-		tail = tail->next;
-	}	
-	tail->next = malloc(sizeof(BASICBLOCK));
-	tail = tail->next;
-	tail->contents = contents;
-	return tail;
-}
 
 BASICBLOCK *push_ast_to_block(BASICBLOCK *head, TNODE *ast)
 {
 	push_list_node(head->contents, ast);
 	return head;
 }
+
+
