@@ -314,6 +314,14 @@ LISTNODE *add_list_node(LISTNODE *prev, LISTNODE *next, TNODE *ast)
 LISTNODE *push_list_node(LISTNODE *head, TNODE *ast)
 {
 	LISTNODE *tail = head;
+	
+	if (!head)
+	{	
+		head = add_list_node(NULL, NULL, ast);
+		tail = head;
+		return head;
+	}
+
 	while(tail->next)
 	{
 		tail = tail->next;
@@ -321,7 +329,7 @@ LISTNODE *push_list_node(LISTNODE *head, TNODE *ast)
 	LISTNODE *new = add_list_node(tail, NULL, ast);
 	tail->next = new;
 	new->prev = tail;
-	return new;
+	return head;
 }
 
 void program_dump(BLOCKLIST *list)
@@ -347,6 +355,7 @@ BASICBLOCK *new_block(LISTNODE *contents)
 {
  	BASICBLOCK *b = malloc(sizeof(BASICBLOCK));
 	b->contents = contents;
+	return b;
 }
 
 BLOCKLIST *init_block_list(LISTNODE *contents)
@@ -369,7 +378,12 @@ BASICBLOCK *push_block(BLOCKLIST *list, LISTNODE *contents)
 
 BASICBLOCK *push_ast_to_block(BASICBLOCK *head, TNODE *ast)
 {
-	push_list_node(head->contents, ast);
+	if (!head)
+	{
+		head->contents = add_list_node(NULL, NULL, ast);
+		return head;
+	}
+	head->contents = push_list_node(head->contents, ast);
 	return head;
 }
 

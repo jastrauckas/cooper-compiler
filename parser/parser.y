@@ -317,7 +317,10 @@ body:
 | 	body declaration
 
 statement:
-	expression-statement  	{$$ = $1; push_ast_to_block(current_block, $$.ast);}
+	expression-statement  	{
+				$$ = $1; 
+				current_block = push_ast_to_block(current_block, $$.ast);
+			}
 |	compound-statement		{$$ = $1;}
 | 	selection-statement		{$$ = $1;}		
 |	iteration-statement		{$$ = $1;}
