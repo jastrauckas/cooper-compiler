@@ -93,7 +93,7 @@ typedef struct block_list
 
 
 BLOCKLIST *init_block_list(LISTNODE *contents);
-BASICBLOCK *push_block(BLOCKLIST *list, LISTNODE *contents);
+BLOCKLIST *push_block(BLOCKLIST *list, LISTNODE *contents);
 BASICBLOCK *push_ast_to_block(BASICBLOCK *block, TNODE *ast);
 LISTNODE *add_list_node(LISTNODE *prev, LISTNODE *next, TNODE *ast);
 LISTNODE *push_list_node(LISTNODE *head, TNODE *ast);

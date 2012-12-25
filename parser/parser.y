@@ -329,9 +329,19 @@ expression-statement:
 	';'
 |	expression ';'	{$$ = $1;}
 
+if-clause:
+	IF '(' expression ')' {
+				current_block->condition_bid = block_id+1;
+				block_list = push_block(block_list, NULL);
+				push_ast_to_block(block_list->tail, $3.ast);
+			} statement
+
+else-clause:
+	ELSE statement
+
 selection-statement:
-	IF '(' expression ')' statement %prec IF 
-|	IF '(' expression ')' statement ELSE statement %prec ELSE
+	if-clause %prec IF 
+|	if-clause else-clause %prec ELSE
 
 iteration-statement:
 	WHILE '(' expression ')' statement

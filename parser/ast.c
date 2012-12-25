@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "ast.h"
 #include "symTable.h"
+#include "parser.tab.h"
 
 extern SYMTABLE *struct_table;
 int block_id = 0;
@@ -209,6 +210,18 @@ void print_binop(TNODE *t)
 		case '=':
 			printf("=\n");
 			break;
+		case '>':
+			printf(">\n");
+			break;
+		case '<':
+			printf("<\n");
+			break;
+		case LTEQ:
+			printf("<=\n");
+			break;
+		case GTEQ:
+			printf(">=\n");
+			break;
 		default:
 			printf("binary operation with operands\n");
 		
@@ -335,11 +348,11 @@ LISTNODE *push_list_node(LISTNODE *head, TNODE *ast)
 void program_dump(BLOCKLIST *list)
 {
 	int s = 0;
-	printf("PROGRAM DUMP: \n");
+	printf("**** PROGRAM DUMP: *****\n");
 	BASICBLOCK *cur_b = list->head;
 	while (cur_b)
 	{
-		printf("BASIC BLOCK %d\n", cur_b->id); 
+		printf("***** BASIC BLOCK %d *****\n", cur_b->id); 
 		LISTNODE *stmt = cur_b->contents;
 		while (stmt)
 		{
@@ -355,6 +368,8 @@ BASICBLOCK *new_block(LISTNODE *contents)
 {
  	BASICBLOCK *b = malloc(sizeof(BASICBLOCK));
 	b->contents = contents;
+	b->id = block_id;
+	block_id++;
 	return b;
 }
 
@@ -366,13 +381,13 @@ BLOCKLIST *init_block_list(LISTNODE *contents)
 	return l;
 }
 
-BASICBLOCK *push_block(BLOCKLIST *list, LISTNODE *contents)
+BLOCKLIST *push_block(BLOCKLIST *list, LISTNODE *contents)
 {
 	BASICBLOCK *b = new_block(contents);
 	list->tail->next = b;
 	b->prev = list->tail;
 	list->tail = b;
-	return b;
+	return list;
 }
 
 
