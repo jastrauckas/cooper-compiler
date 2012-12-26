@@ -36,6 +36,7 @@
 	extern int block_id;
 	BLOCKLIST *block_list;
 	BASICBLOCK *current_block;
+	BASICBLOCK *saved_block; // for blocks we need to return to, like loop condition stuff
 
 	/* functions that will be defined */
 	TNODE *extract_value(YYSTYPE val);
@@ -331,13 +332,25 @@ expression-statement:
 
 if-clause:
 	IF '(' expression ')' {
-				current_block->condition_bid = block_id+1;
+				saved_block = current_block;
+				saved_block->condition_bid = block_id+1;
+				// new block for condition expression
 				block_list = push_block(block_list, NULL);
 				push_ast_to_block(block_list->tail, $3.ast);
-			} statement
+				// new block for true conditional code
+				block_list = push_block(block_list, NULL);
+				current_block = block_list->tail;
+				// now contents of statement will be pushed to new block
+			} statement {
+				saved_block->true_bid = current_block->id;
+			}
 
 else-clause:
-	ELSE statement
+	ELSE {
+				block_list = push_block(block_list, NULL);
+				current_block = block_list->tail;
+				saved_block->false_bid = current_block->id;
+			} statement
 
 selection-statement:
 	if-clause %prec IF 
