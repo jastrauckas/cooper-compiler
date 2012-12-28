@@ -370,6 +370,9 @@ BASICBLOCK *new_block(LISTNODE *contents)
 	b->contents = contents;
 	b->id = block_id;
 	block_id++;
+	b->true_bid = -1;
+	b->false_bid = -1;
+	b->condition_bid = -1;
 	return b;
 }
 
@@ -381,7 +384,7 @@ BLOCKLIST *init_block_list(LISTNODE *contents)
 	return l;
 }
 
-BLOCKLIST *push_block(BLOCKLIST *list, LISTNODE *contents)
+BLOCKLIST *push_new_block(BLOCKLIST *list, LISTNODE *contents)
 {
 	BASICBLOCK *b = new_block(contents);
 	list->tail->next = b;
@@ -395,6 +398,7 @@ BASICBLOCK *push_ast_to_block(BASICBLOCK *head, TNODE *ast)
 {
 	if (!head)
 	{
+		head = new_block(NULL);
 		head->contents = add_list_node(NULL, NULL, ast);
 		return head;
 	}
@@ -403,3 +407,33 @@ BASICBLOCK *push_ast_to_block(BASICBLOCK *head, TNODE *ast)
 }
 
 
+BLOCKLIST *merge_block_lists(BLOCKLIST *l1, BLOCKLIST *l2)
+{
+	BLOCKLIST *l3;
+	l1->tail->next = l2->head;
+	l2->head->prev = l1->tail;
+	l3->head = l1->head;
+	l3->tail = l2->tail;
+	return l3;
+}
+
+BLOCKLIST *push_block(BLOCKLIST *list, BASICBLOCK *block)
+{
+	list->tail->next = block;
+	block->prev = list->tail;
+	block->next = NULL;
+	list->tail = block;
+	return list;
+}
+
+BLOCKLIST *pop_block(BLOCKLIST *list)
+{
+	list->tail = list->tail->prev;
+	list->tail->next = NULL;
+	return list;
+}
+
+BASICBLOCK *peek_block(BLOCKLIST *list)
+{
+	return list->tail;	
+}

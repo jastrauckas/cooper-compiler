@@ -36,7 +36,8 @@
 	extern int block_id;
 	BLOCKLIST *block_list;
 	BASICBLOCK *current_block;
-	BASICBLOCK *saved_block; // for blocks we need to return to, like loop condition stuff
+	// saved block should probably be a stack, not a single block
+	BLOCKLIST *saved_blocks; // for blocks we need to return to, like loop condition stuff
 
 	/* functions that will be defined */
 	TNODE *extract_value(YYSTYPE val);
@@ -332,24 +333,25 @@ expression-statement:
 
 if-clause:
 	IF '(' expression ')' {
-				saved_block = current_block;
-				saved_block->condition_bid = block_id+1;
+				saved_blocks = push_block(saved_blocks, current_block);
+				current_block->condition_bid = block_id+1;
 				// new block for condition expression
-				block_list = push_block(block_list, NULL);
+				block_list = push_new_block(block_list, NULL);
 				push_ast_to_block(block_list->tail, $3.ast);
 				// new block for true conditional code
-				block_list = push_block(block_list, NULL);
+				block_list = push_new_block(block_list, NULL);
 				current_block = block_list->tail;
 				// now contents of statement will be pushed to new block
 			} statement {
-				saved_block->true_bid = current_block->id;
+				peek_block(saved_blocks)->true_bid = current_block->id;
 			}
 
 else-clause:
 	ELSE {
-				block_list = push_block(block_list, NULL);
+				block_list = push_new_block(block_list, NULL);
 				current_block = block_list->tail;
-				saved_block->false_bid = current_block->id;
+				peek_block(saved_blocks)->false_bid = current_block->id;
+				saved_blocks = pop_block(saved_blocks);
 			} statement
 
 selection-statement:
@@ -490,6 +492,7 @@ int main()
 {
 	block_id = 0;
 	block_list = init_block_list(NULL);
+	saved_blocks = init_block_list(NULL);
 	current_block = block_list->head;
 	init_table(&t, 512, NULL);
 	init_table(&st, 512, NULL);

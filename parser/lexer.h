@@ -34,7 +34,6 @@ typedef struct
 	long double double_val;
 	long long int int_val;
 	TNODE *ast;
-	LISTNODE *list;
 	BASICBLOCK *block;
 	MTYPE metadata; 
 } YYSTYPE;

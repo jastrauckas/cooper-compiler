@@ -26,6 +26,8 @@ typedef struct tableCell
 	struct tableCell *prevCell;
 	// if struct or union, need a table of members
 	struct symTable *members;
+	// in the case of a function, keep track of its contents
+	BLOCKLIST *blocks;
 	// copy yylval in here so we have the info 
 	YYSTYPE value;	
 	// metadata (line where definition began)
