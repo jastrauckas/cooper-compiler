@@ -348,7 +348,6 @@ LISTNODE *push_list_node(LISTNODE *head, TNODE *ast)
 void program_dump(BLOCKLIST *list)
 {
 	int s = 0;
-	printf("**** PROGRAM DUMP: *****\n");
 	BASICBLOCK *cur_b = list->head;
 	while (cur_b)
 	{

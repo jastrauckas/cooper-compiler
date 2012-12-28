@@ -34,8 +34,10 @@
 	int dec_start_line;
 	int TYPESPEC;
 	extern int block_id;
-	BLOCKLIST *block_list;
+	BLOCKLIST *global_block_list;
+	BLOCKLIST *current_block_list;
 	BASICBLOCK *current_block;
+	TABLECELL *fn_entry;
 	// saved block should probably be a stack, not a single block
 	BLOCKLIST *saved_blocks; // for blocks we need to return to, like loop condition stuff
 
@@ -258,12 +260,25 @@ function-definition:
 				$$.ast->c1 = new_node(FN_NODE);
 				strncpy($$.ast->c1->name, $2.ident_val, 255);
 				// already in function scope, function ident goes up one level
-                INSTALL(curr_table->parent, $2.ident_val, $$);	
+                INSTALL(curr_table->parent, $2.ident_val, $$);
+				// in the SYMBOL TABLE, store the function's parameters AND
+				// blocks of code
+				fn_entry = in_table(curr_table->parent, $2.ident_val);
+				fn_entry->members = (struct symTable *) curr_table;
+				fn_entry->blocks = init_block_list(NULL);
+				current_block_list = fn_entry->blocks;
+				current_block = fn_entry->blocks->head; 					
 			} compound-statement {
 				printf("Function parameters:\n");
 				write_table(curr_table);
+				printf("Function basic blocks:\n");
+				program_dump(fn_entry->blocks);
+				// restore global scope and basic block list
                 curr_scope = GLOBAL_SCOPE; 
 				curr_table = SPOP(curr_table);
+				global_block_list = push_new_block(global_block_list, NULL);
+				current_block = global_block_list->tail;
+		
 			}
 
 | 	declaration-specifiers declarator '(' ')' {
@@ -273,8 +288,22 @@ function-definition:
 				strncpy($$.ast->c1->name, $2.ident_val, 256);
 				// already in function scope, function ident goes up one level
                 INSTALL(curr_table->parent, $2.ident_val, $$);	
+				// in the SYMBOL TABLE, store the function's parameters AND
+				// blocks of code
+				fn_entry = in_table(curr_table->parent, $2.ident_val);
+				fn_entry->members = (struct symTable *) curr_table;
+				fn_entry->blocks = init_block_list(NULL);
+				current_block_list = fn_entry->blocks;
+				current_block = fn_entry->blocks->head; 					
 			} compound-statement {
+				printf("Function defined with 0 parameters\n");
+				printf("Function basic blocks:\n");
+				program_dump(fn_entry->blocks);
+				// restore global scope and basic block list
                 curr_scope = GLOBAL_SCOPE; 
+				curr_table = SPOP(curr_table);
+				global_block_list = push_new_block(global_block_list, NULL);
+				current_block = global_block_list->tail;
 			}
 
 declaration-list:
@@ -336,11 +365,11 @@ if-clause:
 				saved_blocks = push_block(saved_blocks, current_block);
 				current_block->condition_bid = block_id+1;
 				// new block for condition expression
-				block_list = push_new_block(block_list, NULL);
-				push_ast_to_block(block_list->tail, $3.ast);
+				current_block_list = push_new_block(current_block_list, NULL);
+				push_ast_to_block(current_block_list->tail, $3.ast);
 				// new block for true conditional code
-				block_list = push_new_block(block_list, NULL);
-				current_block = block_list->tail;
+				current_block_list = push_new_block(current_block_list, NULL);
+				current_block = current_block_list->tail;
 				// now contents of statement will be pushed to new block
 			} statement {
 				peek_block(saved_blocks)->true_bid = current_block->id;
@@ -348,8 +377,8 @@ if-clause:
 
 else-clause:
 	ELSE {
-				block_list = push_new_block(block_list, NULL);
-				current_block = block_list->tail;
+				current_block_list = push_new_block(current_block_list, NULL);
+				current_block = current_block_list->tail;
 				peek_block(saved_blocks)->false_bid = current_block->id;
 				saved_blocks = pop_block(saved_blocks);
 			} statement
@@ -359,7 +388,20 @@ selection-statement:
 |	if-clause else-clause %prec ELSE
 
 iteration-statement:
-	WHILE '(' expression ')' statement
+	WHILE '(' expression ')' {
+				saved_blocks = push_block(saved_blocks, current_block);
+				current_block->condition_bid = block_id+1;
+				// new block for condition expression
+				current_block_list = push_new_block(current_block_list, NULL);
+				push_ast_to_block(current_block_list->tail, $3.ast);
+				// new block for true conditional code
+				current_block_list = push_new_block(current_block_list, NULL);
+				current_block = current_block_list->tail;
+				// now contents of statement will be pushed to new block
+			} statement {
+				peek_block(saved_blocks)->true_bid = current_block->id;
+			}
+
 |	FOR '(' expression-statement expression-statement ')' statement
 |	FOR '(' expression-statement expression-statement expression ')' statement
 | 	DO statement WHILE '(' expression ')' ';'
@@ -491,16 +533,17 @@ expression:
 int main()
 {
 	block_id = 0;
-	block_list = init_block_list(NULL);
+	global_block_list = init_block_list(NULL);
 	saved_blocks = init_block_list(NULL);
-	current_block = block_list->head;
+	current_block = global_block_list->head;
 	init_table(&t, 512, NULL);
 	init_table(&st, 512, NULL);
 	curr_table = &t; // initialize scope to global scope
 	struct_table = &st;
 	strcpy(curr_file, "stdin");
 	yyparse();
-	program_dump(block_list);
+	fprintf(stdout, "\n***** PROGRAM DUMP *****\n");
+	program_dump(global_block_list);
 	return 0;
 }
 
