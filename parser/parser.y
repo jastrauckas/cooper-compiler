@@ -11,6 +11,7 @@
 	#include "symTable.c"
 	#include "ast.h"
 	#include "ast.c"
+	#include "quad.h"
 	
 	#define YYDEBUG 1
 	#define MAXLEN 512
