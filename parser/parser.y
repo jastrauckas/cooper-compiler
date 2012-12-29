@@ -362,24 +362,25 @@ expression-statement:
 
 if-clause:
 	IF '(' expression ')' {
-				saved_blocks = push_block(saved_blocks, current_block);
-				current_block->condition_bid = block_id+1;
 				// new block for condition expression
 				current_block_list = push_new_block(current_block_list, NULL);
 				push_ast_to_block(current_block_list->tail, $3.ast);
+				current_block->default_exit = current_block_list->tail;
+				current_block = current_block_list->tail;
+				saved_blocks = push_block(saved_blocks, current_block);
 				// new block for true conditional code
 				current_block_list = push_new_block(current_block_list, NULL);
 				current_block = current_block_list->tail;
 				// now contents of statement will be pushed to new block
 			} statement {
-				peek_block(saved_blocks)->true_bid = current_block->id;
+				peek_block(saved_blocks)->true_exit = current_block;
 			}
 
 else-clause:
 	ELSE {
 				current_block_list = push_new_block(current_block_list, NULL);
 				current_block = current_block_list->tail;
-				peek_block(saved_blocks)->false_bid = current_block->id;
+				peek_block(saved_blocks)->false_exit = current_block;
 				saved_blocks = pop_block(saved_blocks);
 			} statement
 
@@ -389,17 +390,18 @@ selection-statement:
 
 iteration-statement:
 	WHILE '(' expression ')' {
-				saved_blocks = push_block(saved_blocks, current_block);
-				current_block->condition_bid = block_id+1;
 				// new block for condition expression
 				current_block_list = push_new_block(current_block_list, NULL);
 				push_ast_to_block(current_block_list->tail, $3.ast);
+				current_block->default_exit = current_block_list->tail;
+				current_block = current_block_list->tail;
+				saved_blocks = push_block(saved_blocks, current_block);
 				// new block for true conditional code
 				current_block_list = push_new_block(current_block_list, NULL);
 				current_block = current_block_list->tail;
 				// now contents of statement will be pushed to new block
 			} statement {
-				peek_block(saved_blocks)->true_bid = current_block->id;
+				peek_block(saved_blocks)->true_exit = current_block;
 			}
 
 |	FOR '(' expression-statement expression-statement ')' statement

@@ -351,14 +351,28 @@ void program_dump(BLOCKLIST *list)
 	BASICBLOCK *cur_b = list->head;
 	while (cur_b)
 	{
-		printf("***** BASIC BLOCK %d *****\n", cur_b->id); 
+		printf("***** BASIC BLOCK %d *****\n", cur_b->id);
+		
 		LISTNODE *stmt = cur_b->contents;
+		s = 0;
 		while (stmt)
 		{
 			printf("Statement %d:\n", ++s);
 			print_tree_invert(stmt->ast, 0);
 			stmt = stmt->next;
 		}
+		if (cur_b->default_exit)
+		{
+			printf("Next block: BASIC BLOCK %d\n", cur_b->default_exit->id);
+		} 
+		if (cur_b->true_exit)
+		{
+			printf("If TRUE: BASIC BLOCK %d\n", cur_b->true_exit->id);
+		} 
+		if (cur_b->false_exit)
+		{
+			printf("If FALSE: BASIC BLOCK %d\n", cur_b->false_exit->id);
+		} 
 		cur_b = cur_b->next;
 	}
 }
@@ -369,9 +383,6 @@ BASICBLOCK *new_block(LISTNODE *contents)
 	b->contents = contents;
 	b->id = block_id;
 	block_id++;
-	b->true_bid = -1;
-	b->false_bid = -1;
-	b->condition_bid = -1;
 	return b;
 }
 

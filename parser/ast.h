@@ -72,13 +72,12 @@ typedef struct basic_block_node
 	int id;	// should be unique within program
 	int start_line;
 	LISTNODE *contents;
-	// keep track of the block id (bid) of each block that can 
+	// keep track of the block(s) that can 
 	// be reached from this one
-	int init_bid; // for for loops
-	int iter_bid; 
-	int condition_bid;
-	int true_bid;
-	int false_bid;
+	struct basic_block_node *default_exit;
+	struct basic_block_node *true_exit;
+	struct basic_block_node *false_exit;
+	
 	// for linked list capabilities
 	struct basic_block_node *prev;
 	struct basic_block_node *next;
