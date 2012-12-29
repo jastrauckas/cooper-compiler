@@ -37,6 +37,7 @@
 	int node_type;
 	int dec_start_line;
 	int TYPESPEC;
+	int temp_id;
 	extern int block_id;
 	BLOCKLIST *global_block_list;
 	BLOCKLIST *current_block_list;
@@ -541,6 +542,7 @@ expression:
 /* Function definitions go here */
 int main()
 {
+	temp_id = 0;
 	block_id = 0;
 	global_block_list = init_block_list(NULL);
 	saved_blocks = init_block_list(NULL);
