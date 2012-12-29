@@ -2,6 +2,7 @@
 #define QUADH
 
 #include "symTable.h"
+#include "ast.h"
 
 // keep track of temp values
 extern int temp_id;
@@ -30,6 +31,26 @@ typedef struct quad_list {
 	QUAD *tail;
 } QUADLIST;
 
+typedef struct quad_block {
+	int id; 
+	QUADLIST *quads;
+	struct quad_block *next;
+	struct quad_block *prev;
+} QUADBLOCK;
+
+typedef struct quad_block_list {
+	QUADBLOCK *head;
+	QUADBLOCK *tail;
+} QUADBLOCKLIST;
+
+// function prototypes
 QUAD *build_quad(int opcode, QUADNODE *src1, QUADNODE *src2);
+QUADNODE *new_quad_node(char *name);
+QUADBLOCKLIST *generate_quads(BLOCKLIST *blist);
+QUADLIST *ast_to_quads(TNODE *ast);
+QUADLIST *merge_quad_lists(QUADLIST *ql1, QUADLIST *ql2);
+QUADBLOCK *new_quad_block(int id);
+QUADBLOCK *add_quads_to_block(QUADLIST *ql, QUADBLOCK *qb);
+QUADBLOCKLIST *add_quad_block(QUADBLOCKLIST *qb_list, QUADBLOCK *qb);
 
 #endif

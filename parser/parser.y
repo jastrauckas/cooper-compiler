@@ -9,8 +9,9 @@
 	#include "lexer.h"
 	#include "symTable.h"
 	#include "symTable.c"
-	#include "ast.h"
 	#include "ast.c"
+	#include "ast.h"
+	#include "quad.c"
 	#include "quad.h"
 	
 	#define YYDEBUG 1
@@ -556,6 +557,7 @@ int main()
 	yyparse();
 	fprintf(stdout, "\n***** GLOBAL BLOCKS *****\n");
 	program_dump(global_block_list);
+	QUADBLOCKLIST *quad_blocks = generate_quads(global_block_list);
 	return 0;
 }
 
