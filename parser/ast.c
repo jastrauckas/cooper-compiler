@@ -351,7 +351,8 @@ void program_dump(BLOCKLIST *list)
 	BASICBLOCK *cur_b = list->head;
 	while (cur_b)
 	{
-		printf("***** BASIC BLOCK %d *****\n", cur_b->id);
+		if (cur_b->contents)
+			printf("***** BASIC BLOCK %d *****\n", cur_b->id);
 		
 		LISTNODE *stmt = cur_b->contents;
 		s = 0;

@@ -19,10 +19,13 @@
 
 	SYMTABLE t;
 	SYMTABLE st;
+	SYMTABLE *fn_args;
+	SYMTABLE *saved_table;
 	SYMTABLE *new_members = NULL; // use this to create symtable for struct members
 	TABLECELL *tc; // store stuff here
 	TABLECELL *current_table_entry;
 	SYMTABLE *curr_table; // points to the current scope's symbol table
+	SYMTABLE *global_table;
 	SYMTABLE *struct_table; // points to the struct scope's symbol table
 	SYMTABLE *curr_member_table; // points to the struct scope's symbol table
 	char curr_file[MAXLEN+1];
@@ -109,7 +112,7 @@ external-declaration:
 declaration:
 	declaration-specifiers declarator {
 										TYPESPEC = 0;
-										fprintf(stdout, "declaration at <%s> line %d\n", curr_file, line);
+										//fprintf(stdout, "declaration at <%s> line %d\n", curr_file, line);
 									}
 		';' 	{
 										$$ = $1;
@@ -259,19 +262,20 @@ function-definition:
 				$$ = $1;
 				$$.ast->c1 = new_node(FN_NODE);
 				strncpy($$.ast->c1->name, $2.ident_val, 255);
-				// already in function scope, function ident goes up one level
-                INSTALL(curr_table->parent, $2.ident_val, $$);
+				// install function ident in symtable
+                INSTALL(saved_table, $2.ident_val, $$);
+				curr_table = SPUSH(saved_table);	
 				// in the SYMBOL TABLE, store the function's parameters AND
 				// blocks of code
 				fn_entry = in_table(curr_table->parent, $2.ident_val);
-				fn_entry->members = (struct symTable *) curr_table;
+				fn_entry->members = (struct symTable *) fn_args;
 				fn_entry->blocks = init_block_list(NULL);
 				current_block_list = fn_entry->blocks;
 				current_block = fn_entry->blocks->head; 					
 			} compound-statement {
-				printf("Function parameters:\n");
-				write_table(curr_table);
-				printf("Function basic blocks:\n");
+				printf("Function %s parameters:\n", $2.ident_val);
+				write_table(fn_args);
+				printf("Function %s basic blocks:\n", $2.ident_val);
 				program_dump(fn_entry->blocks);
 				// restore global scope and basic block list
                 curr_scope = GLOBAL_SCOPE; 
@@ -308,8 +312,10 @@ function-definition:
 
 declaration-list:
 	function-argument {
-				curr_table = SPUSH(curr_table);	
 				curr_scope = FN_SCOPE;
+				fn_args = init_table(fn_args, 8, NULL);
+				saved_table = curr_table;
+				curr_table = fn_args;
 				$$ = $1;
 				INSTALL(curr_table, current_ident, $$); 
 			}
@@ -541,10 +547,11 @@ int main()
 	init_table(&t, 512, NULL);
 	init_table(&st, 512, NULL);
 	curr_table = &t; // initialize scope to global scope
+	global_table = curr_table;
 	struct_table = &st;
 	strcpy(curr_file, "stdin");
 	yyparse();
-	fprintf(stdout, "\n***** PROGRAM DUMP *****\n");
+	fprintf(stdout, "\n***** GLOBAL BLOCKS *****\n");
 	program_dump(global_block_list);
 	return 0;
 }
@@ -663,7 +670,12 @@ YYSTYPE RETRIEVE(SYMTABLE *t, char *key)
 {
 	YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
 	TABLECELL *tc;
-	if (!(tc = in_table(t, key)))
+	tc = in_table(t, key);
+	if (!tc)
+		tc = in_table(global_table, key);
+	if (!tc && curr_scope == FN_SCOPE)
+		tc = in_table(fn_args, key);
+	if (!tc)
 	{
 		fprintf(stderr, "%s:%d: ", curr_file, line); 
 		fprintf(stderr, "Error: identifier %s undeclared\n", key);

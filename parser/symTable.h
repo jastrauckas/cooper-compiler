@@ -54,7 +54,7 @@ typedef struct symbolTable
 long h(char *key, long max);
 
 // initialize and resize table
-void init_table(SYMTABLE *t, long c, SYMTABLE *parent);
+SYMTABLE *init_table(SYMTABLE *t, long c, SYMTABLE *parent);
 void resize_table(SYMTABLE *t);
 
 // insert into and delete from existing table

@@ -5,7 +5,6 @@
 #include <math.h>
 #include "lexer.h"
 
-
 /* SYMBOL TABLE */
 // I'll put the symtable functions in here for now...
 // silly hash function that just adds char values
@@ -23,8 +22,10 @@ long h(char *key, long max)
 }
 
 // initialize table
-void init_table(SYMTABLE *t, long c, SYMTABLE *parent)
+SYMTABLE *init_table(SYMTABLE *t, long c, SYMTABLE *parent)
 {
+	if (!t)
+		t = malloc(sizeof(SYMTABLE));
     t->parent = parent;
     t->occupied = 0;
     t->capacity = c;
@@ -35,6 +36,7 @@ void init_table(SYMTABLE *t, long c, SYMTABLE *parent)
     {
         t->cells[i] = NULL;
     }
+	return t;
 }
 
 void resize_table(SYMTABLE *t)
@@ -61,6 +63,9 @@ void resize_table(SYMTABLE *t)
     t->occupied = new_table->occupied;
     t->cells = new_table->cells;
 }
+
+// need access to global table
+extern SYMTABLE *global_table;
 
 // insert into and delete from existing table
 // make sure ins does a deep copy of everything, and resizes if needed 
