@@ -16,7 +16,7 @@ QUADNODE *new_quad_node(char *name)
 {
 	QUADNODE *qn = malloc(sizeof(QUADNODE));
 	qn->name = name;
-	if (name)
+	if (!name)
 		qn->id = temp_id++;
 	else
 		qn->id = -1;
@@ -99,7 +99,7 @@ QUADNODE *ast_to_quads(TNODE *ast)
 			s1 = new_quad_node(ast->name);
 			return s1;	
 	}
-	s1 = malloc(sizeof(QUADNODE));
+	s1 = new_quad_node(NULL);
 	return s1;
 }
 
