@@ -23,7 +23,6 @@ QUADNODE *new_quad_node(char *name)
 	else
 	{
 		qn->id = -1;
-		printf("making quad node for variable %s\n", name);
 	}
 	qn->is_constant = 0; // change when assigining a value!
 	return qn;
@@ -88,34 +87,50 @@ QUADNODE *ast_to_quads(TNODE *ast)
 	switch(ast->node_type)
 	{
 		case UNOP:
-			printf("UNOP\n");
+			//printf("UNOP\n");
 			s1 = ast_to_quads(ast->c1);
 			q = build_quad(ast->op, s1, NULL);
 			cur_quad_list = insert_quad(cur_quad_list, q);
 			return q->dest;
 			break;			
 		case BINOP:
-			printf("BINOP\n");
-			s1 = ast_to_quads(ast->c1);
-			s2 = ast_to_quads(ast->c2);
-			q = build_quad(ast->op, s1, s2);
+			//printf("BINOP\n");
+			if (ast->op == '=')
+			{
+				s1 = ast_to_quads(ast->c2);
+				q = build_quad(ast->op, s1, NULL);
+				q->dest = ast_to_quads(ast->c1);
+			}
+			else
+			{
+				s1 = ast_to_quads(ast->c1);
+				s2 = ast_to_quads(ast->c2);
+				q = build_quad(ast->op, s1, s2);
+			}
 			cur_quad_list = insert_quad(cur_quad_list, q);
 			return q->dest;
 			break;			
 		case CONST_NODE:
-			printf("CONST\n");
+			//printf("CONST\n");
 			s1 = new_quad_node(NULL);
 			s1->is_constant = 1;
 			s1->val = (int) ast->value.int_val;
 			return s1;
 		case VAR_NODE:
-			printf("VAR\n");
+			//printf("VAR\n");
 			s1 = new_quad_node(ast->name);	
 			return s1;
-		default:
-			printf("OTHER\n");
-			//s1 = malloc(sizeof(QUADNODE));
+		case SCALAR_NODE:
+			// this is like a type, so ignore it is we are 
+			// assuming ints
+			//printf("TYPE\n");
 			s1 = ast_to_quads(ast->c1);
+		default:
+			//printf("OTHER\n");
+			if (ast->c1) 
+				s1 = ast_to_quads(ast->c1);
+			else
+				s1 = malloc(sizeof(QUADNODE));
 			return s1;
 	}
 }
@@ -215,7 +230,6 @@ void print_quad(QUAD *q)
 	if (q->opcode >= 0 )
 	{
 		print_op(q->opcode);
-		printf(" ");
 	}
 	
 	if (q->src1)
@@ -251,21 +265,21 @@ void print_op(int op)
 	switch (op)
 	{
 		case '+':
-			printf("ADD");
+			printf("ADD ");
 			break;
 		case '-':
-			printf("SUB");
+			printf("SUB ");
 			break;
 		case '*':
-			printf("MUL");
+			printf("MUL ");
 			break;
 		case '/':
-			printf("DIV");
+			printf("DIV ");
 			break;
 		case '=':
-			printf("EQ");
+			printf("");
 			break;
 		default:
-			printf("OP");
+			printf("OP ");
 	}
 }
