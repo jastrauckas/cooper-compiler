@@ -1,5 +1,7 @@
 #include "quad.h"
 
+QUADLIST *cur_quad_list;
+
 QUAD *build_quad(int opcode, QUADNODE *src1, QUADNODE *src2)
 {
 	QUAD *q = malloc(sizeof(QUAD));
@@ -13,8 +15,11 @@ QUAD *build_quad(int opcode, QUADNODE *src1, QUADNODE *src2)
 QUADNODE *new_quad_node(char *name) 
 {
 	QUADNODE *qn = malloc(sizeof(QUADNODE));
-	qn->id = temp_id++;
 	qn->name = name;
+	if (name)
+		qn->id = temp_id++;
+	else
+		qn->id = -1;
 	qn->is_constant = 0; // change when assigining a value!
 	return qn;
 }
@@ -36,11 +41,13 @@ QUADBLOCKLIST *generate_quads(BLOCKLIST *list)
 		block_qlist = malloc(sizeof(QUADLIST));
 		qblock = new_quad_block(cur_b->id);
         stmt = cur_b->contents;
-		printf("bb%d\n", cur_b->id);
+		//printf("bb%d\n", cur_b->id);
         // loop through all AST's in this basic block
 		while (stmt)
         {
-            qlist = ast_to_quads(stmt->ast);
+			cur_quad_list = malloc(sizeof(QUADLIST));
+            ast_to_quads(stmt->ast);
+			qlist = cur_quad_list;
 			block_qlist = merge_quad_lists(block_qlist, qlist);
 			stmt = stmt->next;
         }
@@ -68,9 +75,45 @@ QUADBLOCKLIST *generate_quads(BLOCKLIST *list)
 	return quad_blocks;
 }
 
-QUADLIST *ast_to_quads(TNODE *ast)
+QUADNODE *ast_to_quads(TNODE *ast)
 {
-	QUADLIST *ql = malloc(sizeof(QUADLIST));
+	QUAD *q;
+	QUADNODE *s1;
+	QUADNODE *s2;
+	switch(ast->node_type)
+	{
+		case UNOP:
+			s1 = ast_to_quads(ast->c1);
+			q = build_quad(ast->op, s1, NULL);
+			cur_quad_list = insert_quad(cur_quad_list, q);
+			return q->dest;
+			break;			
+		case BINOP:
+			s1 = ast_to_quads(ast->c1);
+			s2 = ast_to_quads(ast->c2);
+			q = build_quad(ast->op, s1, s2);
+			cur_quad_list = insert_quad(cur_quad_list, q);
+			return q->dest;
+			break;			
+		case VAR_NODE:
+			s1 = new_quad_node(ast->name);
+			return s1;	
+	}
+	s1 = malloc(sizeof(QUADNODE));
+	return s1;
+}
+
+QUADLIST *insert_quad(QUADLIST *ql, QUAD *q)
+{
+	if (!ql->head)
+	{
+		ql->head = q;
+		ql->tail = q;
+		return ql;
+	}
+	ql->tail->next = q;
+	q->prev = ql->tail;
+	ql->tail = q;
 	return ql;
 }
 
@@ -120,4 +163,84 @@ QUADBLOCKLIST *add_quad_block(QUADBLOCKLIST *qb_list, QUADBLOCK *qb)
 	return qb_list;
 }
 
+void output_quads(QUADBLOCKLIST *qb_list)
+{
+	QUADBLOCK *cur_block;
+	QUADLIST *ql;
+	QUAD *q;
+	cur_block = qb_list->head;
+	while (cur_block)
+	{
+		printf("bb%d:\n", cur_block->id);
+		ql = cur_block->quads;
+		q = ql->head;
+		while(q)
+		{
+			print_quad(q);
+			q = q->next;
+		}
+		cur_block = cur_block->next;
+	}
+	
+}
 
+void print_quad(QUAD *q)
+{
+	if (!q)
+		return;
+	printf("\t");
+	if (q->dest) 
+	{
+		print_quad_node(q->dest);
+		printf(" ");
+	}
+	
+	if (q->opcode >= 0 )
+	{
+		print_op(q->opcode);
+		printf(" ");
+	}
+	
+	if (q->src1)
+	{
+		print_quad_node(q->src1);
+		printf(" ");
+	}
+	
+	if (q->src2)
+	{
+		print_quad_node(q->src2);
+	}
+	printf("\n");
+}
+
+void print_quad_node(QUADNODE *qn)
+{
+	if (!qn)
+		return;
+	if (qn->name)
+		printf("%s", qn->name);
+	else
+		printf("%%T%d", qn->id);
+}
+
+void print_op(int op)
+{
+	switch (op)
+	{
+		case '+':
+			printf("ADD");
+			break;
+		case '-':
+			printf("SUB");
+			break;
+		case '*':
+			printf("MUL");
+			break;
+		case '/':
+			printf("DIV");
+			break;
+		default:
+			printf("OP");
+	}
+}

@@ -43,14 +43,21 @@ typedef struct quad_block_list {
 	QUADBLOCK *tail;
 } QUADBLOCKLIST;
 
+
+extern QUADLIST *cur_quad_list;
 // function prototypes
 QUAD *build_quad(int opcode, QUADNODE *src1, QUADNODE *src2);
 QUADNODE *new_quad_node(char *name);
 QUADBLOCKLIST *generate_quads(BLOCKLIST *blist);
-QUADLIST *ast_to_quads(TNODE *ast);
+QUADNODE *ast_to_quads(TNODE *ast);
 QUADLIST *merge_quad_lists(QUADLIST *ql1, QUADLIST *ql2);
+QUADLIST *insert_quad(QUADLIST *ql, QUAD *q);
 QUADBLOCK *new_quad_block(int id);
 QUADBLOCK *add_quads_to_block(QUADLIST *ql, QUADBLOCK *qb);
 QUADBLOCKLIST *add_quad_block(QUADBLOCKLIST *qb_list, QUADBLOCK *qb);
+void output_quads(QUADBLOCKLIST *qb_list);
+void print_quad(QUAD *q);
+void print_quad_node(QUADNODE *qn);
+void print_op(int op);
 
 #endif

@@ -3108,6 +3108,7 @@ int main()
 	fprintf(stdout, "\n***** GLOBAL BLOCKS *****\n");
 	program_dump(global_block_list);
 	QUADBLOCKLIST *quad_blocks = generate_quads(global_block_list);
+	output_quads(quad_blocks);
 	return 0;
 }
 
