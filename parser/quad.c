@@ -95,11 +95,13 @@ QUADNODE *ast_to_quads(TNODE *ast)
 			cur_quad_list = insert_quad(cur_quad_list, q);
 			return q->dest;
 			break;			
-		case VAR_NODE:
-			s1 = new_quad_node(ast->name);
-			return s1;	
+		case CONST_NODE:
+			s1 = new_quad_node(NULL);
+			s1->is_constant = 1;
+			s1->val = (int) ast->value.int_val;
+			return s1;
 	}
-	s1 = new_quad_node(NULL);
+	s1 = malloc(sizeof(QUADNODE));
 	return s1;
 }
 
@@ -192,7 +194,7 @@ void print_quad(QUAD *q)
 	if (q->dest) 
 	{
 		print_quad_node(q->dest);
-		printf(" ");
+		printf(" = ");
 	}
 	
 	if (q->opcode >= 0 )
@@ -218,6 +220,11 @@ void print_quad_node(QUADNODE *qn)
 {
 	if (!qn)
 		return;
+	if (qn->is_constant)
+	{
+		printf("%d", qn->val);
+		return;
+	}
 	if (qn->name)
 		printf("%s", qn->name);
 	else
