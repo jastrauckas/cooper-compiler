@@ -14,12 +14,17 @@ QUAD *build_quad(int opcode, QUADNODE *src1, QUADNODE *src2)
 
 QUADNODE *new_quad_node(char *name) 
 {
-	QUADNODE *qn = malloc(sizeof(QUADNODE));
+	QUADNODE *qn = calloc(1, sizeof(QUADNODE));
 	qn->name = name;
 	if (!name)
+	{
 		qn->id = temp_id++;
+	}
 	else
+	{
 		qn->id = -1;
+		printf("making quad node for variable %s\n", name);
+	}
 	qn->is_constant = 0; // change when assigining a value!
 	return qn;
 }
@@ -83,12 +88,14 @@ QUADNODE *ast_to_quads(TNODE *ast)
 	switch(ast->node_type)
 	{
 		case UNOP:
+			printf("UNOP\n");
 			s1 = ast_to_quads(ast->c1);
 			q = build_quad(ast->op, s1, NULL);
 			cur_quad_list = insert_quad(cur_quad_list, q);
 			return q->dest;
 			break;			
 		case BINOP:
+			printf("BINOP\n");
 			s1 = ast_to_quads(ast->c1);
 			s2 = ast_to_quads(ast->c2);
 			q = build_quad(ast->op, s1, s2);
@@ -96,13 +103,21 @@ QUADNODE *ast_to_quads(TNODE *ast)
 			return q->dest;
 			break;			
 		case CONST_NODE:
+			printf("CONST\n");
 			s1 = new_quad_node(NULL);
 			s1->is_constant = 1;
 			s1->val = (int) ast->value.int_val;
 			return s1;
+		case VAR_NODE:
+			printf("VAR\n");
+			s1 = new_quad_node(ast->name);	
+			return s1;
+		default:
+			printf("OTHER\n");
+			//s1 = malloc(sizeof(QUADNODE));
+			s1 = ast_to_quads(ast->c1);
+			return s1;
 	}
-	s1 = malloc(sizeof(QUADNODE));
-	return s1;
 }
 
 QUADLIST *insert_quad(QUADLIST *ql, QUAD *q)
@@ -246,6 +261,9 @@ void print_op(int op)
 			break;
 		case '/':
 			printf("DIV");
+			break;
+		case '=':
+			printf("EQ");
 			break;
 		default:
 			printf("OP");
