@@ -87,12 +87,32 @@ QUADBLOCKLIST *generate_quads(BLOCKLIST *list)
         } 
         if (cur_b->false_exit)
         {
-            printf("If FALSE: BASIC BLOCK %d\n", cur_b->false_exit->id);
+            	printf("If FALSE: BASIC BLOCK %d\n", cur_b->false_exit->id);
         }
 		*/
         cur_b = cur_b->next;
     }
 	return quad_blocks;
+}
+
+QUAD *binop_quad(TNODE *ast)
+{
+	QUAD *q;
+	QUADNODE *s1;
+	QUADNODE *s2;
+	switch (ast->op)
+	{
+		case '=':
+			s1 = ast_to_quads(ast->c2);
+        	q = build_quad(ast->op, ast_to_quads(ast->c1), s1, NULL);
+			break;
+		default:
+			s1 = ast_to_quads(ast->c1);
+			s2 = ast_to_quads(ast->c2);
+			q = build_quad(ast->op, NULL, s1, s2);
+			break;
+	}
+	return q;
 }
 
 QUADNODE *ast_to_quads(TNODE *ast)
@@ -110,19 +130,7 @@ QUADNODE *ast_to_quads(TNODE *ast)
 			return q->dest;
 			break;			
 		case BINOP:
-			//printf("BINOP\n");
-			if (ast->op == '=')
-			{
-				s1 = ast_to_quads(ast->c2);
-				q = build_quad(ast->op, ast_to_quads(ast->c1), s1, NULL);
-				//q->dest = ast_to_quads(ast->c1);
-			}
-			else
-			{
-				s1 = ast_to_quads(ast->c1);
-				s2 = ast_to_quads(ast->c2);
-				q = build_quad(ast->op, NULL, s1, s2);
-			}
+			q = binop_quad(ast);
 			cur_quad_list = insert_quad(cur_quad_list, q);
 			return q->dest;
 			break;			
