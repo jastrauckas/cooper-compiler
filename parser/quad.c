@@ -2,31 +2,48 @@
 
 QUADLIST *cur_quad_list;
 
-QUAD *build_quad(int opcode, QUADNODE *src1, QUADNODE *src2)
+QUAD *build_quad(int opcode, QUADNODE *dest, QUADNODE *src1, QUADNODE *src2)
 {
 	QUAD *q = malloc(sizeof(QUAD));
 	q->opcode = opcode;
 	q->src1 = src1;
 	q->src2 = src2;
-	q->dest = new_quad_node(NULL);
+	if (!dest)
+	{
+		dest = new_quad_node(NULL);
+	}
+	q->dest = dest;
 	return q;
 }
 
-QUADNODE *new_quad_node(char *name) 
+QUADNODE *new_quad_node_var(char *name) 
 {
 	QUADNODE *qn = calloc(1, sizeof(QUADNODE));
 	qn->name = name;
-	if (!name)
-	{
-		qn->id = temp_id++;
-	}
-	else
-	{
-		qn->id = -1;
-	}
+	qn->id = -1;
 	qn->is_constant = 0; // change when assigining a value!
 	return qn;
 }
+
+QUADNODE *new_quad_node_const(int val)
+{
+	QUADNODE *qn = calloc(1, sizeof(QUADNODE));
+	qn->is_constant = 1;
+	qn->val = val;
+	qn->name = NULL;
+	qn->id = -1;
+	return qn;
+}
+
+QUADNODE *new_quad_node()
+{
+	QUADNODE *qn = calloc(1, sizeof(QUADNODE));
+	qn->is_constant = 0;
+	qn->name = NULL;
+	qn->id = temp_id++;
+	return qn;
+}
+
 
 QUADBLOCKLIST *generate_quads(BLOCKLIST *list) 
 {
@@ -89,7 +106,7 @@ QUADNODE *ast_to_quads(TNODE *ast)
 		case UNOP:
 			//printf("UNOP\n");
 			s1 = ast_to_quads(ast->c1);
-			q = build_quad(ast->op, s1, NULL);
+			q = build_quad(ast->op, NULL, s1, NULL);
 			cur_quad_list = insert_quad(cur_quad_list, q);
 			return q->dest;
 			break;			
@@ -98,27 +115,25 @@ QUADNODE *ast_to_quads(TNODE *ast)
 			if (ast->op == '=')
 			{
 				s1 = ast_to_quads(ast->c2);
-				q = build_quad(ast->op, s1, NULL);
+				q = build_quad(ast->op, NULL, s1, NULL);
 				q->dest = ast_to_quads(ast->c1);
 			}
 			else
 			{
 				s1 = ast_to_quads(ast->c1);
 				s2 = ast_to_quads(ast->c2);
-				q = build_quad(ast->op, s1, s2);
+				q = build_quad(ast->op, NULL, s1, s2);
 			}
 			cur_quad_list = insert_quad(cur_quad_list, q);
 			return q->dest;
 			break;			
 		case CONST_NODE:
 			//printf("CONST\n");
-			s1 = new_quad_node(NULL);
-			s1->is_constant = 1;
-			s1->val = (int) ast->value.int_val;
+			s1 = new_quad_node_const((int) ast->value.int_val);
 			return s1;
 		case VAR_NODE:
 			//printf("VAR\n");
-			s1 = new_quad_node(ast->name);	
+			s1 = new_quad_node_var(ast->name);	
 			return s1;
 		case SCALAR_NODE:
 			// this is like a type, so ignore it is we are 

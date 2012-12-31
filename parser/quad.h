@@ -46,8 +46,11 @@ typedef struct quad_block_list {
 
 extern QUADLIST *cur_quad_list;
 // function prototypes
-QUAD *build_quad(int opcode, QUADNODE *src1, QUADNODE *src2);
-QUADNODE *new_quad_node(char *name);
+QUAD *build_quad(int opcode, QUADNODE *dest, QUADNODE *src1, QUADNODE *src2);
+// build a quad node for vars, constants, and temp values!
+QUADNODE *new_quad_node_var(char *name);
+QUADNODE *new_quad_node_const(int val);
+QUADNODE *new_quad_node();
 QUADBLOCKLIST *generate_quads(BLOCKLIST *blist);
 QUADNODE *ast_to_quads(TNODE *ast);
 QUADLIST *merge_quad_lists(QUADLIST *ql1, QUADLIST *ql2);
