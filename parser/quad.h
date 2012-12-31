@@ -6,7 +6,7 @@
 
 // opcodes beyond lexical operators
 // I will make them very large numbers so they (hopefully) won't collide
-#define PTR_OP 1025
+enum {LOAD_OP = 1025, PRE_STORE_OP, STORE_OP};
 
 // quad generation is different for lvalues and rvalues
 enum {LVAL, RVAL};
@@ -16,7 +16,7 @@ extern int temp_id;
 
 // for now, assume the only constants are integers!
 typedef struct quad_node {
-	int id;			// for keeping track of temp valuesi
+	int id;			// for keeping track of temp values
 	int is_constant;
 	int val;		// if a constant	
 	char *name;		// if a local variable
@@ -61,6 +61,7 @@ QUADNODE *ast_to_quads(TNODE *ast, int side);
 QUAD *build_quad(int opcode, QUADNODE *dest, QUADNODE *src1, QUADNODE *src2);
 QUAD *build_binop_quad(TNODE *ast, int side);
 QUAD *build_unop_quad(TNODE *ast, int side);
+QUAD *pop_quad(QUADLIST *ql);
 QUADLIST *merge_quad_lists(QUADLIST *ql1, QUADLIST *ql2);
 QUADLIST *insert_quad(QUADLIST *ql, QUAD *q);
 QUADBLOCK *new_quad_block(int id);

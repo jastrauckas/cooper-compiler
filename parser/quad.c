@@ -1,6 +1,7 @@
 #include "quad.h"
 
 QUADLIST *cur_quad_list;
+QUADLIST *quad_stack; // put deferred quads here
 
 QUAD *build_quad(int opcode, QUADNODE *dest, QUADNODE *src1, QUADNODE *src2)
 {
@@ -66,7 +67,7 @@ QUADBLOCKLIST *generate_quads(BLOCKLIST *list)
 		while (stmt)
         {
 			cur_quad_list = malloc(sizeof(QUADLIST));
-            ast_to_quads(stmt->ast, RVAL);
+            ast_to_quads(stmt->ast, LVAL);
 			qlist = cur_quad_list;
 			block_qlist = merge_quad_lists(block_qlist, qlist);
 			stmt = stmt->next;
@@ -119,14 +120,17 @@ QUAD *build_unop_quad(TNODE *ast, int side)
 {
 	QUAD *q;
 	QUADNODE *s1;
-	QUADNODE *s2;
 	switch (ast->op)
 	{	
 		case '*':
 			// need to be able to distinguish between a pointer
 			// and multiplication later on
 			s1 = ast_to_quads(ast->c1, side);
-			q = build_quad(PTR_OP, NULL, s1, NULL);
+			if (side == RVAL) 
+				q = build_quad(LOAD_OP, NULL, s1, NULL);
+			else
+				q = build_quad(PRE_STORE_OP, NULL, s1, NULL);
+				return q;
 			break;
 		default:
 			s1 = ast_to_quads(ast->c1, side);
@@ -177,9 +181,24 @@ QUADNODE *ast_to_quads(TNODE *ast, int side)
 			if (ast->c1) 
 				s1 = ast_to_quads(ast->c1, side);
 			else
-				s1 = malloc(sizeof(QUADNODE));
+				s1 = NULL;
 			return s1;
 	}
+}
+
+QUAD *pop_quad(QUADLIST *ql)
+{
+	if (!ql)
+		return NULL;
+	QUAD *q;
+	if (ql->tail) 
+	{
+		q = ql->tail;
+		ql->tail = ql->tail->prev;
+		if (ql->tail)
+			ql->tail->next = NULL;
+	}
+	return q;
 }
 
 QUADLIST *insert_quad(QUADLIST *ql, QUAD *q)
@@ -188,14 +207,24 @@ QUADLIST *insert_quad(QUADLIST *ql, QUAD *q)
 	{
 		return ql;
 	}
+	if (!ql)
+	{
+		ql = malloc(sizeof(QUADLIST));
+		ql->head = q;
+		ql->tail = q;
+		return ql;
+	}
 	if (!ql->head)
 	{
 		ql->head = q;
 		ql->tail = q;
 		return ql;
 	}
-	ql->tail->next = q;
 	q->prev = ql->tail;
+	if (ql->tail) 
+		{ql->tail->next = q;}
+	else
+		{ql->head = q;}
 	ql->tail = q;
 	return ql;
 }
@@ -251,6 +280,7 @@ void output_quads(QUADBLOCKLIST *qb_list)
 	QUADBLOCK *cur_block;
 	QUADLIST *ql;
 	QUAD *q;
+	QUAD *stashed;
 	cur_block = qb_list->head;
 	while (cur_block)
 	{
@@ -260,6 +290,11 @@ void output_quads(QUADBLOCKLIST *qb_list)
 		while(q)
 		{
 			print_quad(q);
+			// pop off stack if applicable 
+			if (stashed = pop_quad(quad_stack))
+			{
+				print_quad(stashed);
+			}
 			q = q->next;
 		}
 		cur_block = cur_block->next;
@@ -267,10 +302,24 @@ void output_quads(QUADBLOCKLIST *qb_list)
 	
 }
 
+
 void print_quad(QUAD *q)
 {
+	QUADNODE *temp;
+	QUAD *copy;
 	if (!q)
 		return;
+	// put some hacks in place for the store instruction
+	// need to reverse both order of args and order fo quads
+	if (q->opcode == PRE_STORE_OP)
+	{
+		temp = q->dest;
+		q->dest = q->src1;
+		q->src1 = temp;
+		copy = build_quad(STORE_OP, q->dest, q->src1, q->src2);
+		quad_stack = insert_quad(quad_stack, copy);
+		return;	
+	}
 	printf("\t");
 	if (q->dest) 
 	{
@@ -330,8 +379,11 @@ void print_op(int op)
 		case '=':
 			printf("");
 			break;
-		case PTR_OP:
+		case LOAD_OP:
 			printf("LOAD ");
+			break;
+		case STORE_OP:
+			printf("STORE ");
 			break;
 		default:
 			printf("OP ");
