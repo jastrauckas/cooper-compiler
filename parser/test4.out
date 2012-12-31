@@ -1,0 +1,40 @@
+
+***** GLOBAL BLOCKS *****
+***** BASIC BLOCK 0 *****
+Statement 1:
+=
+  int 
+    variable: a
+  int: 1
+Statement 2:
+=
+  int 
+    variable: b
+  int: 2
+Statement 3:
+=
+  int 
+    variable: b
+  int: 3
+Statement 4:
+=
+  int 
+    variable: a
+  *
+    +
+      int 
+        variable: b
+      *
+        int 
+          variable: c
+        int: 10
+    int 
+      variable: a
+bb0:
+	a = 1 
+	b = 2 
+	b = 3 
+	%T0 = MUL c 10
+	%T1 = ADD b %T0
+	%T2 = MUL %T1 a
+	a = %T2 
