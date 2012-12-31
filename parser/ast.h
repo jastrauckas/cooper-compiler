@@ -110,5 +110,6 @@ void print_tree_invert(TNODE *t, int level);
 void print_node(TNODE *t);
 void print_scalar(TNODE *t);
 void print_binop(TNODE *t);
+void print_unop(TNODE *t);
 void program_dump(BLOCKLIST *list);
 #endif

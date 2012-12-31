@@ -185,8 +185,24 @@ void print_node(TNODE *t)
 		case BINOP:
 			print_binop(t);
 			break;
+		case UNOP:
+			print_unop(t);
+			break;
 		default:
 			printf("unhandled Node Type %d\n", t->node_type);
+	}
+}
+
+void print_unop(TNODE *t)
+{
+	int op = t->op;
+	switch(op)
+	{
+		case '*':
+			printf("LOAD\n");
+			break;
+		default:
+			printf("unary operation with operand\n");
 	}
 }
 
