@@ -44,7 +44,6 @@ QUADNODE *new_quad_node()
 	return qn;
 }
 
-
 QUADBLOCKLIST *generate_quads(BLOCKLIST *list) 
 {
 	int s;
@@ -115,8 +114,8 @@ QUADNODE *ast_to_quads(TNODE *ast)
 			if (ast->op == '=')
 			{
 				s1 = ast_to_quads(ast->c2);
-				q = build_quad(ast->op, NULL, s1, NULL);
-				q->dest = ast_to_quads(ast->c1);
+				q = build_quad(ast->op, ast_to_quads(ast->c1), s1, NULL);
+				//q->dest = ast_to_quads(ast->c1);
 			}
 			else
 			{
