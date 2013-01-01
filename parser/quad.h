@@ -6,10 +6,13 @@
 
 // opcodes beyond lexical operators
 // I will make them very large numbers so they (hopefully) won't collide
-enum {LOAD_OP = 1025, PRE_STORE_OP, STORE_OP};
+enum {LOAD_OP = 1025, PRE_STORE_OP, STORE_OP, LEA_OP};
 
 // quad generation is different for lvalues and rvalues
 enum {LVAL, RVAL};
+
+// while generating quads, keep track of what is going on in the tree
+enum {NORMAL_MODE, ARRAY_MODE};
 
 // keep track of temp values
 extern int temp_id;

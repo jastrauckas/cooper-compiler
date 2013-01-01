@@ -1,5 +1,7 @@
 #include "quad.h"
 
+char *cur_var_name;
+int mode;
 QUADLIST *cur_quad_list;
 QUADLIST *quad_stack; // put deferred quads here
 
@@ -11,7 +13,7 @@ QUAD *build_quad(int opcode, QUADNODE *dest, QUADNODE *src1, QUADNODE *src2)
 	q->src2 = src2;
 	if (!dest)
 	{
-		dest = new_quad_node(NULL);
+		dest = new_quad_node();
 	}
 	q->dest = dest;
 	return q;
@@ -49,6 +51,7 @@ QUADBLOCKLIST *generate_quads(BLOCKLIST *list)
 {
 	int s;
 	int c=0;
+	mode = NORMAL_MODE;
 	QUADLIST *qlist;
 	QUADLIST *block_qlist;
 	QUADBLOCK *qblock;
@@ -104,8 +107,17 @@ QUAD *build_binop_quad(TNODE *ast, int side)
 	switch (ast->op)
 	{
 		case '=':
-			s1 = ast_to_quads(ast->c2, RVAL);
-        	q = build_quad(ast->op, ast_to_quads(ast->c1, LVAL), s1, NULL);
+			if (mode == ARRAY_MODE) 
+			{
+				q = build_quad(STORE_OP, ast_to_quads(ast->c1, LVAL), 
+					ast_to_quads(ast->c2, RVAL), NULL);
+				mode = NORMAL_MODE;
+			}
+			else
+			{
+				s1 = ast_to_quads(ast->c2, RVAL);
+        		q = build_quad(ast->op, ast_to_quads(ast->c1, LVAL), s1, NULL);
+			}
 			break;
 		default:
 			s1 = ast_to_quads(ast->c1, RVAL);
@@ -144,6 +156,8 @@ QUADNODE *ast_to_quads(TNODE *ast, int side)
 	QUAD *q;
 	QUADNODE *s1;
 	QUADNODE *s2;
+	QUADNODE *d1;
+	QUADNODE *d2;
 	switch(ast->node_type)
 	{
 		case UNOP:
@@ -169,13 +183,35 @@ QUADNODE *ast_to_quads(TNODE *ast, int side)
 			return s1;
 		case VAR_NODE:
 			//printf("VAR\n");
+			cur_var_name = ast->name;
 			s1 = new_quad_node_var(ast->name);	
 			return s1;
+			break;
 		case SCALAR_NODE:
-			// this is like a type, so ignore it if we are 
-			// assuming ints
+			// this is like a type, so ignore (assume ints) 
 			//printf("TYPE\n");
 			s1 = ast_to_quads(ast->c1, side);
+			return s1;
+			break;
+		
+		case ARRAY_NODE:
+			mode = ARRAY_MODE;
+			s1 = ast_to_quads(ast->c1, side);
+			// load address of array
+			q = build_quad(LEA_OP, NULL, s1, NULL);
+			d1 = q->dest;
+			cur_quad_list = insert_quad(cur_quad_list, q);
+			// mutiply the size of int (4) by the element index
+			q = build_quad('*', NULL, new_quad_node_const(4), 
+				new_quad_node_const(ast->size));
+			d2 = q->dest;
+			cur_quad_list = insert_quad(cur_quad_list, q);
+			// add that value to the base address
+			q = build_quad('+', NULL, d1, d2); 
+			cur_quad_list = insert_quad(cur_quad_list, q);
+			return s1;
+			break;
+			
 		default:
 			//printf("OTHER\n");
 			if (ast->c1) 
@@ -384,6 +420,9 @@ void print_op(int op)
 			break;
 		case STORE_OP:
 			printf("STORE ");
+			break;
+		case LEA_OP:
+			printf("LEA ");
 			break;
 		default:
 			printf("OP ");
