@@ -432,7 +432,7 @@ primary-expression:
 postfix-expression:
 	primary-expression {$$ = $1;}
 |	postfix-expression '[' ']'
-|	postfix-expression '[' NUMBER ']'
+|	postfix-expression '[' NUMBER ']' {$$=$1; $$.ast->index = $3.int_val; printf("%d\n", $$.ast->node_type);}
 |	postfix-expression '(' ')'
 |	postfix-expression '(' argument-expression-list ')'
 |	postfix-expression '.' IDENT

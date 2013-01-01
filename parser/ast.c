@@ -148,6 +148,7 @@ void print_node(TNODE *t)
 			printf("pointer to\n", t->size);
 			break;
 		case SCALAR_NODE:
+			printf("FOUND SCALAR!\n");
 			print_scalar(t);
 			break;
 		case CONST_NODE:

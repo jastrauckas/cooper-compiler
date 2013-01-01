@@ -53,6 +53,7 @@ typedef struct tnode
 	int field;
 	SCALAR value;  	// if scalar, put value here
 	int size;		// for arrays
+	int index;		// also for arrays
 	char name[256];	// if an identifier
 	char print_val[256];		// what to print for this node
 	struct tnode *c1, *c2, *c3; // children (three at most)

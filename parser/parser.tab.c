@@ -2483,6 +2483,13 @@ yyreduce:
     {(yyval) = (yyvsp[(1) - (1)]);}
     break;
 
+  case 90:
+
+/* Line 1806 of yacc.c  */
+#line 435 "parser.y"
+    {(yyval)=(yyvsp[(1) - (4)]); (yyval).ast->index = (yyvsp[(3) - (4)]).int_val; printf("%d\n", (yyval).ast->node_type);}
+    break;
+
   case 99:
 
 /* Line 1806 of yacc.c  */
@@ -2857,7 +2864,7 @@ yyreduce:
 
 
 /* Line 1806 of yacc.c  */
-#line 2861 "parser.tab.c"
+#line 2868 "parser.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires

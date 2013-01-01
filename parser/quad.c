@@ -2,6 +2,7 @@
 
 char *cur_var_name;
 int mode;
+int ind;
 QUADLIST *cur_quad_list;
 QUADLIST *quad_stack; // put deferred quads here
 
@@ -51,7 +52,6 @@ QUADBLOCKLIST *generate_quads(BLOCKLIST *list)
 {
 	int s;
 	int c=0;
-	mode = NORMAL_MODE;
 	QUADLIST *qlist;
 	QUADLIST *block_qlist;
 	QUADBLOCK *qblock;
@@ -107,11 +107,15 @@ QUAD *build_binop_quad(TNODE *ast, int side)
 	switch (ast->op)
 	{
 		case '=':
-			if (mode == ARRAY_MODE) 
+			if (ast->c1 && ast->c1->c1 && ast->c1->c1->node_type == ARRAY_NODE) 
 			{
 				q = build_quad(STORE_OP, ast_to_quads(ast->c1, LVAL), 
 					ast_to_quads(ast->c2, RVAL), NULL);
-				mode = NORMAL_MODE;
+			}
+			else if (ast->c2 && ast->c2->c1 && ast->c2->c1->node_type == ARRAY_NODE) 
+			{
+				q = build_quad(LOAD_OP, ast_to_quads(ast->c1, LVAL), 
+					ast_to_quads(ast->c2, RVAL), NULL);
 			}
 			else
 			{
@@ -120,8 +124,8 @@ QUAD *build_binop_quad(TNODE *ast, int side)
 			}
 			break;
 		default:
-			s1 = ast_to_quads(ast->c1, RVAL);
-			s2 = ast_to_quads(ast->c2, RVAL);
+			s1 = ast_to_quads(ast->c1, side);
+			s2 = ast_to_quads(ast->c2, side);
 			q = build_quad(ast->op, NULL, s1, s2);
 			break;
 	}
@@ -154,20 +158,17 @@ QUAD *build_unop_quad(TNODE *ast, int side)
 QUADNODE *ast_to_quads(TNODE *ast, int side)
 {
 	QUAD *q;
-	QUADNODE *s1;
-	QUADNODE *s2;
-	QUADNODE *d1;
-	QUADNODE *d2;
+	QUADNODE *s1, *s2, *d1, *d2;
 	switch(ast->node_type)
 	{
 		case UNOP:
-			//printf("UNOP with opcode %d\n", ast->op);
+			printf("UNOP with opcode %d\n", ast->op);
 			q = build_unop_quad(ast, side);
 			cur_quad_list = insert_quad(cur_quad_list, q);
 			return q->dest;
 			break;			
 		case BINOP:
-			//printf("BINOP\n");
+			printf("BINOP with types %d %d\n", ast->c1->c1->node_type, ast->c2->node_type);
 			q = build_binop_quad(ast, side);
 			cur_quad_list = insert_quad(cur_quad_list, q);
 			return q->dest;
@@ -178,24 +179,25 @@ QUADNODE *ast_to_quads(TNODE *ast, int side)
 			return s1;
 			break;
 		case CONST_NODE:
-			//printf("CONST\n");
+			printf("CONST\n");
 			s1 = new_quad_node_const((int) ast->value.int_val);
 			return s1;
 		case VAR_NODE:
-			//printf("VAR\n");
+			printf("VAR\n");
 			cur_var_name = ast->name;
 			s1 = new_quad_node_var(ast->name);	
 			return s1;
 			break;
 		case SCALAR_NODE:
+			printf("SCALAR with value %d\n", ast->index);
 			// this is like a type, so ignore (assume ints) 
-			//printf("TYPE\n");
+			ind = ast->index;
 			s1 = ast_to_quads(ast->c1, side);
 			return s1;
 			break;
 		
 		case ARRAY_NODE:
-			mode = ARRAY_MODE;
+			printf("ARRAY (type is %d)\n", ast->node_type);
 			s1 = ast_to_quads(ast->c1, side);
 			// load address of array
 			q = build_quad(LEA_OP, NULL, s1, NULL);
@@ -203,15 +205,14 @@ QUADNODE *ast_to_quads(TNODE *ast, int side)
 			cur_quad_list = insert_quad(cur_quad_list, q);
 			// mutiply the size of int (4) by the element index
 			q = build_quad('*', NULL, new_quad_node_const(4), 
-				new_quad_node_const(ast->size));
+					new_quad_node_const(ind));
 			d2 = q->dest;
 			cur_quad_list = insert_quad(cur_quad_list, q);
 			// add that value to the base address
 			q = build_quad('+', NULL, d1, d2); 
 			cur_quad_list = insert_quad(cur_quad_list, q);
-			return s1;
+			return q->dest;
 			break;
-			
 		default:
 			//printf("OTHER\n");
 			if (ast->c1) 
@@ -325,12 +326,11 @@ void output_quads(QUADBLOCKLIST *qb_list)
 		q = ql->head;
 		while(q)
 		{
+			// pop off stack if applicable
+			stashed = pop_quad(quad_stack);
 			print_quad(q);
-			// pop off stack if applicable 
-			if (stashed = pop_quad(quad_stack))
-			{
+			if (stashed)
 				print_quad(stashed);
-			}
 			q = q->next;
 		}
 		cur_block = cur_block->next;
@@ -349,6 +349,7 @@ void print_quad(QUAD *q)
 	// need to reverse both order of args and order fo quads
 	if (q->opcode == PRE_STORE_OP)
 	{
+		//printf("ADDING TO STACK\n");
 		temp = q->dest;
 		q->dest = q->src1;
 		q->src1 = temp;

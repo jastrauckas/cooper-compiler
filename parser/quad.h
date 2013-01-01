@@ -12,7 +12,7 @@ enum {LOAD_OP = 1025, PRE_STORE_OP, STORE_OP, LEA_OP};
 enum {LVAL, RVAL};
 
 // while generating quads, keep track of what is going on in the tree
-enum {NORMAL_MODE, ARRAY_MODE};
+enum {NORMAL_MODE, ARRAY_STORE_MODE, ARRAY_LOAD_MODE};
 
 // keep track of temp values
 extern int temp_id;
