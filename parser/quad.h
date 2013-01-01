@@ -6,7 +6,7 @@
 
 // opcodes beyond lexical operators
 // I will make them very large numbers so they (hopefully) won't collide
-enum {LOAD_OP = 1025, PRE_STORE_OP, STORE_OP, LEA_OP};
+enum {LOAD_OP = 1025, PRE_STORE_OP, STORE_OP, LEA_OP, CMP_OP, BRGT_OP, BRLT_OP};
 
 // quad generation is different for lvalues and rvalues
 enum {LVAL, RVAL};

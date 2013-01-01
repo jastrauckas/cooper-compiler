@@ -3310,61 +3310,6 @@ YYSTYPE TERNARY(YYSTYPE v1, YYSTYPE v2, YYSTYPE v3)
 	return *res;
 }
 
-/*
-YYSTYPE OPASSIGN(YYSTYPE v1, YYSTYPE v2, int op)
-{
-	// v1 is not actually a value, it is the YYSTYPE of an ident!
-	TABLECELL *tc;
-    YYSTYPE *res = calloc(sizeof(YYSTYPE),1);
-    if (!(tc = in_table(curr_table, v1.ident_val)))
-    {
-		fprintf(stderr, "%s:%d: ", curr_file, line); 
-        fprintf(stderr, "Error: identifier %s undeclared\n", v1.ident_val);
-        res->int_val = v2.int_val;
-		res->has_val = 0;
-		return *res;
-    }
-
-	*res = tc->value;
-	res->metadata.tokname = "NUMBER";
-	res->has_val = 1;
-    
-	if (!CHECK(*res))
-    {
-		res->int_val = v2.int_val;
-		res->has_val = 0;
-        return *res;
-    }
-	switch (op)
-	{
-		case PLUSEQ:
-			printf("v1: %lld v2: %lld\n", res->int_val, v2.int_val); 
-			res->int_val = res->int_val + v2.int_val; break; 
-		case MINUSEQ:
-			res->int_val = res->int_val - v2.int_val; break; 
-		case TIMESEQ:
-			res->int_val = res->int_val * v2.int_val; break; 
-		case DIVEQ:
-			res->int_val = res->int_val / v2.int_val; break; 
-		case MODEQ:
-			res->int_val = res->int_val % v2.int_val; break; 
-		case SHLEQ:
-			res->int_val = res->int_val << v2.int_val; break; 
-		case SHREQ:
-			res->int_val = res->int_val << v2.int_val; break; 
-		case ANDEQ:
-			res->int_val = res->int_val & v2.int_val; break; 
-		case OREQ:
-			res->int_val = res->int_val | v2.int_val; break; 
-		case XOREQ:
-			res->int_val = res->int_val ^ v2.int_val; break; 
-	}
-	
-	UPDATE(curr_table, v1.ident_val, *res);
-	return *res;
-}
-*/
-
 
 int CHECK(YYSTYPE v)
 {
