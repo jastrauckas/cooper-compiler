@@ -3103,6 +3103,7 @@ int main()
 	temp_id = 0;
 	block_id = 0;
 	global_block_list = init_block_list(NULL);
+	current_block_list = global_block_list;
 	saved_blocks = init_block_list(NULL);
 	current_block = global_block_list->head;
 	init_table(&t, 512, NULL);

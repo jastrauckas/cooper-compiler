@@ -414,6 +414,12 @@ BLOCKLIST *init_block_list(LISTNODE *contents)
 
 BLOCKLIST *push_new_block(BLOCKLIST *list, LISTNODE *contents)
 {
+	/*
+	if (!list)
+	{
+		return init_block_list(contents);
+	}
+	*/
 	BASICBLOCK *b = new_block(contents);
 	list->tail->next = b;
 	b->prev = list->tail;
