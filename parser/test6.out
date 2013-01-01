@@ -1,0 +1,79 @@
+7
+7
+
+***** GLOBAL BLOCKS *****
+***** BASIC BLOCK 0 *****
+Statement 1:
+=
+  int 
+    array of size 10 of type
+      variable: a
+  int: 6
+Statement 2:
+=
+  int 
+    variable: i
+  int 
+    array of size 10 of type
+      variable: a
+Next block: BASIC BLOCK 2
+***** BASIC BLOCK 2 *****
+Statement 1:
+<
+  int 
+    variable: i
+  int: 10
+If TRUE: BASIC BLOCK 3
+If FALSE: BASIC BLOCK 4
+***** BASIC BLOCK 3 *****
+Statement 1:
+=
+  int 
+    variable: i
+  +
+    int 
+      variable: i
+    int: 1
+Statement 2:
+=
+variable: p
+  pointer to
+    int 
+  LOAD
+  int 
+    variable: i
+***** BASIC BLOCK 4 *****
+Statement 1:
+=
+  int 
+    variable: i
+  int: 0
+Statement 2:
+=
+  int 
+    variable: i
+  +
+    int 
+      variable: i
+    int: 1
+bb0:
+	%T0 = LEA a 
+	%T1 = MUL 4 5
+	%T2 = ADD %T0 %T1
+	STORE 6 %T2
+	%T3 = LEA a 
+	%T4 = MUL 4 5
+	%T5 = ADD %T3 %T4
+	i = LOAD %T5 
+bb2:
+	CMP i 10
+	BRLT bb3 bb4
+bb3:
+	%T6 = ADD i 1
+	i = %T6 
+	%T7 = i 
+	STORE p %T7
+bb4:
+	i = 0 
+	%T8 = ADD i 1
+	i = %T8 

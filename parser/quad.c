@@ -63,6 +63,8 @@ QUADBLOCKLIST *generate_quads(BLOCKLIST *list)
     while (cur_b)
     {
         s = 0;
+		free(quad_stack);
+		quad_stack = NULL;
 		block_qlist = malloc(sizeof(QUADLIST));
 		qblock = new_quad_block(cur_b->id);
         stmt = cur_b->contents;
@@ -112,8 +114,9 @@ QUAD *build_binop_quad(TNODE *ast, int side)
 		case '=':
 			if (ast->c1 && ast->c1->c1 && ast->c1->c1->node_type == ARRAY_NODE) 
 			{
-				q = build_quad(STORE_OP, ast_to_quads(ast->c1, LVAL), 
-					ast_to_quads(ast->c2, RVAL), NULL);
+				q = build_quad(STORE_OP, &dummy, 
+					ast_to_quads(ast->c2, RVAL), ast_to_quads(ast->c1, LVAL));
+				q->dest = NULL;
 			}
 			else if (ast->c2 && ast->c2->c1 && ast->c2->c1->node_type == ARRAY_NODE) 
 			{
@@ -136,7 +139,7 @@ QUAD *build_binop_quad(TNODE *ast, int side)
 			label2 = calloc(32, sizeof(char));
 			b1 = 
 			sprintf(label1, "bb%d", cur_b->true_exit->id); 
-			sprintf(label2, "bb%d", -1);
+			sprintf(label2, "bb%d", cur_b->false_exit->id);
 			s1 = new_quad_node_var(label1);
 			s2 = new_quad_node_var(label2);
 			q = build_quad(BRGT_OP, &dummy, s1, s2);
@@ -151,7 +154,7 @@ QUAD *build_binop_quad(TNODE *ast, int side)
 			label1 = calloc(32, sizeof(char));
 			label2 = calloc(32, sizeof(char));
 			sprintf(label1, "bb%d", cur_b->true_exit->id); 
-			sprintf(label2, "bb%d", -1);
+			sprintf(label2, "bb%d", cur_b->false_exit->id);
 			s1 = new_quad_node_var(label1);
 			s2 = new_quad_node_var(label2);
 			q = build_quad(BRLT_OP, &dummy, s1, s2);
@@ -268,8 +271,17 @@ QUAD *pop_quad(QUADLIST *ql)
 		ql->tail = ql->tail->prev;
 		if (ql->tail)
 			ql->tail->next = NULL;
+		else	
+		{
+			ql->head = NULL;
+			ql->tail = NULL;
+		}
+		return q;
 	}
-	return q;
+	else
+	{
+		return NULL;
+	}
 }
 
 QUADLIST *insert_quad(QUADLIST *ql, QUAD *q)
@@ -377,6 +389,7 @@ void print_quad(QUAD *q)
 {
 	QUADNODE *temp;
 	QUAD *copy;
+	QUADNODE dummy;
 	if (!q)
 		return;
 	// put some hacks in place for the store instruction
@@ -384,10 +397,13 @@ void print_quad(QUAD *q)
 	if (q->opcode == PRE_STORE_OP)
 	{
 		//printf("ADDING TO STACK\n");
-		temp = q->dest;
-		q->dest = q->src1;
-		q->src1 = temp;
-		copy = build_quad(STORE_OP, q->dest, q->src1, q->src2);
+		//temp = q->dest;
+		//q->dest = q->src1;
+		//q->src1 = temp;
+		q->src2 = q->dest;
+		copy = build_quad(STORE_OP, &dummy, q->src1, q->src2);
+		q->dest = NULL;
+		copy->dest = NULL;
 		quad_stack = insert_quad(quad_stack, copy);
 		return;	
 	}

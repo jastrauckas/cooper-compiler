@@ -383,12 +383,16 @@ if-clause:
 				// now contents of statement will be pushed to new block
 			} statement {
 				peek_block(saved_blocks)->true_exit = current_block;
+				// end the current block and create a new one for future expressions
+				current_block_list = push_new_block(current_block_list, NULL);
+				current_block = current_block_list->tail;
+				peek_block(saved_blocks)->false_exit = current_block;
 			}
 
 else-clause:
 	ELSE {
-				current_block_list = push_new_block(current_block_list, NULL);
-				current_block = current_block_list->tail;
+				//current_block_list = push_new_block(current_block_list, NULL);
+				//current_block = current_block_list->tail;
 				peek_block(saved_blocks)->false_exit = current_block;
 				saved_blocks = pop_block(saved_blocks);
 			} statement
@@ -411,6 +415,10 @@ iteration-statement:
 				// now contents of statement will be pushed to new block
 			} statement {
 				peek_block(saved_blocks)->true_exit = current_block;
+				// end the current block and create a new one for future expressions
+				current_block_list = push_new_block(current_block_list, NULL);
+				current_block = current_block_list->tail;
+				peek_block(saved_blocks)->false_exit = current_block;
 			}
 
 |	FOR '(' expression-statement expression-statement ')' statement
